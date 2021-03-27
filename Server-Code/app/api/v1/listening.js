@@ -3,6 +3,7 @@ import { groupRequired } from '../../middleware/jwt';
 import { logger } from '../../middleware/logger';
 import { AddListeningValidator, DeleteListeningValidator, EditListeningValidator } from '../../validator/listening';
 import { ListeningDao } from '../../dao/listening';
+import { CollectionDao } from '../../dao/collection';
 import { set, get } from '../../lib/_redis';
 
 const ListenApi = new LinRouter({
@@ -117,7 +118,10 @@ ListenApi.linDelete(
   async ctx => {
     const v = await new DeleteListeningValidator().validate(ctx);
     const id = v.get('path.id');
+    // 1、删除该听力练习
     await ListeningDao.deleteListening(id);
+    // 2、删除该听力练习下所有的收藏记录
+    await CollectionDao.deleteCollection(2,id)
     ctx.success({
       message: '听力练习删除成功！'
     });

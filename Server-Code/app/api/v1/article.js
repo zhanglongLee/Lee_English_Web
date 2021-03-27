@@ -5,6 +5,7 @@ import { AddArticleValidator, DeleteArticleValidator, EditArticleValidator } fro
 import { PaginateValidator,PositiveIdValidator } from '../../validator/common'
 import { ArticleDao } from '../../dao/article';
 import { CommentDao } from '../../dao/comment'
+import { CollectionDao } from '../../dao/collection'
 import { set, get } from '../../lib/_redis';
 
 const ArticleApi = new LinRouter({
@@ -132,6 +133,8 @@ ArticleApi.linDelete(
     await ArticleDao.deleteArticle(id);
     // 2、删除该文章下所有的评论
     await CommentDao.deleteArticleComment(id)
+    // 3、删除该文章下所有的收藏记录
+    await CollectionDao.deleteCollection(1,id)
     ctx.success({
       message: '文章删除成功！'
     });
