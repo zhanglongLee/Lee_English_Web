@@ -10,7 +10,6 @@ import { UserModel } from '../model/web-user';
  */
 async function mountUser(ctx) {
   const { identity } = parseHeader(ctx);
-  console.log(identity)
   const user = await UserModel.findByPk(identity);
   if (!user) {
     throw new NotFound({

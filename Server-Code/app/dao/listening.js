@@ -4,6 +4,44 @@ import { CategoryModel } from '../model/category'
 import { Op } from 'sequelize'
 
 class Listening {
+
+  // 通过id查听力练习详情
+  static async getListeningById(id){
+    const res = await ListeningModel.findOne({
+      where:{
+        id
+      },
+      attributes: {
+        exclude: ['deleted_at', 'updated_at']
+      },
+      include: [{
+        model: CategoryModel,
+      }],
+    });
+    if(!res){
+      throw new Forbidden({
+        code: 10259
+      });
+    }
+    return res
+  }
+
+  // 查看热门听力练习列表
+  static async getListeningHotList() {
+
+    const res = await ListeningModel.findAll({
+      attributes: {
+        exclude: ['deleted_at', 'updated_at']
+      },
+      include: [
+        { // include关键字表示关联查询
+          model: CategoryModel,
+        }
+      ],
+    });
+    return res;
+  }
+
   // 查看听力练习列表
   static async getListeningList(page = 1, size = 5, q) {
 

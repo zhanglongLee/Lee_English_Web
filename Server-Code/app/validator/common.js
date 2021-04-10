@@ -16,7 +16,7 @@ class PaginateValidator extends LinValidator {
     ];
     this.page = [
       new Rule('isOptional', ''),
-      new Rule('isInt', 'page必须为正整数', { min: 1 })
+      new Rule('isInt', 'page必须为正整数', { min: 0 })
     ];
     this.q = [
       new Rule('isOptional')

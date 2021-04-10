@@ -62,8 +62,27 @@ class Article {
     return res;
   }
 
+  
+  // 前端后期热门文章列表
+  static async getWebArticleHotList() {
+
+    const res = await ArticleModel.findAll({
+      where: {
+        is_published:1
+      },
+      attributes: {
+        exclude: ['deleted_at', 'updated_at']
+      },
+      include: [{ // include关键字表示关联查询
+        model: CategoryModel,
+      }],
+    });
+    return res;
+  }
+  
+
   // 管理后台文章列表
-  static async getArticleList(page = 1, size = 5,q) {
+  static async getArticleList(page, size,q) {
     if(q){
       var whereObj = {
         title: {

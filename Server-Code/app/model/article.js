@@ -83,25 +83,25 @@ Article.init(
     views: {
       type: DataTypes.INTEGER(11),
       allowNull: true,
-      defaultValue: '浏览次数',
+      comment: '浏览次数',
       defaultValue: 0
     },
     words: {
       type: DataTypes.INTEGER(11),
       allowNull: true,
-      defaultValue: '文字字数',
+      comment: '文字字数',
       defaultValue: 0
     },
     read_time: {
       type: DataTypes.INTEGER(11),
       allowNull: true,
-      defaultValue: '阅读时长(分钟)',
+      comment: '阅读时长(分钟)',
       defaultValue: 0
     },
     categoryId: {
       type: DataTypes.BIGINT(20),
       allowNull: true,
-      defaultValue: '文章分类'
+      comment: '文章分类'
     },
   },
   {

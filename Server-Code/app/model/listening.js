@@ -8,14 +8,17 @@ class Listening extends Model {
     const origin = {
       id: this.id,
       title: this.title,
-      image: `${config.getItem('siteDomain', 'http://localhost')}/assets/upload/${this.image}`,
+      image: this.image ? `${config.getItem('siteDomain', 'http://localhost')}/assets/upload/${this.image}`:null,
       originImage: this.image,
       source: `${config.getItem('siteDomain', 'http://localhost')}/assets/upload/${this.source}`,
       originSource: this.source,
       is_published: this.is_published,
       categoryId: this.categoryId,
       categoryName:this.category.category_name,
-      questions:this.questions
+      questions:this.questions,
+      answer_analysis:this.answer_analysis,
+      description: this.description,
+      created_at:this.created_at
     }
     return origin
   }
@@ -32,6 +35,11 @@ Listening.init(
       type: DataTypes.STRING(255),
       allowNull: false,
       comment: '听力练习标题'
+    },
+    description: {
+      type: DataTypes.TEXT('long'),
+      allowNull: false,
+      comment: '听力练习描述'
     },
     image: {
       type: DataTypes.STRING(500),
@@ -59,6 +67,11 @@ Listening.init(
       type: DataTypes.TEXT('long'),
       allowNull: false,
       comment: '听力练习问题，及对应答案'
+    },
+    answer_analysis: {
+      type: DataTypes.TEXT('long'),
+      allowNull: false,
+      comment: '答案解析'
     },
     source: {
       type: DataTypes.STRING(255),
@@ -91,5 +104,10 @@ Listening.belongsTo(CategoryModel, {
   foreignKey: 'categoryId',
   targetKey: 'id',
 });
+CategoryModel.hasOne(Listening, {
+  foreignKey: 'categoryId',
+  targetKey: 'id',
+});
+
 
 export { Listening as ListeningModel };

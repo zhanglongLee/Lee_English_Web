@@ -6,18 +6,10 @@ import { PaginateValidator,PositiveIdValidator } from '../../validator/common'
 import { ArticleDao } from '../../dao/article';
 import { CommentDao } from '../../dao/comment'
 import { CollectionDao } from '../../dao/collection'
-import { set, get } from '../../lib/_redis';
 
 const ArticleApi = new LinRouter({
   prefix: '/v1/article'
 });
-
-function delRedis(key) {
-  // 清除redis缓存
-  set(key, null, 60);
-}
-
-var key = '';
 
 /**
  * 新增文章
@@ -42,7 +34,6 @@ ArticleApi.linPost(
     ctx.success({
       message: '文章新增成功！'
     });
-    delRedis(key);
   });
 
 /**
@@ -62,27 +53,12 @@ ArticleApi.get('/:id', async ctx => {
  */
 ArticleApi.get('/', async ctx => {
   const v = await new PaginateValidator().validate(ctx);
-  let { page, size, q } = v.get('path');
-  console.log(page)
-  // redis key名
-  key = `getArticleList_${page}_${size}_${q}`
-  let articleList = null;
-
-  // 读取redis缓存
-  // const cacheResult = await get(key);
-  // if (cacheResult && cacheResult.rows.length > 0) {
-  //   articleList = cacheResult;
-  // } else {
-  //   // 如果不存在，直接从数据库读取
-  //   articleList = await ArticleDao.getArticleList(page, size, q);
-  //   // 将数据库读取到的数据存入缓存 缓存时间单位：s
-  //   set(key, articleList, 60);
-  // }
-  articleList = await ArticleDao.getArticleList(page, size, q);
+  let { page, size, q } = v.get('query');
+  var articleList = await ArticleDao.getArticleList(page, size, q);
   // 返回结果
   let obj = {};
-  obj.page = Number(page) || 1;
-  obj.size = Number(size) || 5;
+  obj.page = Number(page);
+  obj.size = Number(size);
   obj.total = articleList.count;
   obj.data = articleList.rows;
 
@@ -110,7 +86,6 @@ ArticleApi.linPut(
     ctx.success({
       message: '文章内容修改成功！'
     });
-    delRedis(key);
   });
 
 /**
@@ -138,7 +113,6 @@ ArticleApi.linDelete(
     ctx.success({
       message: '文章删除成功！'
     });
-    delRedis(key);
   });
 
 module.exports = { ArticleApi };

@@ -10,11 +10,14 @@ class AddListeningValidator extends LinValidator {
     this.title = [
       new Rule('isNotEmpty', '听力练习标题不能为空')
     ];
-    // this.questions_analysis = [
-    //   new Rule('isNotEmpty', '听力练习答案解析不能为空'),
-    // ];
+    this.description = [
+      new Rule('isNotEmpty', '文章描述不能为空')
+    ];
     this.questions = [
       new Rule('isNotEmpty', '听力练习问题，及对应答案不能为空'),
+    ];
+    this.answer_analysis = [
+      new Rule('isNotEmpty', '答案解析'),
     ];
     // this.source = [
     //   new Rule('isNotEmpty', '听力mp3的url不能为空'),

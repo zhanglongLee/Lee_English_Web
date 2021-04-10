@@ -7,9 +7,11 @@ class ArticleCollectionModel extends Model {
   toJSON() {
     const origin = {
       id: this.id,
-      article_id: this.article_id,
+      collection_id: this.article_id,
       web_user_id: this.web_user_id,
-      article_name: this.article.title,
+      collection_name: this.article.title,
+      updated_at: this.updated_at,
+      type:'article'
     };
     return origin;
   }
@@ -54,9 +56,11 @@ class ListeningCollectionModel extends Model {
   toJSON() {
     const origin = {
       id: this.id,
-      listening_id: this.listening_id,
+      collection_id: this.listening_id,
       web_user_id: this.web_user_id,
-      listening_name: this.listening.title,
+      collection_name: this.listening.title,
+      updated_at: this.updated_at,
+      type:'listening'
     };
     return origin;
   }

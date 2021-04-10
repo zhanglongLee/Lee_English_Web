@@ -1,15 +1,12 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../lib/db';
-import { ListeningModel } from './listening';
 
-class UserListening extends Model {
+class WordBook extends Model {
   toJSON() {
     const origin = {
       id: this.id,
-      webUserId: this.webUserId,
-      listeningId: this.listeningId,
-      listening_name: this.listening.title,
-      history_answer: this.history_answer,
+      web_user_id: this.web_user_id,
+      content: this.content,
       created_at: this.created_at,
       updated_at: this.updated_at,
     };
@@ -17,34 +14,29 @@ class UserListening extends Model {
   }
 }
 
-UserListening.init(
+WordBook.init(
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
-    webUserId: {
+    web_user_id: {
       type: DataTypes.BIGINT(20),
       allowNull: false,
       comment: '用户id'
     },
-    listeningId: {
-      type: DataTypes.BIGINT(20),
-      allowNull: false,
-      comment: '听力练习id'
-    },
-    history_answer: {
+    content: {
       type: DataTypes.TEXT('long'),
       allowNull: false,
-      comment: '用户答题历史记录',
+      comment: '生词本内容'
     },
   },
   {
     // 定义表名
-    tableName: "web_user_listening",
+    tableName: "wordbook",
     // 定义模型名称
-    modelName: "web_user_listening",
+    modelName: "wordbook",
     // 启用软删除
     paranoid: true,
     // 自动写入时间
@@ -57,14 +49,14 @@ UserListening.init(
   }
 );
 
-// 定义外键
-UserListening.belongsTo(ListeningModel,{
-  foreignKey: 'listeningId',
-  targetKey: 'id',
-});
-ListeningModel.hasOne(UserListening,{
-  foreignKey: 'listeningId',
-  targetKey: 'id',
-});
+// // 定义外键
+// WordBook.belongsTo(WordModel,{
+//   foreignKey: 'listeningId',
+//   targetKey: 'id',
+// });
+// WordModel.hasOne(WordBook,{
+//   foreignKey: 'listeningId',
+//   targetKey: 'id',
+// });
 
-export { UserListening };
+export { WordBook as WordBookModel};

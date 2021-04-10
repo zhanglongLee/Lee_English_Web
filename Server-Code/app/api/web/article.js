@@ -6,24 +6,18 @@ import {
 import { AddArticleValidator, DeleteArticleValidator, EditArticleValidator } from '../../validator/article';
 import { PaginateValidator,PositiveIdValidator } from '../../validator/common'
 import { ArticleDao } from '../../dao/article';
+import { shuffle } from '../../lib/util'
 
 const ArticleApi = new LinRouter({
   prefix: '/web/article'
 });
-
-function delRedis(key) {
-  // 清除redis缓存
-  set(key, null, 60);
-}
-
-var key = '';
 
 /**
  * 获取文章列表
  */
  ArticleApi.get('/' , async ctx => {
   const v = await new PaginateValidator().validate(ctx);
-  let { page, size } = v.get('path');
+  let { page, size } = v.get('query');
   // redis key名
   // key = `getArticleList_${page}_${size}`
   let articleList = null;
@@ -45,6 +39,20 @@ var key = '';
   obj.size = Number(size) || 5;
   obj.total = articleList.count;
   obj.data = articleList.rows;
+
+  ctx.json(obj);
+});
+
+/**
+ * 获取热门随机文章列表
+ */
+ ArticleApi.get('/hotlist' , async ctx => {
+  let articleList = await ArticleDao.getWebArticleHotList();
+  // 随机选取其中五条
+  articleList = shuffle(articleList).slice(0,5)
+  // 返回结果
+  let obj = {};
+  obj.data = articleList;
 
   ctx.json(obj);
 });

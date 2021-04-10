@@ -17,20 +17,14 @@ const Collection = new LinRouter({
 });
 
 
-// 获取收藏列表
+// 获取个人用户的收藏列表
 Collection.get('/', web_loginRequired , async ctx => {
-  let { page, size } = ctx.query;
+  // 获取用户的id
+  let id = ctx.currentUser.id;
 
-  let collectionList = await CollectionDao.getCollectionList();
-  // let resList = 
-  // 返回结果
-  let obj = {};
-  obj.page = Number(page) || 1;
-  obj.size = Number(size) || 5;
-  obj.total = collectionList.length;
-  obj.data = collectionList;
+  let collectionList = await CollectionDao.getCollectionList(id);
 
-  ctx.json(obj);
+  ctx.json(collectionList);
 });
 
 // 新增收藏记录

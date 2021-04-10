@@ -5,7 +5,7 @@ import { Op } from 'sequelize'
 
 class Category {
   // 查看分类列表
-  static async getCategoryList(page = 1, size = 5, q) {
+  static async getCategoryList(page = 1, size = 100, q) {
     if (q) {
       var whereObj = {
         title: {

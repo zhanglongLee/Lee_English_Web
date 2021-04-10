@@ -5,21 +5,25 @@ import { ListeningModel } from '../model/listening'
 import { Op } from 'sequelize'
 
 class Collection {
-  // 获取收藏列表
-  static async getCollectionList() {
-    let ArticleCollectionList = await this.getArticleCollectionList()
-    let ListeningCollectionList = await this.getListeningCollectionList()
-    console.log(ArticleCollectionList)
-    console.log(ListeningCollectionList)
+  // 获取收藏列表,默认传用户id，查全部用户的收藏记录
+  static async getCollectionList(id) {
+    let ArticleCollectionList = await this.getArticleCollectionList(id)
+    let ListeningCollectionList = await this.getListeningCollectionList(id)
     let res = Array.prototype.concat.apply(ArticleCollectionList, ListeningCollectionList)
     return res
   }
   // 查看文章收藏列表
-  static async getArticleCollectionList() {
-
+  static async getArticleCollectionList(id) {
+    var whereObj
+    if(id){
+      whereObj = {
+        web_user_id:id
+      }
+    }
     const res = await ArticleCollectionModel.findAll({
+      where:whereObj,
       attributes: {
-        exclude: ['deleted_at', 'updated_at']
+        exclude: ['deleted_at']
       },
       include: [
         {
@@ -30,10 +34,17 @@ class Collection {
     return res;
   }
   // 查看听力练习收藏列表
-  static async getListeningCollectionList() {
+  static async getListeningCollectionList(id) {
+    var whereObj
+    if(id){
+      whereObj = {
+        web_user_id:id
+      }
+    }
     const res = await ListeningCollectionModel.findAll({
+      where:whereObj,
       attributes: {
-        exclude: ['deleted_at', 'updated_at']
+        exclude: ['deleted_at']
       },
       include: [
         {
@@ -122,11 +133,11 @@ class Collection {
     if (type === 1) {
       // 文章收藏
       return ArticleCollectionModel.destroy({
-        where: { id }
+        where: { article_id:id }
       });
     } else {
       return ListeningCollectionModel.destroy({
-        where: { id }
+        where: { listening_id:id }
       });
     }
 

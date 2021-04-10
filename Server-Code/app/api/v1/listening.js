@@ -4,18 +4,11 @@ import { logger } from '../../middleware/logger';
 import { AddListeningValidator, DeleteListeningValidator, EditListeningValidator } from '../../validator/listening';
 import { ListeningDao } from '../../dao/listening';
 import { CollectionDao } from '../../dao/collection';
-import { set, get } from '../../lib/_redis';
+import { UserLearningDao } from '../../dao/web-user-learning'
 
 const ListenApi = new LinRouter({
   prefix: '/v1/listen'
 });
-
-var key = '';
-
-function delRedis(key) {
-  // 清除redis缓存
-  set(key, null, 60);
-}
 
 // 1. 权限控制（post => linPost）
 // 2. 行为日志（审计）添加logger 例如：logger("{user.username}新增期刊内容")
@@ -43,7 +36,6 @@ ListenApi.linPost(
     ctx.success({
       message: '听力练习新增成功！'
     });
-    delRedis(key);
   });
 
 /**
@@ -51,27 +43,13 @@ ListenApi.linPost(
  */
 ListenApi.get('/', async ctx => {
   let { page, size, q } = ctx.query;
-  // redis key名
-  key = `getListeningList_${page}_${size}_${q}`;
-  let listenList = null;
 
-  // 读取redis缓存
-  // const cacheResult = await get(key);
-  // if (cacheResult&&cacheResult.rows.length>0) {
-  //   listenList = cacheResult;
-  // } else {
-  //   // 如果不存在，直接从数据库读取
-  //   listenList = await ListeningDao.getListeningList(page, size,q);
-  //   // 将数据库读取到的数据存入缓存 缓存时间单位：s
-  //   set(key, listenList, 60);
-  // }
-  
-  listenList = await ListeningDao.getListeningList(page, size,q);
+  let listenList = await ListeningDao.getListeningList(page, size, q);
 
   // 返回结果
   let obj = {};
-  obj.page = Number(page)||1;
-  obj.size = Number(size)||5;
+  obj.page = Number(page) || 1;
+  obj.size = Number(size) || 5;
   obj.total = listenList.count;
   obj.data = listenList.rows;
 
@@ -99,7 +77,6 @@ ListenApi.linPut(
     ctx.success({
       message: '听力练习内容修改成功！'
     });
-    delRedis(key);
   });
 
 /**
@@ -121,13 +98,14 @@ ListenApi.linDelete(
     // 1、删除该听力练习
     await ListeningDao.deleteListening(id);
     // 2、删除该听力练习下所有的收藏记录
-    await CollectionDao.deleteCollection(2,id)
+    await CollectionDao.deleteCollection(2, id)
+    // 3、删除该听力练习下所有的做题记录
+    await UserLearningDao.deleteUserLearning(ctx, id);
     ctx.success({
       message: '听力练习删除成功！'
     });
-    delRedis(key);
   });
 
-  
+
 
 module.exports = { ListenApi };

@@ -5,18 +5,11 @@ import { logger } from '../../middleware/logger';
 import { AddCommentValidator, EditCommentValidator, DeleteCommentValidator,CommentSearchValidator } from '../../validator/comment'
 import { PaginateValidator,PositiveIdValidator } from '../../validator/common'
 import { CommentDao } from '../../dao/comment';
-import { set, get } from '../../lib/_redis';
 
 const CommentApi = new LinRouter({
   prefix: '/v1/comment'
 });
 
-function delRedis(key) {
-  // 清除redis缓存
-  set(key, null, 60);
-}
-
-var key = '';
 
 // 1. 权限控制（post => linPost）
 // 2. 行为日志（审计）添加logger 例如：logger("{user.username}新增期刊内容")
@@ -37,7 +30,6 @@ CommentApi.post(
     ctx.success({
       message: '新增评论成功！'
     });
-    delRedis(key);
   });
 
 /**
@@ -57,22 +49,8 @@ CommentApi.get('/:id', async ctx => {
  */
 CommentApi.get('/', async ctx => {
   const v = await new PaginateValidator().validate(ctx);
-  let { page, size, q } = v.get('path');
-  // redis key名
-  key = `getCommentList_${page}_${size}_${q}`
-  let commentList = null;
-
-  // 读取redis缓存
-  // const cacheResult = await get(key);
-  // if (cacheResult && cacheResult.rows.length > 0) {
-  //   commentList = cacheResult;
-  // } else {
-  //   // 如果不存在，直接从数据库读取
-  //   commentList = await CommentDao.getCommentList(page, size, q);
-  //   // 将数据库读取到的数据存入缓存 缓存时间单位：s
-  //   set(key, commentList, 60);
-  // }
-  commentList = await CommentDao.getCommentList(page, size, q);
+  let { page, size, q } = v.get('query');
+  let commentList = await CommentDao.getCommentList(page, size, q);
   // 返回结果
   let obj = {};
   obj.page = Number(page) || 1;
@@ -104,7 +82,6 @@ CommentApi.linPut(
     ctx.success({
       message: '评论内容修改成功！'
     });
-    delRedis(key);
   });
 
 /**
@@ -127,7 +104,6 @@ CommentApi.linDelete(
     ctx.success({
       message: '评论删除成功！'
     });
-    delRedis(key);
   });
 
 module.exports = { CommentApi };
