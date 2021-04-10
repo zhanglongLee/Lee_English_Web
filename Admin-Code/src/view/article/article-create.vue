@@ -204,7 +204,6 @@ export default {
       })
     },
     submitForm() {
-      console.log(this.form.content)
       this.$refs.form.validate(async v => {
         if (v) {
           try {

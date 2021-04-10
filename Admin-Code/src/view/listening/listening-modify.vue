@@ -1,75 +1,64 @@
 <template>
   <div class="container" v-loading="loading">
     <div class="title">
-      <span>修改图书</span> <span class="back" @click="back"> <i class="iconfont icon-fanhui"></i> 返回 </span>
+      <span>修改听力练习</span> <span class="back" @click="back"> <i class="iconfont icon-fanhui"></i> 返回 </span>
     </div>
     <el-divider></el-divider>
     <div class="wrap">
       <el-row>
-        <el-col :span="24">
-          <el-form
-            :model="form"
-            :rules="rules"
-            status-icon
-            ref="form"
-            label-width="120px"
-            @submit.native.prevent
-          >
-            <el-form-item label="文章标题" prop="title">
-              <el-input size="medium" v-model="form.title" placeholder="请填写书名"></el-input>
-            </el-form-item>
-            <el-form-item label="作者" prop="author">
-              <el-input size="medium" v-model="form.author" placeholder="请填写作者"></el-input>
-            </el-form-item>
-
-            <el-col :span="8">
+        <el-form
+          :model="form"
+          :rules="rules"
+          status-icon
+          ref="form"
+          label-width="120px"
+          v-loading="loading"
+          @submit.native.prevent
+        >
+          <el-form-item label="听力标题" prop="title">
+            <el-input size="medium" v-model="form.title" placeholder="请填写听力标题"></el-input>
+          </el-form-item>
+          
+          <el-row>
+            <el-col :span="12">
               <el-form-item label="封面" prop="image">
-                <el-upload
+                <!-- <el-upload
                   class="avatar-uploader"
                   :action="uploadUrl"
                   :show-file-list="false"
                   :headers="uploadHeaders"
-                  :http-request="uploadRequest"
+                  :http-request="uploadImage"
+                  :before-upload="beforeImageUpload"
                 >
                   <img v-if="form.image" :src="form.image" class="avatar" />
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                </el-upload>
-                
+                </el-upload> -->
+                <uploadImage :httpRequest="fUploadImage" :beforeUpload="beforeImageUpload">
+                  <img v-if="form.image" :src="form.image" class="avatar" />
+                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                </uploadImage>
               </el-form-item>
             </el-col>
-            <el-col :span="8">
+            <el-col :span="12">
+              <el-form-item label="听力录音上传" prop="source">
+                <el-upload
+                  class="avatar-uploader"
+                  :action="uploadUrl"
+                  :show-file-list="true"
+                  :headers="uploadHeaders"
+                  :http-request="uploadSource"
+                  :before-upload="beforeSourceUpload"
+                >
+                  <i class="el-icon-plus avatar-uploader-icon"></i>
+                </el-upload>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
               <el-form-item label="分类" prop="categoryId">
                 <el-select v-model="form.categoryId" placeholder="请选择">
                   <el-option v-for="item in categoryList" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="发布日期" prop="published_time">
-                <el-date-picker
-                  v-model="form.published_time"
-                  type="datetime"
-                  value-format="yyyy-MM-dd HH:mm:ss"
-                  placeholder="选择日期时间"
-                >
-                </el-date-picker>
-              </el-form-item>
-            </el-col>
-            <el-col :span="24">
-              <el-form-item label="简介" prop="description">
-                <el-input size="medium" type="textarea" :rows="4" placeholder="请输入简介" v-model="form.description">
-                </el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="24">
-              <el-form-item label="内容" prop="content">
-                <vue-tinymce v-model="form.content" :setting="setting" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="文章字数" prop="words">
-                <el-input type="number" size="medium" v-model="form.words" placeholder="请填写文章字数"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -78,30 +67,57 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="是否开启评论" prop="is_comment_enabled">
-                <el-switch v-model="form.is_comment_enabled" :active-color="atColor" :inactive-color="inColor">
-                </el-switch>
+              <el-form-item label="描述" prop="description">
+                <el-input size="medium" v-model="form.description" placeholder="请填写听力描述"></el-input>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
-              <el-form-item label="是否置顶" prop="is_top">
-                <el-switch v-model="form.is_top" :active-color="atColor" :inactive-color="inColor"> </el-switch>
-              </el-form-item>
+          </el-row>
+
+          <el-card class="box-card" v-for="( item , index ) in questionsList" :key="index">
+            <div slot="header" class="clearfix">
+              <span>第{{ index+1 }}题听力练习题目及答案</span>
+              <el-button @click="addQuestionsList" style="float: right; padding: 3px 0; margin-left:30px;" type="text">添加</el-button>
+              <el-button v-if="questionsList.length>1" @click="questionsList.splice(index,1)" style="float: right; padding: 3px 0" type="text">删除最后一题</el-button>
+            </div>
+            <el-col :span="11">
+              <el-input size="medium" v-model="item.title" placeholder="请填写该题的题目"></el-input>
+            </el-col>
+            <el-col :span="11" :offset="2">
+              <el-input size="medium" v-model="item.answer" placeholder="请填写该题的答案"></el-input>
+            </el-col>
+            <el-col :span="11">
+              <el-input size="medium" v-model="item.op1" placeholder="请填写第一个选项"></el-input>
+            </el-col>
+          
+            <el-col :span="11" :offset="2">
+              <el-input size="medium" v-model="item.op2" placeholder="请填写第二个选项"></el-input>
             </el-col>
 
+            <el-col :span="11">
+              <el-input size="medium" v-model="item.op3" placeholder="请填写第三个选项"></el-input>
+            </el-col>
+            <el-col :span="11" :offset="2">
+              <el-input size="medium" v-model="item.op4" placeholder="请填写第四个选项"></el-input>
+            </el-col>
+          </el-card>
+
+          
+          <vue-tinymce v-model="form.answer_analysis" :setting="setting" />
+
+          <el-col :span="24">
             <el-form-item class="submit">
               <el-button type="primary" @click="submitForm('form')">保 存</el-button>
               <el-button @click="resetForm('form')">重 置</el-button>
             </el-form-item>
-          </el-form>
-        </el-col>
+          </el-col>
+        </el-form>
       </el-row>
     </div>
   </div>
 </template>
 
 <script>
-import article from '@/model/article'
+import listening from '@/model/listening'
 import { getToken } from '@/lin/util/token.js'
 import uploadImage from '@/component/base/upload-image'
 
@@ -113,7 +129,6 @@ export default {
   },
   components:{uploadImage},
   data() {
-    const token = getToken('access_token')
     var checkWords = (rule, value, callback) => {
       if (!value) {
         return callback(new Error('文章字数不能为空'))
@@ -127,6 +142,7 @@ export default {
         }
       }, 1000)
     }
+    const token = getToken('access_token')
     return {
       setting: {
         menubar: false,
@@ -143,9 +159,20 @@ export default {
         // language: 'zh_CN', //本地化设置
         height: 350,
       },
+      
       uploadHeaders: {
         Authorization: token,
       },
+      questionsList:[
+        {
+          title:'',
+          op1:'',
+          op2:'',
+          op3:'',
+          op4:'',
+          answer:'',
+        }
+      ],
       uploadUrl: process.env.VUE_APP_BASE_URL + 'cms/file',
       categoryList: [],
       atColor: '#ff0000',
@@ -153,53 +180,32 @@ export default {
       loading: false,
       form: {
         title: '', //	是	string	文章标题
-        description: '', //	是	string	文章描述
         image: '', //	否	string	文章封面图
-        content: '', //	是	string	文章内容
-        author: '', //	是	string	文章作者
-        published_time: '', //	是	string	发布日期，格式：2020-01-14
         categoryId: '', //	是	string	分类id
         is_published: 0, //	是	string	是否发布，0代表未发布，1代表已发布
-        is_comment_enabled: 1, //	是	string	是否显示评论，1代表显示，0代表不显示
-        is_top: 0, //	是	string	是否文章置顶，1代表置顶，0代表不置顶
+        source:'',//	是	string	MP3音频地址
+        description:'',// 是 string 描述
       },
       rules: {
         title: [{ required: true, message: '请输入文章标题', trigger: 'blur' }],
-        description: [{ required: true, message: '请输入文章描述', trigger: 'blur' }],
-        image: [{ required: true, message: '请输入文章封面图', trigger: 'blur' }],
-        content: [{ required: true, message: '请输入文章内容', trigger: 'blur' }],
-        author: [{ required: true, message: '请输入文章作者', trigger: 'blur' }],
-        published_time: [{ required: true, message: '请选择日期', trigger: 'change' }],
+        image: [{ required: false, message: '请输入文章封面图', trigger: 'blur' }],
+        source: [{ required: true, message: '请上传音频', trigger: 'blur' }],
         categoryId: [{ required: true, message: '请选择分类', trigger: 'change' }],
         is_published: [{ required: true, message: '请选择发布状态', trigger: 'change' }],
-        is_comment_enabled: [{ required: true, message: '请选择评论状态', trigger: 'change' }],
-        is_top: [{ required: true, message: '请选择置顶状态', trigger: 'change' }],
-        words: [{ validator: checkWords, trigger: 'blur' }],
       },
     }
   },
   async mounted() {
     this.getCategory();
     delete this.rowObj.created_at
+    console.log(this.rowObj)
     this.rowObj.questions = JSON.parse(this.rowObj.questions)
+    this.questionsList = this.rowObj.questions
     this.form = this.rowObj
     
   },
   methods: {
-    // 自定义图片上传方法
-    uploadRequest(req) {
-      this.$axios({
-        method: 'POST',
-        url: '/cms/file',
-        data: {
-          file: req.file,
-        },
-      })
-      .then(res=>{
-        this.form.image = res.url
-        this.form.originImage = res.path
-      })
-    },
+
     // 获取分类列表
     getCategory(){
       this.$axios({
@@ -218,12 +224,19 @@ export default {
       })
     },
     async submitForm(formName) {
-      this.loading = true
-      this.$refs.form.validate(async v=>{
-        if(v){
+      this.$refs.form.validate(async v => {
+        if(!this.checkListEmpty()){
+          this.$message.error('请填写完整题听力练习题目及答案')
+          return
+        }
+        this.form.questions = JSON.stringify(this.questionsList)
+        if (v) {
+          console.log(this.form)
           try {
+            this.loading = true
             this.form.image = this.form.originImage
-            const res = await article.editArticle(this.form.id, this.form)
+            this.form.source = this.form.originSource
+            const res = await listening.editListening(this.form.id, this.form)
             this.loading = false
             if (res.code < window.MAX_SUCCESS_CODE) {
               this.$message.success(`${res.message}`)
@@ -232,7 +245,7 @@ export default {
             }
           } catch (error) {
             this.loading = false
-            this.$message.error('文章修改失败，请检测填写信息')
+            this.$message.error('听力练习添加修改失败，请检测填写信息')
             console.log(error)
           }
         }
@@ -247,6 +260,96 @@ export default {
     back() {
       this.$emit('editClose')
     },
+    // 添加列表
+    addQuestionsList(){
+      this.questionsList.push({
+        title:'',
+        op1:'',
+        op2:'',
+        op3:'',
+        op4:'',
+        answer:'',
+      })
+    },
+    // 音频上传之前
+    beforeSourceUpload(file) {
+      // const isAudio = file.type === 'audio/mpeg';
+      // const isLt2M = file.size / 1024 / 1024 < 5;
+
+      // if (!isAudio) {
+      //   setTimeout(()=>{
+      //     this.$message.error('只能上传音频格式文件');
+      //   },100)
+      // }
+      // if (!isLt2M) {
+      //   setTimeout(()=>{
+      //     this.$message.error('上传图片大小不能超过 5MB!');
+      //   },100)
+      // }
+      // return isAudio && isLt2M;
+    },
+    // 图片上传之前
+    beforeImageUpload(file) {
+      const isImage = file.type === 'image/jpeg' || file.type === 'image/png';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (!isImage) {
+        setTimeout(()=>{
+          this.$message.error('上传图片只能是 JPG 或 PNG 格式!');
+        },100)
+      }
+      if (!isLt2M) {
+        setTimeout(()=>{
+          this.$message.error('上传图片大小不能超过 2MB!');
+        },100)
+      }
+      return isImage && isLt2M;
+    },
+    // 自定义图片上传方法
+    fUploadImage(req) {
+      this.$axios({
+        method: 'POST',
+        url: '/cms/file',
+        data: {
+          file: req.file,
+        },
+      })
+      .then(res=>{
+        this.$message.success('音频上传成功')
+        this.form.image = res.url
+        this.form.originImage = res.path
+      })
+    },
+    // 自定义音频上传方法
+    uploadSource(req) {
+      this.$axios({
+        method: 'POST',
+        url: '/cms/file',
+        data: {
+          file: req.file,
+        },
+      })
+      .then(res=>{
+        this.$message.success('音频上传成功')
+        this.form.source = res.path
+      })
+    },
+    
+    // 检查问题列表是否为空
+    checkListEmpty(){
+      let flag = false
+      this.questionsList.forEach(item=>{
+        for(var k in item){
+          if(!item[k]){
+            flag = false
+          }else{
+            flag = true
+          }
+        }
+      })
+      return flag
+    },
+    
   },
 }
 </script>
@@ -274,6 +377,14 @@ export default {
 
   .wrap {
     padding: 20px;
+    
+    .box-card{
+      margin-bottom: 10px;
+
+      /deep/ .el-input{
+        margin-bottom: 10px;
+      }
+    }
   }
 
   .submit {

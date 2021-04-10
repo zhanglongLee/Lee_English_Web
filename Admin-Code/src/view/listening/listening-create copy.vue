@@ -30,7 +30,7 @@
                   <img v-if="form.image" :src="form.image" class="avatar" />
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload> -->
-                <uploadImage :httpRequest="fUploadImage" :beforeUpload="beforeImageUpload">
+                <uploadImage :httpReques="fUploadImage" :beforeUpload="beforeImageUpload">
                   <img v-if="form.image" :src="form.image" class="avatar" />
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </uploadImage>
@@ -63,11 +63,6 @@
                 <el-switch v-model="form.is_published" :active-color="atColor" :inactive-color="inColor"> </el-switch>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
-              <el-form-item label="描述" prop="description">
-                <el-input size="medium" v-model="form.description" placeholder="请填写听力描述"></el-input>
-              </el-form-item>
-            </el-col>
           </el-row>
 
           <el-card class="box-card" v-for="( item , index ) in questionsList" :key="index">
@@ -96,13 +91,39 @@
             <el-col :span="11" :offset="2">
               <el-input size="medium" v-model="item.op4" placeholder="请填写第四个选项"></el-input>
             </el-col>
+            <el-col :span="24">
+              <el-divider>第{{ index+1 }}题答案解析</el-divider>
+            </el-col>
+            <vue-tinymce v-model="item.answer_analysis" :setting="setting" />
           </el-card>
+          <!-- <el-row v-for="( item , index ) in questionsList" :key="index">
+            <el-divider>第{{ index+1 }}题听力练习题目及答案</el-divider>
+            <el-col :span="11">
+              <el-input size="medium" v-model="questionsObj.title" placeholder="请填写该题的题目"></el-input>
+            </el-col>
+            <el-col :span="11" :offset="2">
+              <el-input size="medium" v-model="questionsObj.answer" placeholder="请填写该题的答案"></el-input>
+            </el-col>
+            <el-col :span="11">
+              <el-input size="medium" v-model="questionsObj.op1" placeholder="请填写第一个选项"></el-input>
+            </el-col>
+          
+            <el-col :span="11" :offset="2">
+              <el-input size="medium" v-model="questionsObj.op2" placeholder="请填写第二个选项"></el-input>
+            </el-col>
 
-          <el-row>
-            <el-divider>答案解析</el-divider>
-          </el-row>
+            <el-col :span="11">
+              <el-input size="medium" v-model="questionsObj.op3" placeholder="请填写第三个选项"></el-input>
+            </el-col>
+            <el-col :span="11" :offset="2">
+              <el-input size="medium" v-model="questionsObj.op4" placeholder="请填写第四个选项"></el-input>
+            </el-col>
+            <el-col :span="24">
+              <el-divider>第{{ index+1 }}题答案解析</el-divider>
+            </el-col>
+            <vue-tinymce v-model="questionsObj.answer_analysis" :setting="setting" />
+          </el-row> -->
 
-          <vue-tinymce v-model="form.answer_analysis" :setting="setting" />
           <el-col :span="24">
             <el-form-item class="submit">
               <el-button type="primary" @click="submitForm('form')">保 存</el-button>
@@ -163,6 +184,7 @@ export default {
           op3:'',
           op4:'',
           answer:'',
+          answer_analysis:'',
         }
       ],
       uploadHeaders: {
@@ -178,8 +200,7 @@ export default {
         image: '', //	否	string	文章封面图
         categoryId: '', //	是	string	分类id
         is_published: 0, //	是	string	是否发布，0代表未发布，1代表已发布
-        source:'',//	是	string	MP3音频地址
-        description:'',// 是 string 描述
+        source:''//	是	string	MP3音频地址
       },
       rules: {
         title: [{ required: true, message: '请输入文章标题', trigger: 'blur' }],
@@ -203,24 +224,25 @@ export default {
         op3:'',
         op4:'',
         answer:'',
+        answer_analysis:'',
       })
     },
     // 音频上传之前
     beforeSourceUpload(file) {
-      // const isAudio = file.type === 'audio/mpeg';
-      // const isLt2M = file.size / 1024 / 1024 < 5;
+      const isAudio = file.type === 'audio/mpeg';
+      const isLt2M = file.size / 1024 / 1024 < 5;
 
-      // if (!isAudio) {
-      //   setTimeout(()=>{
-      //     this.$message.error('只能上传音频格式文件');
-      //   },100)
-      // }
-      // if (!isLt2M) {
-      //   setTimeout(()=>{
-      //     this.$message.error('上传图片大小不能超过 5MB!');
-      //   },100)
-      // }
-      // return isAudio && isLt2M;
+      if (!isAudio) {
+        setTimeout(()=>{
+          this.$message.error('只能上传音频格式文件');
+        },100)
+      }
+      if (!isLt2M) {
+        setTimeout(()=>{
+          this.$message.error('上传图片大小不能超过 5MB!');
+        },100)
+      }
+      return isAudio && isLt2M;
     },
     // 图片上传之前
     beforeImageUpload(file) {

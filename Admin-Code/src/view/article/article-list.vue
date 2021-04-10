@@ -52,7 +52,7 @@ export default {
       tableData: [],
       operate: [],
       page: {
-        size: 5,
+        size: 10,
         count: 8,
         index: 1,
       },

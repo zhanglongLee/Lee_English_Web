@@ -1,6 +1,6 @@
 import Utils from '@/lin/util/util'
 import adminConfig from './admin'
-import bookConfig from './book' 
+import wordConfig from './word' 
 import articleConfig from './article' 
 import categoryConfig from './category' 
 import listeningConfig from './listening' 
@@ -46,7 +46,7 @@ let homeRouter = [
     inNav: false,
     icon: 'iconfont icon-rizhiguanli',
   },
-  bookConfig,
+  wordConfig,
   articleConfig,
   categoryConfig,
   listeningConfig,

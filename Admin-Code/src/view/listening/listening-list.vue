@@ -113,7 +113,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning',
       }).then(async () => {
-        const res = await listening.deletelistening(val.row.id)
+        const res = await listening.deleteListening(val.row.id)
         if (res.code == 0) {
           this.$message({
             type: 'success',

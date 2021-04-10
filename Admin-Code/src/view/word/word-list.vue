@@ -2,7 +2,7 @@
   <div>
     <!-- 列表页面 -->
     <div class="container" v-if="!showEdit">
-      <div class="header"><div class="title">图书列表</div></div>
+      <div class="header"><div class="title">单词列表</div></div>
       <!-- 表格 -->
       <my-table
         :tableColumn="tableColumn"
@@ -13,51 +13,78 @@
         @row-click="rowClick"
         v-loading="loading"
       ></my-table>
+      <table-paper class="table-paper" :currPageNum="page.index" :PagerOrder="page" @tablePaperEven="tablePaperChange"></table-paper>
     </div>
 
     <!-- 编辑页面 -->
-    <book-modify v-else @editClose="editClose" :editBookID="editBookID"></book-modify>
+    <word-modify v-else @editClose="editClose" :rowObj="rowObj"></word-modify>
   </div>
 </template>
 
 <script>
-import book from '@/model/book'
+import word from '@/model/word'
 import MyTable from '@/component/base/table/my-table'
-import BookModify from './book-modify'
+import tablePaper from '@/component/base/tablePaper/tablePaper'
+import wordModify from './word-modify'
 
 export default {
   components: {
     MyTable,
-    BookModify,
+    wordModify,
+    tablePaper,
   },
   data() {
     return {
-      tableColumn: [{ prop: 'title', label: '书名' }, { prop: 'author', label: '作者' }],
+      tableColumn: [
+        { prop: 'word_name', label: '单词名称'},
+        { prop: 'pronunciation', label: '单词音标'},
+        { prop: 'translate', label: '单词解释' },
+        { prop: 'categoryName', label: '分类名' },
+      ],
       tableData: [],
       operate: [],
+      page: {
+        size: 5,
+        count: 8,
+        index: 1,
+      },
       showEdit: false,
-      editBookID: 1,
+      rowObj: {},
+      loading: false,
     }
   },
-  async created() {
+  async mounted() {
     this.loading = true
-    await this.getBooks()
+    await this.getWords()
     this.operate = [
       { name: '编辑', func: 'handleEdit', type: 'primary' },
       {
         name: '删除',
         func: 'handleDelete',
         type: 'danger',
-        permission: '删除图书',
+        permission: '删除单词',
       },
     ]
     this.loading = false
   },
   methods: {
-    async getBooks() {
+    // 分页点击
+    tablePaperChange(data) {
+      this.page.index = data
+      this.getWords(this.page)
+    },
+    async getWords() {
       try {
-        const books = await book.getBooks()
-        this.tableData = books
+        const words = await word.getWords(this.page)
+        this.page.count = words.total
+        this.tableData = words.data
+
+        this.tableData.forEach(item=>{
+          // 处理布尔值显示
+          item.show_is_published = !!item.is_published ? '是' : '否'
+          item.show_is_comment_enabled = !!item.is_comment_enabled ? '是' : '否'
+          item.show_is_top = !!item.is_top ? '是' : '否'
+        })
       } catch (error) {
         // 资源不存在
         if (error.code === 10020) {
@@ -65,31 +92,32 @@ export default {
         }
       }
     },
+    // 删除
     handleEdit(val) {
-      console.log('val', val)
       this.showEdit = true
-      this.editBookID = val.row.id
+      this.rowObj = val.row
     },
     handleDelete(val) {
-      this.$confirm('此操作将永久删除该图书, 是否继续?', '提示', {
+      this.$confirm('此操作将永久删除该单词 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
       }).then(async () => {
-        const res = await book.deleteBook(val.row.id)
-        if (res.code < window.MAX_SUCCESS_CODE) {
-          this.getBooks()
+        const res = await word.deleteWord(val.row.word_id)
+        if (res.code == 0) {
           this.$message({
             type: 'success',
             message: `${res.message}`,
           })
+          
+          this.getWords(this.page)
         }
       })
     },
     rowClick() {},
     editClose() {
       this.showEdit = false
-      this.getBooks()
+      this.getWords()
     },
   },
 }
@@ -113,10 +141,8 @@ export default {
     }
   }
 
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin: 20px;
+  .table-paper {
+    margin-top: 20px;
   }
 }
 </style>
