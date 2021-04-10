@@ -16,7 +16,7 @@
         <div class="no-result">暂时没有内容/(ㄒoㄒ)/~~</div>
       </div>
       <div class="articles-list-content-right">
-        <hot-recommend title-text="听力推荐" />
+        <HotRecommend title-text="听力推荐" :hotRecommendList="hotRecommendList" @hotRecommendClick="hotRecommendClick"/>
       </div>
     </div>
   </div>
@@ -27,6 +27,7 @@ import HotRecommend from '../common/HotRecommend'
 import ContentList from '../common/ContentList'
 import Pagination from '../common/Pagination'
 import typeList from '../common/typeList'
+import { deepClone } from '../../util/common'
 export default {
   name: 'ArticlesList',
   components: {
@@ -37,24 +38,7 @@ export default {
   },
   data() {
     return {
-      typeList: [
-        {
-          id: 1,
-          name: '全部'
-        },
-        {
-          id: 2,
-          name: '体育'
-        },
-        {
-          id: 3,
-          name: '科技'
-        },
-        {
-          id: 4,
-          name: '音乐'
-        }
-      ],
+      typeList: [],
       curType: {},
       curList: [], // 根据条件获取的当前新闻列表
       curCode: '', // 当前新闻类型码
@@ -62,163 +46,88 @@ export default {
       index: 1,
       size: 5,
       total: 0,
-      loading: true
+      loading: true,
+      allList:[],
+      hotRecommendList:[]
     }
   },
   watch: {
 
   },
   created() {
-    this.getNewsList()
+    this.getListeningList()
+    this.getHotList()
   },
   methods: {
     navToDetail(id) {
       this.$router.push(`/listen/ListenDetail/${id}`)
     },
     // 获取新闻列表
-    getNewsList() {
-      // this.loading = true
-      // const keyword = this.$route.query.keyword || ''
-      // if (this.curCode == '6001010') {
-      //   this.curCode = '6001011,6001012'
-      // }
-      // let postObj = { index: this.index, size: this.size, keyword: keyword, type: this.curCode }
+    getListeningList() {
 
-      // this.$Post('News/NewsData/getNewsList', {data: postObj},
-      //   (res) => {
-      //     console.log(JSON.stringify(res))
-      //     let vdata = res.data
-      //     this.curList = vdata.data // 当前新闻列表
-      //     this.total = vdata.page_data.totalCount
-      //     this.loading = false
-      //   },
-      //   (err) => {
-      //     this.$alertShow(err.msg)
-      //   },
-      // true)
-      const res = {
-        status: true,
-        data: {
-          page_data: {
-            totalCount: 314,
-            totalPage: 63
-          },
-          data: [
-            {
-              id: '2039',
-              title: '2020年9月英语四级听力真题 短文(3)',
-              views: '87',
-              istop: '1',
-              isexcellent: '0',
-              istopic: '0',
-              happendate: '2021-03-07 20:17:51',
-              typename: '2020年英语四级听力真题',
-              status: '1001002',
-              statusname: '发布中',
-              authorstr: 'admin',
-              pic:
-                'https://dev.u-road.com/ChinaITSAdminApiServer/writable/uploads/image/20210309/20210309123532205.jpeg',
-              content: '众所周知，使用电子产品还会导致人与人接触的减少。',
-              html: ''
-            },
-            {
-              id: '2040',
-              title: '2020年9月英语四级听力真题 短文(2)',
-              views: '87',
-              istop: '1',
-              isexcellent: '0',
-              istopic: '0',
-              happendate: '2021-03-07 20:17:51',
-              typename: '2020年英语四级听力真题',
-              status: '1001002',
-              statusname: '发布中',
-              authorstr: 'admin',
-              pic: '',
-              content: '迈克·汉农12岁就已经在社区做出了一番事业。',
-              html: ''
-            },
-            {
-              id: '2041',
-              title: '2020年9月英语四级听力真题 短文(2)',
-              views: '87',
-              istop: '1',
-              isexcellent: '0',
-              istopic: '0',
-              happendate: '2021-03-07 20:17:51',
-              typename: '2020年英语四级听力真题',
-              status: '1001002',
-              statusname: '发布中',
-              authorstr: 'admin',
-              pic: '',
-              content: '秘书说您购买的木桌有问题，是吗？',
-              html: ''
-            },
-            {
-              id: '2042',
-              title: '2020年9月英语四级听力真题 短文(1)',
-              views: '87',
-              istop: '1',
-              isexcellent: '0',
-              istopic: '0',
-              happendate: '2021-03-07 20:17:51',
-              typename: '2020年英语四级听力真题',
-              status: '1001002',
-              statusname: '发布中',
-              authorstr: 'admin',
-              pic: '',
-              content: '欢迎收看电视节目《近藤麻理惠的整理秘诀》',
-              html: ''
-            },
-            {
-              id: '2043',
-              title: '2020年9月英语四级听力真题 长对话(2)',
-              views: '87',
-              istop: '1',
-              isexcellent: '0',
-              istopic: '0',
-              happendate: '2021-03-07 20:17:51',
-              typename: '2020年英语四级听力真题',
-              status: '1001002',
-              statusname: '发布中',
-              authorstr: 'admin',
-              pic: '',
-              content: '周三上午，不少人在前往波兰首都华沙的途中发现自己被一种不同寻常的障碍物拦住了去路。',
-              html: ''
-            },
-            {
-              id: '2044',
-              title: '2020年9月英语四级听力真题 长对话(1)',
-              views: '87',
-              istop: '1',
-              isexcellent: '0',
-              istopic: '0',
-              happendate: '2021-03-07 20:17:51',
-              typename: '2020年英语四级听力真题',
-              status: '1001002',
-              statusname: '发布中',
-              authorstr: 'admin',
-              pic: '',
-              content: '周三上午，不少人在前往波兰首都华沙的途中发现自己被一种不同寻常的障碍物拦住了去路。',
-              html: ''
-            }
-          ]
-        },
-        msg: '成功',
-        code: 200
-      }
-      const vdata = res.data
-      this.curList = vdata.data // 当前新闻列表
-      this.total = vdata.page_data.totalCount
-      this.loading = false
+      this.loading = true
+      this.$service
+        .get("/web/listening",{
+          size:this.size,
+          page:this.index
+        })
+        .then(res => {
+          this.loading = false
+          const vdata = res.data
+          if(vdata.length==0){
+            return false
+          }
+          this.total = res.total
+          this.allList = vdata // 当前练习列表
+          // 默认选择全部
+          this.typeBtnClick('全部');
+          // 分类列表渲染
+          this.typeList = []
+          vdata.forEach((item,index) => {
+            this.typeList.push(item.categoryName)
+          });
+          // 去重
+          this.typeList = Array.from(new Set(this.typeList))
+          this.typeList.unshift('全部')
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    
     },
     currentChange(newV) {
       this.index = newV
-      this.getNewsList()
+      this.getListeningList()
       this.scrollToTop()
+      this.typeBtnClick('全部')
     },
-    typeBtnClick(id) {
-      console.log(id)
-    }
+    // 点击分类按钮
+    typeBtnClick(name) {
+      if(name==='全部'){
+        this.curList = this.allList
+      } else {
+        this.curList = this.allList.filter(item=>item.categoryName===name)
+      }
+    },
+    // 随机文章点击回调
+    hotRecommendClick(item){
+      this.navToDetail(item.id)
+    },
+    // 获取随机文章列表
+    getHotList(){
+      this.loading = true
+      this.$service
+        .get(`/web/listening/hotlist`)
+        .then(res => {
+          this.loading = false
+          const vdata = res.data
+          this.hotRecommendList = deepClone(vdata)
+        })
+        .catch(err => {
+          this.loading = false
+          console.log(err);
+        });
+    },
   }
 }
 </script>

@@ -8,7 +8,7 @@
       size="small"
       round
       @click="handleClick(item)"
-    >{{ item.name }}</el-button>
+    >{{ item }}</el-button>
   </div>
 </template>
 
@@ -21,7 +21,7 @@ export default {
   },
   methods: {
     handleClick(data) {
-      this.$emit('typeBtnClick', data.id)
+      this.$emit('typeBtnClick', data)
     }
   }
 }

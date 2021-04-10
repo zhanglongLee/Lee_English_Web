@@ -9,7 +9,8 @@ export default new Vuex.Store({
   state: {
     token: getToken('access_token'),
     userInfo: JSON.parse(localStorage.getItem('userInfo')) || {},
-    api_url:''
+    api_url:'',
+    history_answer:JSON.parse(localStorage.getItem('history_answer')) || [],
   },
   mutations: {
     // 设置token信息
@@ -21,6 +22,16 @@ export default new Vuex.Store({
     removeToken(state) {
       state.token = ''
       removeToken()
+    },
+    // 设置用户当前点击的听力练习历史答案
+    setHistoryAnswer(state, data) {
+      state.history_answer = data
+      localStorage.setItem('history_answer',data)
+    },
+    // 删除用户当前点击的听力练习历史答案
+    removeHistoryAnswer(state) {
+      state.history_answer = []
+      localStorage.removeItem('history_answer')
     },
     // 设置用户信息
     setUserInfo(state, data) {

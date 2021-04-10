@@ -4,6 +4,10 @@
       <div class="article-detail contentAear content-mb">
         <div v-loading="loading" class="article-detail-left">
           <div class="title">{{ detailData.title }}</div>
+          <div class="back-to-prev-page">
+            <img src="../assets/images/article/prev.png" alt="" />
+            <span @click="backToPrev">返回</span>
+          </div>
           <div class="info-wrap">
             <div class="publish">
               <span v-if="detailData.published_time" class="date">{{
@@ -20,10 +24,6 @@
           <div class="content">
             <div class="content-text" v-html="detailData.content"></div>
           </div>
-          <div class="back-to-prev-page">
-            <img src="../assets/images/article/prev.png" alt="" />
-            <span @click="backToPrev">返回上一页</span>
-          </div>
 
           <div class="comment">
             <comment
@@ -38,7 +38,7 @@
               @doChidSend="doChidSend"
             />
           </div>
-          <div class="related-articles">
+          <!-- <div class="related-articles">
             <div class="item-header">
               <div class="line"></div>
               <div class="item-title">相关文章</div>
@@ -59,10 +59,10 @@
                 <img :src="item.image" alt="" />
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
         <div class="article-detail-right">
-          <hot-recommend />
+          <hot-recommend :hotRecommendList="hotRecommendList" @hotRecommendClick="hotRecommendClick"/>
         </div>
       </div>
     </div>
@@ -84,7 +84,7 @@ export default {
     return {
       isCollection:false,//是否已收藏
       viewIdArr: null,// 已阅读文章id列表（用于防止重复计算某篇文章的阅读次数）
-      categoryId: 0, //文章id
+      articleId: 0, //文章id
       detailData: [],
       loading: true,
       placeholder: "说点什么吧",
@@ -94,7 +94,8 @@ export default {
       // 默认头像
       avatar: require("@/components/common/comment/img/icon/avtar.png"),
       commentList: [],
-      commentPostData:{}
+      commentPostData:{},
+      hotRecommendList:[]
     };
   },
   watch: {
@@ -107,25 +108,49 @@ export default {
 
   },
   created() {
-    // 获取已阅读的文章id列表
-    this.viewIdArr = JSON.parse(sessionStorage.getItem("viewIdArr")) || [];
     // 获取文章id
-    this.categoryId = this.$route.params.id;
+    this.articleId = this.$route.params.id;
+    this.init()
+  },
+  methods: {
+    // 初始化
+    init(){
+      // 获取已阅读的文章id列表
+    this.viewIdArr = JSON.parse(sessionStorage.getItem("viewIdArr")) || [];
     this.addViews();
     this.getArticleDetails();
     this.getCommentLists();
-  },
-  methods: {
+    this.getHotList()
+    },
+    // 随机文章点击回调
+    hotRecommendClick(item){
+      this.articleId = item.id
+      this.init()
+    },
+    // 获取随机文章列表
+    getHotList(){
+      this.loading = true
+      this.$service
+        .get(`/web/article/hotlist`)
+        .then(res => {
+          this.loading = false
+          const vdata = res.data
+          this.hotRecommendList = deepClone(vdata)
+        })
+        .catch(err => {
+          this.loading = false
+          console.log(err);
+        });
+    },
     // 新增文章阅读次数
     addViews() {
       // 如果已阅读的文章id列表中不包含当前文章id
-      if (this.viewIdArr.indexOf(this.categoryId) === -1) {
+      if (this.viewIdArr.indexOf(this.articleId) === -1) {
         this.$service
-          .get("/web/article/addViews/" + this.categoryId)
+          .get("/web/article/addViews/" + this.articleId)
           .then(res => {
-            console.log(res);
             let arr = JSON.parse(sessionStorage.getItem("viewIdArr")) || [];
-            arr.push(this.categoryId);
+            arr.push(this.articleId);
             sessionStorage.setItem("viewIdArr", JSON.stringify(arr));
           })
           .catch(err => {
@@ -136,22 +161,35 @@ export default {
     // 获取文章详细信息
     getArticleDetails() {
       this.$service
-        .get("/web/article/" + this.categoryId)
+        .get("/web/article/" + this.articleId)
         .then(res => {
           this.loading = false;
           const vdata = res.data;
           this.detailData = vdata; // 文章详情
-          console.log(res);
         })
         .catch(err => {
           this.loading = false;
           console.log(err);
         });
     },
+    // 获取文章评论对应的子评论
+    getChildrenList(comment,res,targetUser){
+      let childrenList = res.filter((ritem)=>comment.id===ritem.parent_comment_id)
+
+      childrenList.forEach(item=>{
+        item.commentUser = {
+          id: item.web_user_id,
+          nickName: item.nickname,
+          avatar: item.image
+        }
+        item.targetUser = targetUser
+      })
+      return childrenList
+    },
     // 获取文章对应的评论列表
     getCommentLists(){
       this.$service
-        .get("/v1/comment/" + this.categoryId)
+        .get("/v1/comment/" + this.articleId)
         .then(res => {
           this.loading = false;
           var data = deepClone(res.data)
@@ -167,64 +205,25 @@ export default {
     },
     // 设置评论列表格式
     setCommentList(res){
-      this.commentList = []
-      let commentMap = {};// key为父评论id
-      let targetUserMap = {}// key为评论id
-      res.forEach(item => {
-        if(!commentMap[item.parent_comment_id]){
-          commentMap[item.parent_comment_id] = [
-            {
-              id:item.id,
-              commentUser: {
-                id: item.web_user_id,
-                nickName: item.nickname,
-                avatar: item.image
-              },
-              content:item.content,
-              parent_comment_id:item.parent_comment_id,
-              createDate:item.created_at,
-            }
-          ]
-          if(item.parent_comment_id!=-1){
-            targetUserMap[item.parent_comment_id] = {
-              id: res[item.parent_comment_id-1].web_user_id,
-              nickName: res[item.parent_comment_id-1].nickname,
-              avatar: res[item.parent_comment_id-1].image
-            }
-          }
-          
-          console.log(targetUserMap)
-        }else{
-          commentMap[item.parent_comment_id].push({
-            id:item.id,
-            commentUser: {
-              id: item.web_user_id,
-              nickName: item.nickname,
-              avatar: item.image
-            },
-            content:item.content,
-            parent_comment_id:item.parent_comment_id,
-            createDate:item.created_at,
-          })
-        }
-      });
-      for(var k in commentMap){
-        if(k!==-1){
-          // 不是主评论
-          commentMap['-1'].forEach(item=>{
-            // 当前对象中的子评论的parent_comment_id 即 k，等于当前对象的父id 即id
-            item.childrenList = commentMap[item.id] || null
-            if(item.childrenList){
-              let childArr = item.childrenList
-              childArr.forEach(i=>{
-                i.targetUser = targetUserMap[i.parent_comment_id]
-              })
-            }
-          })
-        }
-      }
-      this.commentList = deepClone(commentMap['-1'])
-      console.log(this.commentList)
+      // 查出所有父评论id为-1的评论
+      let commentList = res.filter(item=>item.parent_comment_id===-1)
+      
+      // 循环commentList得到每个comment，查出所有父评论id等于comment.web_user_id 即childrenList
+      commentList.forEach(comment=>{
+        comment.commentUser = {
+          id: comment.web_user_id,
+          nickName: comment.nickname,
+          avatar: comment.image
+        };
+        let targetUser = {
+          id: comment.web_user_id,
+          nickName: comment.nickname,
+          avatar: comment.image
+        };
+        comment.childrenList = this.getChildrenList(comment,res,targetUser)
+      })
+      this.commentList = commentList
+      console.log(commentList)
     },
     backToPrev() {
       this.$router.back();
@@ -245,6 +244,7 @@ export default {
         content:content,
         parent_comment_id:pid
       }
+      console.log(commentUserId, pid)
       this.addComment(obj)
     },
     // 初始化评论传参对象
@@ -254,7 +254,7 @@ export default {
         web_user_id:userInfo.id,
         content:'',
         image:userInfo.originAvatar,
-        article_id:this.categoryId,
+        article_id:this.articleId,
         parent_comment_id:-1
       }
     },
@@ -280,11 +280,39 @@ export default {
     },
     // 收藏
     toCollect(type){
+      let collection_type = 1
+      let userInfo = this.$store.state.userInfo
       if(type===1){
-        this.isCollection = true
+        this.$service
+        .post("/web/collection",{
+          type:collection_type,
+          web_user_id:userInfo.id,
+          id:this.articleId
+        })
+        .then(res => {
+          if(res.code==0){
+            this.isCollection = true
+            this.$message.success('收藏成功')
+          }
+        })
+        .catch(err => {
+          this.loading = false;
+          console.log(err);
+        });
       }else{
         // 取消收藏
-        this.isCollection = false
+        this.$service
+        .delete(`/web/collection/${collection_type}/${this.articleId}`)
+        .then(res => {
+          if(res.code==0){
+            this.isCollection = false
+            this.$message.success('取消收藏成功')
+          }
+        })
+        .catch(err => {
+          this.loading = false;
+          console.log(err);
+        });
       }
     },
     
@@ -349,6 +377,9 @@ export default {
 .info-wrap > .collection > i:hover{
   color: #409eff;
 }
+.article-detail-left{
+  position: relative;
+}
 .article-detail-left > .line {
   border-bottom: 1px solid rgba(216, 216, 216, 0.5);
   margin-top: 20px;
@@ -381,15 +412,17 @@ export default {
   margin-bottom: 30px;
 }
 
-.article-detail-left > .back-to-prev-page {
+.back-to-prev-page {
+  position: absolute;
+  right: 0;
+  top: 13px;
   display: flex;
   align-items: center;
-  margin: 20px 0;
 }
-.article-detail-left > .back-to-prev-page > img {
+.back-to-prev-page > img {
   height: 15px;
 }
-.article-detail-left > .back-to-prev-page > span {
+.back-to-prev-page > span {
   color: rgba(175, 144, 92, 1);
   font-size: 15px;
   margin-left: 5px;

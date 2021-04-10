@@ -64,6 +64,11 @@ export default {
           name: '听力专区',
           active: false,
           path: '/listen'
+        },
+        {
+          name: '单词学习',
+          active: false,
+          path: '/wordStudy'
         }
       ]
     }

@@ -13,6 +13,7 @@ export function isJSON(str) {
   }
 }
 
+// 数组去重
 export function unique(arr) {
   return arr.filter((item, index, list) => {
     return list.indexOf(item) === index

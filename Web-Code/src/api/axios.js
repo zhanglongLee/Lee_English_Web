@@ -56,14 +56,18 @@ service.interceptors.request.use(config => {
 // 响应拦截器
 service.interceptors.response.use(response => {
   let msg = response.data.message
+  let code = response.data.code
   if(msg instanceof Array){
     // message: ["电子邮箱不符合规范，请输入正确的邮箱"]
     response.data.message = msg[0]
   }
-  if(response.data.code===10051){
+  if(code===10051){
     // token 过期
     // 清除用户过期信息
+    Vue.prototype.$message.error('用户过期信息请重新登录')
     store.dispatch('logOut')
+  }else if(code === 10013){
+    Vue.prototype.$message.error('需要登录后才能完成此操作喔~！')
   }
   return response.data
 }, (error) => {

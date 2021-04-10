@@ -27,6 +27,7 @@
         </el-menu>
       </el-aside>
       <el-main class="personal-main">
+
         <!-- 个人信息S -->
         <el-form
           class="user-form"
@@ -46,9 +47,6 @@
               <el-button type="info" @click="unSave">取消</el-button>
               <el-button type="primary" @click="save">保存</el-button>
             </div>
-            <el-button v-if="showDel" type="primary" @click="disabled = false"
-              >删除</el-button
-            >
           </div>
 
           <div v-if="currentIndex === '1'" class="form-content">
@@ -86,24 +84,35 @@
             </el-form-item>
           </div>
           <!-- 个人信息E -->
+
           <!-- 做题记录S -->
           <el-table
             v-if="currentIndex === '2'"
-            :data="userLearningList"
+            :data="userListeningList"
             tooltip-effect="dark"
             class="my-list"
+            max-height="450"
           >
-            <el-table-column type="selection" width="55" />
-            <el-table-column label="做题日期"  width="200" >
+            <el-table-column label="做题日期" width="200" >
               <template slot-scope="scope">{{ scope.row.updated_at }}</template>
             </el-table-column>
-            <el-table-column label="练习标题" show-overflow-tooltip>
+            <el-table-column label="练习标题" show-overflow-tooltip width="240">
               <template slot-scope="scope">
-                <div class="learning-title" @click="toUserLearning(scope.row)">{{ scope.row.listening_name }}</div>
+                <div class="listening-title">{{ scope.row.listening_name }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column
+              fixed="right"
+              label="操作"
+              width="100">
+              <template slot-scope="scope">
+                <el-button @click="toUserListening(scope.row)" type="text" size="small">查看</el-button>
+                <el-button @click="delUserListening(scope.row)" type="text" size="small">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
           <!-- 做题记录E -->
+
           <!-- 个人收藏S -->
           <el-table
             v-if="currentIndex === '3'"
@@ -111,17 +120,25 @@
             :data="collectionList"
             tooltip-effect="dark"
             class="my-list"
+            max-height="450"
           >
-            <el-table-column type="selection" width="55" />
-            <el-table-column label="日期" width="120">
-              <template slot-scope="scope">{{ scope.row.date }}</template>
+            <el-table-column label="收藏日期" width="200" >
+              <template slot-scope="scope">{{ scope.row.updated_at }}</template>
+            </el-table-column>
+            <el-table-column label="收藏标题" show-overflow-tooltip width="240">
+              <template slot-scope="scope">
+                <div class="listening-title">{{ scope.row.collection_name }}</div>
+              </template>
             </el-table-column>
             <el-table-column
-              prop="address"
-              label="标题"
-              width="360"
-              show-overflow-tooltip
-            />
+              fixed="right"
+              label="操作"
+              width="100">
+              <template slot-scope="scope">
+                <el-button @click="toCollection(scope.row)" type="text" size="small">查看</el-button>
+                <el-button @click="delCollection(scope.row)" type="text" size="small">删除</el-button>
+              </template>
+            </el-table-column>
           </el-table>
           <!-- 个人收藏E -->
 
@@ -136,6 +153,26 @@
             <el-button type="primary" @click="updatePwd">修改密码</el-button>
           </div>
           <!-- 修改密码E -->
+
+          <!-- 生词本 S-->
+          <div v-if="currentIndex === '5'" class="word-list">
+            <div class="btn-list">
+              <el-button-group>
+                <el-button size="mini" :type="isShowTranslate?'primary':''" @click="isShowTranslate=true">显示释义</el-button>
+                <el-button size="mini" :type="!isShowTranslate?'primary':''" @click="isShowTranslate=false">隐藏释义</el-button>
+              </el-button-group>
+            </div>
+            <div class="word-content">
+              <div class="word-items" v-for="(item,index) in wordBookList" :key="index">
+                <h3 class="item-title">{{item.word_name}}</h3>
+                <div class="item-pronunciation">{{item.pronunciation}}</div>
+                <div class="item-translate" v-show="isShowTranslate">{{item.translate}}</div>
+                <div class="item-type"><el-tag>{{item.categoryName}}词汇</el-tag></div>
+                <i class="iconfont icon-lajitong" title="移出生词本" @click="removeWord(item.word_id)"></i>
+              </div>
+            </div>
+          </div>
+          <!-- 生词本 E-->
         </el-form>
       </el-main>
     </el-container>
@@ -145,40 +182,42 @@
 <script>
 import uploadImage from "@/components/common/upload-image";
 import { deepClone } from "@/util/common";
+import myTable from "@/components/common/my-table"
 export default {
-  components: { uploadImage },
+  components: { uploadImage,myTable },
   data() {
-    const item = {
-      date: "2016-05-02",
-      address: "2018年12月英语六级听力真题及答案:第2套"
-    };
-    const item1 = {
-      date: "2016-05-02",
-      address: "数字转型通达未来 | 江苏交控“六朵云”成果发布"
-    };
     return {
+      isShowTranslate:true,//是否显示释义
       currentIndex: "1", // 当前选中的menu
       disabled: true,
       // menu信息
       menuList: [
         { index: "1", title: "个人信息", className: "el-icon-user" },
-        { index: "2", title: "我的下载", className: "el-icon-download" },
+        { index: "2", title: "练习记录", className: "el-icon-download" },
         { index: "3", title: "我的收藏", className: "el-icon-star-off" },
-        { index: "4", title: "用户设置", className: "el-icon-s-tools" }
+        { index: "4", title: "用户设置", className: "el-icon-s-tools" },
+        { index: "5", title: "我的生词", className: "el-icon-notebook-1" },
       ],
       userInfo: {},
       pwdObj: {},
-      userLearningList:[],
-      collectionList: Array(5).fill(item1)
+      userListeningList:[],
+      wordBookList:[],
+      listeningColumnData:[
+        {prop:"updated_at",label:"做题时间",tooltip:false},
+        {prop:"listening_name",label:"标题",tooltip:true}
+      ],
+      collectionList: [],
+      collectionColumnData:[
+        {prop:"updated_at",label:"收藏时间",tooltip:false},
+        {prop:"collection_name",label:"标题",tooltip:true}
+      ],
     };
   },
   computed: {
     formTitle() {
       return this.menuList[Number(this.currentIndex) - 1].title;
     },
-    showDel() {
-      return this.currentIndex === "2" || this.currentIndex === "3";
-    },
+
     showEdit() {
       return this.currentIndex === "1";
     },
@@ -250,24 +289,136 @@ export default {
         });
     },
     // 获取用户做题记录
-    getUserLearning(){
+    getUserListening(){
       this.$service
         .get("/web/userLearning")
         .then(res => {
-          this.userLearningList = deepClone(res)
+          this.userListeningList = deepClone(res)
+        })
+        .catch(err => {
+          console.log(err)
+          this.$message.error('获取用户做题记录失败，请联系管理员！')
+          this.userListeningList = []
+        });
+    },
+    // 获取用户收藏列表
+    getCollectionList(){
+      this.$service
+        .get("/web/collection")
+        .then(res => {
+          this.collectionList = deepClone(res)
+        })
+        .catch(err => {
+          console.log(err)
+          this.$message.error('获取用户收藏列表失败，请联系管理员！')
+          this.collectionList = []
+        });
+    },
+    // 获取用户生词列表
+    getWordBookList(){
+      this.$service
+        .get("/web/wordbook")
+        .then(res => {
+          console.log(res)
+          this.wordBookList = deepClone(res)
+        })
+        .catch(err => {
+          console.log(err)
+          this.$message.error('获取用户生词列表失败，请联系管理员！')
+          this.collectionList = []
+        });
+    },
+    // 跳转练习题详情
+    toUserListening(data){
+      // 存储当前点击练习题的历史答案
+      let history_answer = JSON.parse(data.history_answer)
+      let id = data.listeningId
+      this.$store.commit('setHistoryAnswer',history_answer)
+      this.$router.push(`/listen/ListenDetail/${id}`)
+      console.log(data)
+    },
+    // 删除做题记录
+    delUserListening(data){
+      let id = data.listeningId
+      this.$service
+        .delete(`/web/userLearning/${id}`)
+        .then(res => {
+          if(res.code===0){
+            // 删除成功
+            this.$message.success('听力练习记录删除成功')
+            this.getUserListening()
+          }else{
+            this.$message.error('听力练习记录删除失败，请联系管理员！')
+          }
         })
         .catch(err => {
           console.log(err);
         });
-    },
-    // 跳转练习题详情
-    toUserLearning(data){
       console.log(data)
+    },
+    // 跳转文章详情
+    toCollection(data){
+      // let id = data.articleId
+      // this.$store.commit('setHistoryAnswer',history_answer)
+      let type = data.type
+      let id = data.collection_id
+      if(type==='article'){
+        this.$router.push(`/article/ArticleDetail/${id}`)
+      }else if(type==='listening'){
+        this.$router.push(`/listen/ListenDetail/${id}`)
+      }
+      console.log(data)
+    },
+    // 删除文章收藏
+    delCollection(data){
+      let type = data.type
+      let id = data.collection_id
+      var delType = 0
+      if(type=="listening"){
+        delType = 2
+      }else if(type=="article"){
+        delType = 1
+      }
+      this.$service
+        .delete(`/web/collection/${delType}/${id}`)
+        .then(res => {
+          if(res.code===0){
+            // 删除成功
+            this.$message.success('收藏记录删除成功')
+            this.getCollectionList()
+          }else{
+            this.$message.error('收藏记录删除失败，请联系管理员！')
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+      
+      console.log(data)
+    },
+    // 移出生词
+    removeWord(id){
+      this.$service
+        .delete(`/web/wordBook/${this.userInfo.id}/${id}`)
+        .then(res => {
+          if(res.code===0){
+            // 删除成功
+            this.$message.success('生词删除成功')
+            this.getWordBookList()
+          }else{
+            this.$message.error('生词删除失败，请联系管理员！')
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
     }
   },
   mounted() {
     this.userInfo = deepClone(this.$store.state.userInfo);
-    this.getUserLearning()
+    this.getUserListening()
+    this.getCollectionList()
+    this.getWordBookList()
   }
 };
 </script>
@@ -386,11 +537,65 @@ export default {
             }
           }
         }
+        .word-list{
+          width: 100%;
+          padding: 10px 30px;
+          .btn-list{
+            width: 100%;
+            text-align: right;
+            
+          }
+          .word-content{
+            width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            .word-items{
+              position: relative;
+              display: flex;
+              flex-direction: column;
+              width: 45%;
+              min-height: 120px;
+              margin: 10px;
+              padding: 10px;
+              background: #F3F4F6;
+
+              .item-title{
+                font-size: 18px;
+                font-weight: bold;
+              }
+              .item-pronunciation{
+                font-size: 14px;
+                margin: 10px 0 20px 0;
+                color: #999da7;
+              }
+              .item-translate{
+                font-size: 14px;
+              }
+              .item-type{
+                position: absolute;
+                top: 10px;
+                right: 10px;
+              }
+              i{
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                cursor: pointer;
+                &:hover{
+                  color: #409eff;
+                }
+              }
+            }
+          }
+        }
 
         .my-list {
           padding: 0 30px;
 
-          .learning-title{
+          .listening-title{
             cursor: pointer;
             &:hover{
               color: #409eff;

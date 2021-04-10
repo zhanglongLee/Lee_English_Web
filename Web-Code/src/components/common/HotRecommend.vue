@@ -10,10 +10,10 @@
       <div class="line"></div>
       <div class="hot-recommend-main-content">
         <div
-          v-for="(item, index) in hotRecommendList"
+          v-for="(item, index) in list"
           :key="item.id"
           class="content-item"
-          @click="navToDetail(item.id)"
+          @click="handleClick(item)"
         >
           <div class="content-item-index">
             {{ (index + 1 + "").padStart(2, "0") }}
@@ -34,78 +34,31 @@ export default {
       default: () => {
         return '热点推荐'
       }
+    },
+    hotRecommendList: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
   data() {
     return {
-      hotRecommendList: []
+      list:[]
+    }
+  },
+  watch:{
+    hotRecommendList(){
+      this.list = this.hotRecommendList
     }
   },
   created() {
-    this.getHotRecommend() // 热点推荐
+    this.list = this.hotRecommendList
+    console.log(this.hotRecommendList)
   },
   methods: {
-    getHotRecommend() {
-      // if (sessionStorage.getItem('hotNews')) {
-      //   this.hotRecommendList = JSON.parse(sessionStorage.getItem('hotNews'))
-      // } else {
-
-      // }
-      const res = {
-        status: true,
-        data: [
-          {
-            id: '2017',
-            title: 'Texas governor demands ‘emergency’ election reform as state GOP unveils two dozen bills aimed at voting rights'
-          },
-          {
-            id: '2013',
-            title: 'Texas governor demands ‘emergency’ election reform as state GOP unveils two dozen bills aimed at voting rights'
-          },
-          {
-            id: '2010',
-            title: 'Texas governor demands ‘emergency’ election reform as state GOP unveils two dozen bills aimed at voting rights'
-          },
-          {
-            id: '2005',
-            title: 'Texas governor demands ‘emergency’ election reform as state GOP unveils two dozen bills aimed at voting rights'
-          },
-          {
-            id: '2001',
-            title: 'Texas governor demands ‘emergency’ election reform as state GOP unveils two dozen bills aimed at voting rights'
-          }
-        ],
-        msg: '成功',
-        code: 200
-      }
-      const vdata = res.data
-      this.hotRecommendList = vdata
-      // sessionStorage.setItem('hotNews', JSON.stringify(this.hotRecommendList))
-      // let postObj = { id: '' }
-      // this.$Post(
-      //   'News/NewsData/getHotNews',
-      //   { data: postObj },
-      //   res => {
-      //     console.log(JSON.stringify(res))
-      //     let vdata = res.data
-      //     this.hotRecommendList = vdata
-      //     sessionStorage.setItem(
-      //       'hotNews',
-      //       JSON.stringify(this.hotRecommendList)
-      //     )
-      //   },
-      //   err => {
-      //     this.$alertShow(err.msg)
-      //   },
-      //   true
-      // )
-    },
-
-    linkToAd(item) {
-      window.open(item.url)
-    },
-    navToDetail(id) {
-      this.$router.push(`/article/ArticleDetail/${id}`)
+    handleClick(item) {
+      this.$emit('hotRecommendClick',item)
     }
   }
 }

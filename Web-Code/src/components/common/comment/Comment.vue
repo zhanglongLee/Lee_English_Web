@@ -222,7 +222,7 @@
                 <div class="publish publish-btn">
                   <button
                     class="btn"
-                    @click="cSend(ritem.id, ritem.commentUser.id, item.id)"
+                    @click="cSend(ritem.id, ritem.commentUser.id, item.id,ritem)"
                   >
                     发送
                   </button>
@@ -462,7 +462,8 @@ export default {
       this.$emit('doSend', this.textareaMap[0])
       this.$set(this.textareaMap, 0, '')
     },
-    cSend(index, commentUserId, pid) {
+    cSend(index, commentUserId, pid,ritem) {
+      console.log(ritem)
       this.$emit('doChidSend', this.textareaMap[index], commentUserId, pid)
       this.$set(this.textareaMap, index, '')
       this.$set(this.replyMap, index, false)

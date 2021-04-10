@@ -16,7 +16,7 @@
         <div class="no-result">暂时没有内容/(ㄒoㄒ)/~~</div>
       </div>
       <div class="articles-list-content-right">
-        <hot-recommend />
+        <hot-recommend :hotRecommendList="hotRecommendList" @hotRecommendClick="hotRecommendClick"/>
       </div>
     </div>
   </div>
@@ -27,6 +27,7 @@ import HotRecommend from '../common/HotRecommend'
 import ContentList from '../common/ContentList'
 import Pagination from '../common/Pagination'
 import typeList from '../common/typeList'
+import { deepClone } from '../../util/common'
 export default {
   name: 'ArticlesList',
   components: {
@@ -43,27 +44,45 @@ export default {
       index: 1,
       size: 5,
       total: 0,
-      loading: true
+      loading: true,
+      hotRecommendList:[]
     }
   },
   watch: {
 
   },
   created() {
-    this.getNewsList()
+    this.getArticleList()
+    this.getHotList()
   },
   methods: {
     navToDetail(id) {
       this.$router.push(`/article/ArticleDetail/${id}`)
     },
-    // 获取新闻列表
-    getNewsList() {
+    // 随机文章点击回调
+    hotRecommendClick(item){
+      this.navToDetail(item.id)
+    },
+    // 获取随机文章列表
+    getHotList(){
       this.loading = true
       this.$service
-        .get("/web/article", {
-          size:this.size,
-          page:this.index
+        .get(`/web/article/hotlist`)
+        .then(res => {
+          this.loading = false
+          const vdata = res.data
+          this.hotRecommendList = deepClone(vdata)
         })
+        .catch(err => {
+          this.loading = false
+          console.log(err);
+        });
+    },
+    // 获取文章列表
+    getArticleList() {
+      this.loading = true
+      this.$service
+        .get(`/web/article?page=${this.index}&size=${this.size}`)
         .then(res => {
           this.loading = false
           const vdata = res.data
@@ -71,21 +90,17 @@ export default {
             return false
           }
           this.total = res.total
-          this.allList = vdata // 当前新闻列表
+          this.allList = vdata // 当前文章列表
           // 默认选择全部
-          this.typeBtnClick(99);
+          this.typeBtnClick('全部');
           // 分类列表渲染
           this.typeList = []
-          vdata.forEach(item => {
-            this.typeList.push({
-              id:item.categoryId,
-              name:item.categoryName
-            })
+          vdata.forEach((item,index) => {
+            this.typeList.push(item.categoryName)
           });
-          this.typeList.unshift({
-            id: 99,
-            name: '全部'
-          })
+          // 去重
+          this.typeList = Array.from(new Set(this.typeList))
+          this.typeList.unshift('全部')
         })
         .catch(err => {
           this.loading = false
@@ -96,15 +111,16 @@ export default {
     // 分页器点击
     currentChange(newV) {
       this.index = newV
-      this.getNewsList()
+      this.getArticleList()
       this.scrollToTop()
+      this.typeBtnClick('全部')
     },
     // 点击分类按钮
-    typeBtnClick(id) {
-      if(id===99){
+    typeBtnClick(name) {
+      if(name==='全部'){
         this.curList = this.allList
       } else {
-        this.curList = this.allList.filter(item=>item.categoryId===id)
+        this.curList = this.allList.filter(item=>item.categoryName===name)
       }
     }
   }
