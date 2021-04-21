@@ -1,7 +1,7 @@
 <template>
   <div class="lin-search">
-    <el-input size="medium" :placeholder="placeholder" clearable v-model="keyword" class="input-with-select">
-      <el-button slot="append" icon="el-icon-search"></el-button>
+    <el-input size="medium" :placeholder="placeholder" clearable v-model="keyword" class="input-with-select"  @keydown.enter.native="handleClick">
+      <el-button slot="append" icon="el-icon-search" @click="handleClick"></el-button>
     </el-input>
   </div>
 </template>
@@ -21,19 +21,23 @@ export default {
       keyword: '',
     }
   },
+  watch:{
+    keyword(newD){
+      if(newD === ''){
+        this.$emit('query', this.keyword)
+      }
+    }
+  },
   created() {
-    // 节流搜索
-    this.$watch(
-      'keyword',
-      Utils.debounce(newQuery => {
-        this.$emit('query', newQuery)
-      }, 1000),
-    )
+
   },
   methods: {
     clear() {
       this.keyword = ''
     },
+    handleClick(){
+      this.$emit('query', this.keyword)
+    }
   },
 }
 </script>

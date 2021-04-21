@@ -22,18 +22,21 @@ class WordBook {
         web_user_id
       }
     })
-    let content = JSON.parse(wordBook.content)
-    let wordBookList = await WordModel.findAll({
-      where:{
-        word_id:content
-      },
-      include:[
-        {
-          model:CategoryModel
-        }
-      ],
-      order:[['word_id','ASC']]
-    })
+    let wordBookList = []
+    if(wordBook){
+      let content = JSON.parse(wordBook.content)
+      wordBookList = await WordModel.findAll({
+        where:{
+          word_id:content
+        },
+        include:[
+          {
+            model:CategoryModel
+          }
+        ],
+        order:[['word_id','ASC']]
+      })
+    }
     return new Promise((resolve,reject)=>{
       resolve(wordBookList)
     })
@@ -92,19 +95,13 @@ class WordBook {
       let content = JSON.parse(wordBook.content)
       // 从content中删除生词
       let index = content.indexOf(word_id)
-      if(index === -1){
-        throw new NotFound({
-          code: 10260
-        });
+      if(index !=-1){
+        content.splice(content.indexOf(word_id),1)
+        // 将生词信息持久化到数据库表
+        wordBook.content = JSON.stringify(content)
+        wordBook.save()
       }
-      content.splice(content.indexOf(word_id),1)
-      // 将生词信息持久化到数据库表
-      wordBook.content = JSON.stringify(content)
-      wordBook.save()
-    }else{
-      throw new NotFound({
-        code: 10260
-      });
+
     }
   }
 }

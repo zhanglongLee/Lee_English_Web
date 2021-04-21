@@ -3,7 +3,6 @@
     <audio-player
       ref="audioPlayer"
       :audio-list="audioData"
-      :before-play="handleBeforePlay"
       :show-prev-button="false"
       :show-next-button="false"
       theme-color="#409eff"
@@ -22,30 +21,28 @@ export default {
     audioData:{
       type:Array,
       default:()=>{
-        return ['123']
+        return []
       }
     }
   },
   data() {
     return {
-      currentAudioName: '',
-      
+      arr:[]
     }
   },
   mounted(){
+    this.arr = this.audioData
     this.$refs.audioPlayer.handleClickProgressWrap = this.handleClickProgressWrap
     this.$refs.audioPlayer.handleProgressPanstart = this.handleProgressPanstart
     this.$refs.audioPlayer.handleProgressPanend = this.handleProgressPanend
     this.$refs.audioPlayer.handleProgressPanmove = this.handleProgressPanmove
   },
+  watch:{
+    audioData(newD,oldD){
+      this.arr = newD
+    }
+  },
   methods: {
-    // 播放前做的事
-    handleBeforePlay(next) {
-      // // 这里可以做一些事情...
-      // this.currentAudioName = this.audioData[this.$refs.audioPlayer.currentPlayIndex].name
-
-      // next() // 开始播放
-    },
     //进度条拖动
     handleClickProgressWrap(){
       console.log('拖动了')

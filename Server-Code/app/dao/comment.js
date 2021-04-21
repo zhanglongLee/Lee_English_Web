@@ -32,7 +32,63 @@ class Comment {
     }
     return res
   }
+  static async getChildren(commentList,article_id){
+    if(commentList.length>0){
+      commentList.forEach(async comment=>{
+        const res = await CommentModel.findAll({
+          where:{
+            article_id,
+            parent_comment_id:comment.id,
+            is_published:1
+          },
+          attributes: {
+            exclude: ['deleted_at', 'updated_at']
+          },
+          include: [{
+            model: ArticleModel,
+            attributes: [ 'title' ]
+          },
+          {
+            model: UserModel,
+            attributes: [ 'nickname' ]
+          }],
+        });  
+        comment.children = res
+        this.getChildren(res,article_id)
+      })
+    }
+  }
 
+  static async getCommentByIdTest(id){
+    const res = await CommentModel.findAll({
+      where:{
+        article_id:id,
+        parent_comment_id:-1,
+        is_published:1
+      },
+      attributes: {
+        exclude: ['deleted_at', 'updated_at']
+      },
+      include: [{
+        model: ArticleModel,
+        attributes: [ 'title' ]
+      },
+      {
+        model: UserModel,
+        attributes: [ 'nickname' ]
+      }],
+    });
+    if(!res){
+      throw new Forbidden({
+        code: 10258
+      });
+    }
+    this.getChildren(res,id)
+    console.log(res)
+    // return Promise((resolve,reject)=>{
+    //   resolve(res)
+    // })
+  }
   // 查看评论列表
   static async getCommentList(page = 1, size = 5,q) {
     if(q){

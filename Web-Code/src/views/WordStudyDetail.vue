@@ -1,9 +1,9 @@
 <template>
   <div class="word-wrap">
-    <div v-if="!isCard" class="word-content">
+    <div v-if="!isCard" class="word-content" v-loading="loading">
       <div class="title-wrap">
         <el-page-header @back="backClick"></el-page-header>
-        <div class="title">四级词汇列表</div>
+        <div class="title" v-if="wordList.length>0">{{wordList[0].categoryName || '四级'}}词汇列表</div>
       </div>
       <div class="wordLists" v-if="wordList.length>0">
          <el-table
@@ -44,14 +44,14 @@
     </div>
     <div v-if="isCard" class="card-content">
       <el-carousel indicator-position="none" :autoplay="false" height="300px" :loop="false" arrow="always">
-        <el-carousel-item v-for="(item,index) in wordList" :key="index" class="cardItem">
+        <el-carousel-item v-for="(item,index) in cardWordList" :key="index" class="cardItem">
           <div class="item-content">
             <el-card class="box-card">
               <div class="word-name">{{item.word_name}}</div>
               <div class="pronunciation">{{item.pronunciation}}</div>
               <div class="translate">{{item.translate}}</div>
-              <div class="word-type"><el-tag>{{item.category_name}}词汇</el-tag></div>
-              <i class="iconfont icon-lajitong addbtn" title="添加生词" @click="cardAddWord(item.word_id)"></i>
+              <div class="word-type"><el-tag>{{item.categoryName}}词汇</el-tag></div>
+              <i class="iconfont icon-danci addbtn" title="添加生词" @click="cardAddWord(item.word_id)"></i>
             </el-card>
           </div>
         </el-carousel-item>
@@ -68,24 +68,30 @@ export default {
   components:{
     Pagination
   },
+  inject: ['eventBus'],
   data(){
     return {
+      loading:true,
       wordList:[
-        {word_id:5,word_name:"alone",translate:"adj. 单独的，孤单的，独自一人的 adv. 独自地",pronunciation:"[ə'ləun]",category_name:"四级"},
-        {word_id:6,word_name:"alarm",translate:"n. 警报，警报器，警告，惊恐 vt. 向...报警，警告，使惊恐",pronunciation:"[ə'lɑ:m]",category_name:"四级"},
-        {word_id:7,word_name:"airline",translate:"n. 航线，航空公司",pronunciation:"['ɛəlain]",category_name:"四级"},
-        {word_id:8,word_name:"airport",translate:"n. 机场，航空站",pronunciation:"['eəpɔ:t]",category_name:"四级"},
-        {word_id:9,word_name:"allow",translate:"v.允许；准许；给予；承认",pronunciation:"[ə'lau]",category_name:"四级"},
-        {word_id:10,word_name:"alike",translate:"adj. 相似的，同样的 adv. 一样，以同样的方式",pronunciation:"[ə'laik]",category_name:"四级"},
-        {word_id:4,word_name:"aircraft",translate:"n. 飞机",pronunciation:"['ɛəkrɑ:ft]",category_name:"四级"},
+        // {word_id:11,word_name:"alone",translate:"adj. 单独的，孤单的，独自一人的 adv. 独自地",pronunciation:"[ə'ləun]",categoryName:"四级"},
+        // {word_id:12,word_name:"alarm",translate:"n. 警报，警报器，警告，惊恐 vt. 向...报警，警告，使惊恐",pronunciation:"[ə'lɑ:m]",categoryName:"四级"},
+        // {word_id:13,word_name:"airline",translate:"n. 航线，航空公司",pronunciation:"['ɛəlain]",categoryName:"四级"},
+        // {word_id:14,word_name:"airport",translate:"n. 机场，航空站",pronunciation:"['eəpɔ:t]",categoryName:"四级"},
+        // {word_id:15,word_name:"allow",translate:"v.允许；准许；给予；承认",pronunciation:"[ə'lau]",categoryName:"四级"}
+      ],
+      cardWordList:[
+        // {word_id:11,word_name:"alone",translate:"adj. 单独的，孤单的，独自一人的 adv. 独自地",pronunciation:"[ə'ləun]",categoryName:"四级"},
+        // {word_id:12,word_name:"alarm",translate:"n. 警报，警报器，警告，惊恐 vt. 向...报警，警告，使惊恐",pronunciation:"[ə'lɑ:m]",categoryName:"四级"},
+        // {word_id:13,word_name:"airline",translate:"n. 航线，航空公司",pronunciation:"['ɛəlain]",categoryName:"四级"},
+        // {word_id:14,word_name:"airport",translate:"n. 机场，航空站",pronunciation:"['eəpɔ:t]",categoryName:"四级"},
+        // {word_id:15,word_name:"allow",translate:"v.允许；准许；给予；承认",pronunciation:"[ə'lau]",categoryName:"四级"}
       ],
       wordId:0,
       multipleSelection: [],
       size:5,
       index:1,
-      total:10,
+      total:500,
       isCard:false,//是否为卡片学习
-      userInfo:{},//用户信息
     }
   },
   methods:{
@@ -96,6 +102,7 @@ export default {
     // 分页器点击
     currentChange(newV) {
       this.index = newV
+      this.getWordListByType()
     },
     selectionChange(val) {
       this.multipleSelection = val.map(item=>item.word_id);
@@ -108,27 +115,63 @@ export default {
     // 添加生词
     addWord(arr){
       let word_id_arr = arr || this.multipleSelection
+      let userInfo = deepClone(this.$store.state.userInfo);
+      if(word_id_arr.length === 0){
+        this.$message.error('请选择单词！')
+        return
+      }
       this.$service
         .post("/web/wordbook",{
-          web_user_id:this.userInfo.id,
+          web_user_id:userInfo.id,
           word_id:JSON.stringify(word_id_arr)
         })
         .then(res => {
           if(res.code == 0 ){
             this.$message.success(res.message)
-          }else{
-            this.$message.error('添加生词失败，请联系管理员！')
           }
         })
         .catch(err => {
           console.log(err);
         });
-    }
+    },
+    // 根据分类查询单词列表
+    getWordListByType(){
+      this.$service
+        .get(`/web/word/${this.wordId}?page=${this.index}&size=${this.size}`)
+        .then(res => {
+          this.loading = false
+          this.total = res.total
+          this.wordList = res.data
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    // 根据分类查询单词卡片列表
+    getCardWordListByType(){
+      this.$service
+        .get(`/web/word/card/${this.wordId}`)
+        .then(res => {
+          this.cardWordList = res.data
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    
   },
   mounted(){
-    this.userInfo = deepClone(this.$store.state.userInfo);
     this.wordId = this.$route.params.id
-    console.log(this.wordId)
+    this.getWordListByType()
+    this.getCardWordListByType()
+  },
+  watch:{
+    // '$store.state.userInfo':{
+    //   handler(newD){
+    //     this.userInfo = deepClone(newD);
+    //   },
+    //   deep:true
+    // }
   }
 }
 </script>
@@ -167,11 +210,6 @@ export default {
           width: 400px;
           height: 300px;
           text-align: center;
-          &:hover{
-            .addbtn{
-              opacity: 1;
-            }
-          }
 
           .word-name{
             width: 100%;
@@ -196,7 +234,6 @@ export default {
             position: absolute;
             top: 20px;
             right: 20px;
-            opacity: 0;
             transition: .3s all linear;
             cursor: pointer;
           }

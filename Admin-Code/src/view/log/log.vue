@@ -4,7 +4,7 @@
       <div class="log-header">
         <div class="header-left"><p class="title">日志信息</p></div>
         <div class="header-right" v-permission="'搜索日志'">
-          <lin-search @query="onQueryChange" ref="searchKeyword" />
+          <my-search @query="onQueryChange" ref="searchKeyword" />
           <el-dropdown
             size="medium"
             style="margin: 0 10px;"
@@ -25,7 +25,7 @@
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
-          <lin-date-picker @dateChange="handleDateChange" ref="searchDate" class="date"> </lin-date-picker>
+          <my-date-picker @dateChange="handleDateChange" ref="searchDate" class="date"> </my-date-picker>
         </div>
       </div>
       <el-divider v-if="!keyword"></el-divider>
@@ -73,13 +73,13 @@
 import { mapGetters } from 'vuex'
 import log from 'lin/model/log'
 import { searchLogKeyword } from 'lin/util/search'
-import LinSearch from '@/component/base/search/lin-search'
-import LinDatePicker from '@/component/base/date-picker/lin-date-picker'
+import MySearch from '@/component/base/search/my-search'
+import MyDatePicker from '@/component/base/date-picker/my-date-picker'
 
 export default {
   components: {
-    LinSearch,
-    LinDatePicker,
+    MySearch,
+    MyDatePicker,
   },
   data() {
     return {

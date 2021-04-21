@@ -73,13 +73,14 @@ export default {
   },
   async mounted() {
     this.getCategory()
+    this.form = this.rowObj
   },
   methods: {
     // 获取分类列表
     getCategory() {
       this.$axios({
         method: 'get',
-        url: '/v1/category',
+        url: '/v1/category/list',
       }).then(res => {
         res.data.forEach((item, index) => {
           this.categoryList.push({
@@ -97,12 +98,12 @@ export default {
         if (v) {
           try {
             this.loading = true
-            const res = await word.createWord(this.form)
+            const res = await word.editWord(this.form.word_id,this.form)
             this.loading = false
             if (res.code < window.MAX_SUCCESS_CODE) {
               this.$message.success(`${res.message}`)
               this.resetForm('form')
-              this.$router.push({path:"/word/list"})
+              this.back()
             }
           } catch (error) {
             this.loading = false
@@ -116,6 +117,9 @@ export default {
     resetForm(formName) {
       this.$refs[formName].resetFields()
     },
+    back(){
+      this.$emit('editClose')
+    }
   },
 }
 </script>

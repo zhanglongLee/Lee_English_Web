@@ -210,7 +210,7 @@ export default {
     getCategory(){
       this.$axios({
         method: 'get',
-        url: '/v1/category'
+        url: '/v1/category/list'
       })
       .then(res=>{
         res.data.forEach((item,index)=>{

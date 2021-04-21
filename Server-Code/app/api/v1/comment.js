@@ -1,8 +1,6 @@
 import { LinRouter, config } from 'lin-mizar';
-import { groupRequired } from '../../middleware/jwt';
 import { web_loginRequired } from '../../middleware/web_jwt'
-import { logger } from '../../middleware/logger';
-import { AddCommentValidator, EditCommentValidator, DeleteCommentValidator,CommentSearchValidator } from '../../validator/comment'
+import { AddCommentValidator } from '../../validator/comment'
 import { PaginateValidator,PositiveIdValidator } from '../../validator/common'
 import { CommentDao } from '../../dao/comment';
 
@@ -60,50 +58,5 @@ CommentApi.get('/', async ctx => {
 
   ctx.json(obj);
 });
-
-/**
- * 编辑评论内容
- */
-CommentApi.linPut(
-  'editComment', // 唯一表示
-  '/:id', // URL
-  {
-    permission: '修改评论内容', // 权限的名字
-    module: '评论管理', // 权限属于哪个模块
-    mount: true // 是否在全局的权限列表中显示
-  },
-  groupRequired,
-  logger('{user.username}修改评论内容'), // logger，参数为日志内容
-  async ctx => {
-    const v = await new EditCommentValidator().validate(ctx);
-    const id = v.get('path.id');
-    const params = v.get('body');
-    await CommentDao.editComment(id, params);
-    ctx.success({
-      message: '评论内容修改成功！'
-    });
-  });
-
-/**
- * 删除评论
- */
-CommentApi.linDelete(
-  'deleteComment', // 唯一表示
-  '/:id', // URL
-  {
-    permission: '删除评论', // 权限的名字
-    module: '评论管理', // 权限属于哪个模块
-    mount: true // 是否在全局的权限列表中显示
-  },
-  groupRequired,
-  logger('{user.username}删除评论'), // logger，参数为日志内容
-  async ctx => {
-    const v = await new DeleteCommentValidator().validate(ctx);
-    const id = v.get('path.id');
-    await CommentDao.deleteComment(id);
-    ctx.success({
-      message: '评论删除成功！'
-    });
-  });
 
 module.exports = { CommentApi };

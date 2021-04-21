@@ -43,14 +43,14 @@ admin.linGet(
     const v = await new AdminUsersValidator().validate(ctx);
     const { users, total } = await adminDao.getUsers(
       v.get('query.group_id'),
-      v.get('query.page'),
-      v.get('query.count')
+      Number(v.get('query.page')),
+      Number(v.get('query.count'))
     );
     ctx.json({
       items: users,
       total,
-      count: v.get('query.count'),
-      page: v.get('query.page')
+      count: Number(v.get('query.count')),
+      page: Number(v.get('query.page'))
     });
   }
 );
@@ -107,8 +107,8 @@ admin.linGet(
     const v = await new PaginateValidator().validate(ctx);
     const { groups, total } = await adminDao.getGroups(
       ctx,
-      v.get('query.page'),
-      v.get('query.count')
+      Number(v.get('query.page')),
+      Number(v.get('query.count'))
     );
     if (groups.length < 1) {
       throw new NotFound({
@@ -118,8 +118,8 @@ admin.linGet(
     ctx.json({
       items: groups,
       total: total,
-      page: v.get('query.page'),
-      count: v.get('query.count')
+      page: Number(v.get('query.page')),
+      count: Number(v.get('query.count'))
     });
   }
 );

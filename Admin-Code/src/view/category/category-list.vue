@@ -2,7 +2,10 @@
   <div>
     <!-- 列表页面 -->
     <div class="container" v-if="!showEdit">
-      <div class="header"><div class="title">分类列表</div></div>
+      <div class="header">
+        <div class="title">分类列表</div>
+        <my-search class="search" @query="onQueryChange" ref="searchKeyword" />
+      </div>
       <!-- 表格 -->
       <my-table
         :tableColumn="tableColumn"
@@ -26,12 +29,14 @@ import category from '@/model/category'
 import MyTable from '@/component/base/table/my-table'
 import tablePaper from '@/component/base/tablePaper/tablePaper'
 import categoryModify from './category-modify'
+import MySearch from '@/component/base/search/my-search'
 
 export default {
   components: {
     MyTable,
     categoryModify,
     tablePaper,
+    MySearch
   },
   data() {
     return {
@@ -46,6 +51,7 @@ export default {
         size: 5,
         count: 8,
         index: 1,
+        q:''
       },
       showEdit: false,
       rowObj: {},
@@ -57,7 +63,7 @@ export default {
     this.loading = true
     await this.getCategorys()
     this.operate = [
-      { name: '编辑', func: 'handleEdit', type: 'primary' },
+      { name: '编辑', func: 'handleEdit', type: 'primary',permission: '修改分类内容', },
       {
         name: '删除',
         func: 'handleDelete',
@@ -68,6 +74,11 @@ export default {
     this.loading = false
   },
   methods: {
+    // 搜索
+    onQueryChange(val){
+      this.page.q = val
+      this.getCategorys()
+    },
     // 查看文章
     handleView(val){
       console.log(val)
@@ -75,7 +86,7 @@ export default {
     // 分页点击
     tablePaperChange(data) {
       this.page.index = data
-      this.getCategorys(this.page)
+      this.getCategorys()
     },
     async getCategorys() {
       try {
@@ -126,7 +137,6 @@ export default {
 
   .header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
 
     .title {
@@ -135,6 +145,9 @@ export default {
       color: $parent-title-color;
       font-size: 16px;
       font-weight: 500;
+    }
+    .search{
+      margin-left: 100px;
     }
   }
 

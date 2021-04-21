@@ -60,7 +60,7 @@ export default {
   methods: {
     // 获取分组权限
     async getGroupPermissions() {
-      this.allPermissions = []
+      this.allPermissions = {}
       this.halfPermissions = []
       this.permission_module_ids = []
       this.permission_module_name = []
@@ -68,6 +68,7 @@ export default {
       this.allPermissions = await Admin.getAllPermissions()
       // 通过判断有没有传入id，来判断当前页面是添加分组还是编辑分组
       if (this.id) {
+        // 编辑分组的分组权限信息
         const res = await Admin.getOneGroup(this.id)
         let temp = []
         const cache = {}

@@ -7,6 +7,7 @@ const categoryRouter = {
   filePath: 'view/category/', // 文件路径
   order: null,
   inNav: true,
+  permission: ['查询所有分类'],
   children: [
     {
       title: '添加分类',
@@ -16,15 +17,17 @@ const categoryRouter = {
       filePath: 'view/category/category-create.vue',
       inNav: true,
       icon: 'iconfont icon-tushuguanli',
+      permission: ['新增分类'],
     },
     {
       title: '分类列表',
       type: 'view',
-      name: 'categoryCreate',
+      name: 'categoryList',
       route: '/category/list',
       filePath: 'view/category/category-list.vue',
       inNav: true,
       icon: 'iconfont icon-tushuguanli',
+      permission: ['查询所有分类'],
     },
   ],
 }

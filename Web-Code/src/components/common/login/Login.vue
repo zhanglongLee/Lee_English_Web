@@ -45,7 +45,7 @@
               maxlength="64"
               @focus="currentFocus = 'password'"
               @blur="currentFocus = ''"
-              @keydown.enter.native="login"
+              @keydown.enter.native="btnClick"
             >
               <i
                 slot="suffix"
@@ -149,9 +149,8 @@ export default {
           password: this.postData.password
         })
         .then(res => {
-          console.log(res);
-          if(res.code==11){
-            this.$message.success(res.message)
+          if(res.message){
+            this.$message.error(res.message)
           }
         })
         .catch(err => {

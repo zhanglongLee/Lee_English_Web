@@ -14,12 +14,6 @@
         </li>
       </ul>
       <div class="information-wrap">
-        <!-- <div class="search">
-          <input type="text" placeholder="请搜索" />
-          <div class="search-btn">
-            <i></i>
-          </div>
-        </div> -->
         <span v-if="!isLogin" class="login" @click="loginClick">登录/注册</span>
         <div v-if="isLogin" class="content">
           <div title="点击进入个人主页" @click="$router.push({path:'/PersonalCenter'})">

@@ -1,7 +1,7 @@
 <template>
   <div class="content-list">
     <div
-      v-for="item in curList"
+      v-for="item in dataList"
       :key="item.id"
       class="articles-list-content-left-item"
     >
@@ -35,9 +35,22 @@ export default {
       }
     }
   },
+  data(){
+    return{
+      dataList:[]
+    }
+  },
   methods: {
     toDetail(id) {
       this.$emit('navToDetail', id)
+    }
+  },
+  mounted(){
+    this.dataList = this.curList
+  },
+  watch:{
+    curList(newD){
+      this.dataList = newD
     }
   }
 }

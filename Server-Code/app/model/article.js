@@ -76,7 +76,7 @@ Article.init(
       comment: '是否评论'
     },
     is_top: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.INTEGER(20),
       allowNull: false,
       comment: '是否置顶'
     },

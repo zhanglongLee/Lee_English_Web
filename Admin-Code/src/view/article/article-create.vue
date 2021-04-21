@@ -27,6 +27,7 @@
                   :action="uploadUrl"
                   :show-file-list="false"
                   :headers="uploadHeaders"
+                  :before-upload="beforeImageUpload"
                   :http-request="uploadRequest"
                 >
                   <img v-if="form.image" :src="form.image" class="avatar" />
@@ -65,7 +66,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="文章字数" prop="words">
+              <el-form-item label="文章字数" prop="words" @keydown.enter.native="submitForm('form')">
                 <el-input type="number" size="medium" v-model="form.words" placeholder="请填写文章字数"></el-input>
               </el-form-item>
             </el-col>
@@ -100,10 +101,10 @@
 <script>
 import article from '@/model/article'
 import { getToken } from '@/lin/util/token.js'
+import Utils from '../../lin/util/util'
 
 export default {
-  components: {
-  },
+  components: {},
   data() {
     var checkWords = (rule, value, callback) => {
       if (!value) {
@@ -148,7 +149,7 @@ export default {
         description: '', //	是	string	文章描述
         image: '', //	否	string	文章封面图
         content: '', //	是	string	文章内容
-        author: '', //	是	string	文章作者
+        author: '内容管理员', //	是	string	文章作者
         published_time: '', //	是	string	发布日期，格式：2020-01-14
         categoryId: '', //	是	string	分类id
         is_published: 0, //	是	string	是否发布，0代表未发布，1代表已发布
@@ -174,6 +175,23 @@ export default {
     this.getCategory()
   },
   methods: {
+    beforeImageUpload(file) {
+      const isIMG = file.type === 'image/jpeg' || file.type === 'image/png' 
+      const isPNG = file.type === 'image/png'
+      const isLt5M = file.size / 1024 / 1024 < 5
+
+      if (!isIMG) {
+        setTimeout(()=>{
+          this.$message.error('上传头像图片只能是 JPG 或 PNG 格式!')
+        },100)
+      }
+      if (!isLt5M) {
+        setTimeout(()=>{
+          this.$message.error('上传头像图片大小不能超过 5MB!')
+        },100)
+      }
+      return isIMG && isLt5M 
+    },
     // 自定义图片上传方法
     uploadRequest(req) {
       this.$axios({
@@ -182,18 +200,17 @@ export default {
         data: {
           file: req.file,
         },
-      })
-      .then(res=>{
+      }).then(res => {
         this.form.image = res.url
         this.form.originImage = res.path
       })
     },
-    
+
     // 获取分类列表
     getCategory() {
       this.$axios({
         method: 'get',
-        url: '/v1/category',
+        url: '/v1/category/list',
       }).then(res => {
         res.data.forEach((item, index) => {
           this.categoryList.push({
@@ -208,17 +225,18 @@ export default {
         if (v) {
           try {
             this.loading = true
-            this.form.image = this.form.originImage
-            const res = await article.createArticle(this.form)
+            this.postObj = Utils.deepClone(this.form)
+            this.postObj.image = this.postObj.originImage
+            const res = await article.createArticle(this.postObj)
             this.loading = false
             if (res.code < window.MAX_SUCCESS_CODE) {
               this.$message.success(`${res.message}`)
               this.resetForm('form')
-              this.$router.push({path:"/article/list"})
+              this.$router.push({ path: '/article/list' })
             }
           } catch (error) {
             this.loading = false
-            this.$message.error('文章添加失败，请检测填写信息')
+            // this.$message.error('文章添加失败，请检测填写信息')
             console.log(error)
           }
         }

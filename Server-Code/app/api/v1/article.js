@@ -51,7 +51,16 @@ ArticleApi.get('/:id', async ctx => {
 /**
  * 查看文章列表
  */
-ArticleApi.get('/', async ctx => {
+ArticleApi.linGet(
+  'getArticle', // 唯一表示
+  '/', // URL
+  {
+    permission: '查询所有文章', // 权限的名字
+    module: '文章管理', // 权限属于哪个模块
+    mount: true // 是否在全局的权限列表中显示
+  },
+  groupRequired,
+  async ctx => {
   const v = await new PaginateValidator().validate(ctx);
   let { page, size, q } = v.get('query');
   var articleList = await ArticleDao.getArticleList(page, size, q);

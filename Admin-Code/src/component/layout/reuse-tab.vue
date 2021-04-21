@@ -18,9 +18,6 @@
 
     <ul v-show="visible" :style="{ left: left + 'px', top: top + 'px' }" class="contextmenu">
       <li @click="closeAll">关闭所有</li>
-      <li @click="closeOthers">关闭其他</li>
-      <li @click="closeLeft" v-if="hasLeft">关闭左侧</li>
-      <li @click="closeRight" v-if="hasRight">关闭右侧</li>
     </ul>
   </div>
 </template>
@@ -157,16 +154,6 @@ export default {
       this.histories = []
       this.$router.push(this.defaultRoute)
     },
-    closeOthers() {
-      this.$router.push(this.histories[this.index].path)
-      this.histories = []
-    },
-    closeLeft() {
-      this.histories.splice(0, this.index)
-    },
-    closeRight() {
-      this.histories.splice(this.index + 1, this.histories.length - this.index - 1)
-    },
     onTags(index, event) {
       this.closeMenu()
       const menuMinWidth = 126
@@ -181,22 +168,12 @@ export default {
         this.left = left
       }
 
-      if (index === 0) {
-        this.hasLeft = false
-      }
-
-      if (index + 1 === this.histories.length) {
-        this.hasRight = false
-      }
-
       this.top = 18
       this.index = index
       this.visible = true
     },
     closeMenu() {
       this.visible = false
-      this.hasLeft = true
-      this.hasRight = true
     },
     close(index) {
       // 检测是否是当前页, 如果是当前页则自动切换路由

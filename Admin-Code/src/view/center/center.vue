@@ -25,11 +25,10 @@
                 class="avatar-uploader"
                 :action="uploadUrl"
                 :show-file-list="false"
-                :on-success="handleAvatarSuccess"
                 :headers="uploadHeaders"
-                :before-upload="beforeAvatarUpload"
+                :http-request="uploadRequest"
               >
-                <img v-if="user.avatar" :src="user.avatar" class="avatar" />
+                <img v-if="imgUrl" :src="imgUrl" class="avatar" />
                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
               </el-upload>
             </div>
@@ -70,17 +69,10 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import Vue from 'vue'
-import Croppa from 'vue-croppa'
 import User from '@/lin/model/user'
-import 'vue-croppa/dist/vue-croppa.css'
 import defaultAvatar from '@/assets/image/user/user.png'
 import uploadImage from '@/component/base/upload-image/index.vue'
 import { getToken } from '@/lin/util/token.js'
-
-Vue.use(Croppa)
-
-const width = 150
-const height = 150
 
 export default {
   name: 'center',
@@ -127,6 +119,7 @@ export default {
       uploadUrl: process.env.VUE_APP_BASE_URL + 'cms/file',
       username: null,
       nickname: null,
+      imgUrl:null,
       form: {
         old_password: '',
         new_password: '',
@@ -137,49 +130,39 @@ export default {
         new_password: [{ validator: validatePassword, trigger: 'blur', required: true }],
         confirm_password: [{ validator: validatePassword2, trigger: 'blur', required: true }],
       },
-      cropRule: {
-        width,
-        height,
-      },
-      imgRule: {
-        minWidth: width,
-        minHeight: height,
-      },
-      cropVisible: false,
-      cropImg: '',
-      croppa: {},
-      imgInfo: null,
-      quality: 1,
       defaultAvatar,
     }
   },
   computed: {
     ...mapGetters(['user']),
   },
-  watch: {
-    cropVisible(val) {
-      if (!val) {
-        this.$refs.croppa.remove()
-        this.cropImg = ''
-        this.imgInfo = null
-      }
-    },
+  watch:{
+    user(newD){
+      this.imgUrl = newD.avatar
+    }
   },
   created() {
     this.init()
+    this.imgUrl = this.user.avatar
   },
   methods: {
     ...mapActions(['loginOut', 'setUserAndState']),
-    
-    // 图片上传成功
-    handleAvatarSuccess(res, file) {
-      console.log(file)
-      this.user.avatar = URL.createObjectURL(file.raw);
+    // 自定义图片上传方法
+    uploadRequest(req) {
       this.$axios({
+        method: 'POST',
+        url: '/cms/file',
+        data: {
+          file: req.file,
+        },
+      })
+      .then(res=>{
+        this.imgUrl = res.url
+        this.$axios({
         method: 'put',
         url: '/cms/user',
         data: {
-          avatar: file.response[0].path,
+          avatar: res.path,
         },
       })
         .then(putRes => {
@@ -200,119 +183,6 @@ export default {
           const user = infoRes
           this.setUserAndState(user)
         })
-    },
-    beforeAvatarUpload(file) {
-      const isJPG = file.type === 'image/jpeg';
-      const isLt2M = file.size / 1024 / 1024 < 2;
-
-      if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!');
-      }
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!');
-      }
-      return isJPG && isLt2M;
-    },
-    fileChange(evt) {
-      if (evt.target.files.length !== 1) {
-        return
-      }
-      const imgFile = evt.target.files[0]
-      // 验证文件大小是否符合要求, 不大于 5M
-      if (imgFile.size > 1024 * 1024 * 5) {
-        this.$message.error('文件过大超过5M')
-        // 清空输入框
-        this.clearFileInput(this.$refs.avatarInput)
-        return
-      }
-
-      // 验证图像是否符合要求
-      const imgSrc = window.URL.createObjectURL(imgFile)
-      const image = new Image()
-      image.src = imgSrc
-      image.onload = () => {
-        const w = image.width
-        const h = image.height
-        if (w < 50) {
-          this.$message.error('图像宽度过小, 请选择大于50px的图像')
-          // 清空输入框
-          this.clearFileInput(this.$refs.avatarInput)
-          return
-        }
-        if (h < 50) {
-          this.$message.error('图像高度过小, 请选择大于50px的图像')
-          // 清空输入框
-          this.clearFileInput(this.$refs.avatarInput)
-          return
-        }
-        // 验证通过, 打开裁剪框
-        this.cropImg = imgSrc
-        this.cropVisible = true
-        if (this.$refs.croppa) {
-          this.$refs.croppa.refresh()
-        }
-      }
-      image.onerror = () => {
-        this.$message.error('获取本地图片出现错误, 请重试')
-        // 清空输入框
-        this.clearFileInput(this.$refs.avatarInput)
-      }
-    },
-    async handleCrop() {
-      // 获取裁剪数据
-      const blob = await this.$refs.croppa.promisedBlob('image/jpeg', 0.8)
-      console.log(blob)
-      // 构造为文件对象
-      const file = new File([blob], 'avatar.jpg', {
-        type: 'image/*',
-      })
-      // const file = new File([blobInfo.blob()], blobInfo.filename(), {
-      //   type: 'image/*',
-      // })
-      console.log(file)
-      return this.$axios({
-        method: 'POST',
-        url: '/cms/file',
-        data: {
-          file,
-        },
-      }).then(res => {
-        // 清空输入框
-        this.clearFileInput(this.$refs.avatarInput)
-        if (!Array.isArray(res) || res.length !== 1) {
-          this.$message.error('头像上传失败, 请重试')
-          return false
-        }
-        // TODO: 错误码处理
-        // if (res.code === 10110) {
-        //   throw new Error('文件体积过大')
-        // }
-        return this.$axios({
-          method: 'put',
-          url: '/cms/user',
-          data: {
-            avatar: res[0].path,
-          },
-        })
-          .then(putRes => {
-            // eslint-disable-line
-            if (putRes.code < window.MAX_SUCCESS_CODE) {
-              this.$message({
-                type: 'success',
-                message: '更新头像成功',
-              })
-              this.cropVisible = false
-              // 触发重新获取用户信息
-              return User.getInformation()
-            }
-            return Promise.reject(new Error('更新头像失败'))
-          })
-          .then(infoRes => {
-            // eslint-disable-line
-            // 尝试获取当前用户信息
-            const user = infoRes
-            this.setUserAndState(user)
-          })
       })
     },
     async blur() {
@@ -386,10 +256,6 @@ export default {
     // 重置表单
     resetForm(formName) {
       this.$refs[formName].resetFields()
-    },
-    clearFileInput(ele) {
-      // eslint-disable-next-line
-      ele.value = ''
     },
   },
 }

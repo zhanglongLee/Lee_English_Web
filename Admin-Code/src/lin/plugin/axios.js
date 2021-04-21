@@ -162,7 +162,7 @@ _axios.interceptors.response.use(
         if (errorArr.length > 0 && errorArr[0][1] !== '') {
           message = errorArr[0][1] // eslint-disable-line
         } else {
-          message = ErrorCode['777']
+          message = ErrorCode['9999']
         }
       }
 

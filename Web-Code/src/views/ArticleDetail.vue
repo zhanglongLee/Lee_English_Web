@@ -25,7 +25,7 @@
             <div class="content-text" v-html="detailData.content"></div>
           </div>
 
-          <div class="comment">
+          <div class="comment" v-if="detailData.is_comment_enabled">
             <comment
               comment-width="100%"
               :comment-list="commentList"
@@ -164,6 +164,11 @@ export default {
         .get("/web/article/" + this.articleId)
         .then(res => {
           this.loading = false;
+          if(res.code==10022){
+            this.$message.error(res.message)
+            this.backToPrev()
+            return
+          }
           const vdata = res.data;
           this.detailData = vdata; // 文章详情
         })
@@ -223,7 +228,6 @@ export default {
         comment.childrenList = this.getChildrenList(comment,res,targetUser)
       })
       this.commentList = commentList
-      console.log(commentList)
     },
     backToPrev() {
       this.$router.back();

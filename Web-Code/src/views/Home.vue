@@ -136,12 +136,23 @@ export default {
     }
   },
   mounted() {
-
+    this.webVisit()
   },
   methods: {
     navTo(path) {
       document.documentElement.scrollTop = 0
       this.$router.push({ path })
+    },
+    webVisit(){
+      this.$service
+        .get("/web/visit/")
+        .then(res => {
+
+        })
+        .catch(err => {
+          this.loading = false;
+          console.log(err);
+        });
     }
   }
 }

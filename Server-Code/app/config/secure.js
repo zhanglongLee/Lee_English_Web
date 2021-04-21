@@ -2,7 +2,7 @@
 
 module.exports = {
   db: {
-    database: 'lin-cms',
+    database: 'english_study_web',
     host: 'localhost',
     dialect: 'mysql',
     port: 3306,

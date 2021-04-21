@@ -32,7 +32,7 @@ export default {
     titleText: {
       type: String,
       default: () => {
-        return '热点推荐'
+        return '文章推荐'
       }
     },
     hotRecommendList: {
@@ -54,7 +54,6 @@ export default {
   },
   created() {
     this.list = this.hotRecommendList
-    console.log(this.hotRecommendList)
   },
   methods: {
     handleClick(item) {

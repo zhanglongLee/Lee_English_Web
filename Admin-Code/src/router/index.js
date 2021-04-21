@@ -44,6 +44,13 @@ const router = new Router({
   routes,
 })
 
+//获取原型对象上的push函数
+const originalPush = Router.prototype.push
+//修改原型对象中的push方法
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
+
 router.beforeEach((to, from, next) => {
   // 登录验证
   if (isLoginRequired(to.name) && !store.state.logined) {

@@ -30,6 +30,7 @@ class Listening {
   static async getListeningHotList() {
 
     const res = await ListeningModel.findAll({
+      where: { is_published: 1 },
       attributes: {
         exclude: ['deleted_at', 'updated_at']
       },
@@ -42,18 +43,18 @@ class Listening {
     return res;
   }
 
-  // 查看听力练习列表
-  static async getListeningList(page = 1, size = 5, q) {
+  // 前端查看听力练习列表
+  static async getWebListeningList(page = 1, size = 5, q) {
 
+    var whereObj = { is_published: 1 }
     if (q) {
-      var whereObj = {
-        title: {
-          [Op.like]: `%${q}%`
-        }
+      whereObj.title = {
+        [Op.like]: `%${q}%`
       };
     }
     const res = await ListeningModel.findAndCountAll({
       where: whereObj,
+      order: [['created_at', 'DESC']],
       attributes: {
         exclude: ['deleted_at', 'updated_at']
       },
@@ -68,6 +69,34 @@ class Listening {
     });
     return res;
   }
+
+  // 后端查看听力练习列表
+  static async getListeningList(page = 1, size = 5, q) {
+
+    var whereObj = {}
+    if (q) {
+      whereObj.title = {
+        [Op.like]: `%${q}%`
+      };
+    }
+    const res = await ListeningModel.findAndCountAll({
+      where: whereObj,
+      order: [['created_at', 'DESC']],
+      attributes: {
+        exclude: ['deleted_at', 'updated_at']
+      },
+      limit: Number(size),//长度
+      offset: (Number(page) - 1) * Number(size),//当前列表开始值
+      include: [
+        { // include关键字表示关联查询
+          model: CategoryModel,
+        }
+      ],
+      // raw: true // 这个属性表示开启原生查询，原生查询支持的功能更多，自定义更强
+    });
+    return res;
+  }
+
   // 新增听力练习
   static async createListening(v) {
     const listening = await ListeningModel.findOne({

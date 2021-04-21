@@ -46,7 +46,7 @@ export default {
       this.permissions = permissions
     },
     updateAllPermissions(allPermissions) {
-      this.allPcrmissions = allPermissions
+      this.allPermissions = allPermissions
     },
     // 页面打开时候，记录缓存所拥有的全部权限
     getCacheAuthIds(ids) {
@@ -57,9 +57,11 @@ export default {
       let delRes = 0
       // 判断是否更改了分组权限
       if (this.permissions.sort().toString() !== this.cachePermissions.sort().toString()) {
+        // 删除的权限
         const deletePermissions = this.cachePermissions
           .concat(this.permissions)
           .filter(v => !this.permissions.includes(v))
+        // 新增的权限
         const addPermissions = this.cachePermissions
           .concat(this.permissions)
           .filter(v => !this.cachePermissions.includes(v))

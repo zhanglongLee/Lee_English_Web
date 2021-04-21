@@ -29,13 +29,14 @@ class Listening {
   }
 
   async getListenings(obj) {
-    let { index, size } = obj
+    let { index, size, q } = obj
     return _axios({
       method: 'get',
       url: 'v1/listen',
-      params:{
-        page:index,
-        size
+      params: {
+        page: index,
+        size,
+        q
       },
       handleError: true,
     })

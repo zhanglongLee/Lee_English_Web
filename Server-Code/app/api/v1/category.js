@@ -37,9 +37,38 @@ CategoryApi.linPost(
   });
 
 /**
+ * 无权限控制 获取分类列表
+ */
+ CategoryApi.get(
+  '/list', // URL
+  async ctx => {
+  let { page, size, q } = ctx.query;
+
+  let categoryList = await CategoryDao.getCategoryList(page, size, q);
+
+  // 返回结果
+  let obj = {};
+  obj.page = Number(page) || 1;
+  obj.size = Number(size) || 5;
+  obj.total = categoryList.count;
+  obj.data = categoryList.rows;
+
+  ctx.json(obj);
+});
+
+/**
  * 查看分类列表
  */
-CategoryApi.get('/', async ctx => {
+CategoryApi.linGet(
+  'getCategory', // 唯一表示
+  '/', // URL
+  {
+    permission: '查询所有分类', // 权限的名字
+    module: '分类管理', // 权限属于哪个模块
+    mount: true // 是否在全局的权限列表中显示
+  },
+  groupRequired,
+  async ctx => {
   let { page, size, q } = ctx.query;
 
   let categoryList = await CategoryDao.getCategoryList(page, size, q);

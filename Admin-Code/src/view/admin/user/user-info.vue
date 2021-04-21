@@ -165,7 +165,7 @@ export default {
               }
             } catch (e) {
               this.loading = false
-              if (e.data.code === 10073) {
+              if (e.data.code === 10076) {
                 this.$message.error(e.data.message)
               } else {
                 this.$message.error('新增用户失败')

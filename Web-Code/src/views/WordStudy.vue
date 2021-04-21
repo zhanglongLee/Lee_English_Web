@@ -1,13 +1,13 @@
 <template>
-  <div class="word-wrap">
+  <div class="word-wrap" v-loading="loading">
     <div class="word-content">
       <div class="title">单词分类</div>
       <ul class="cardLists">
         <li class="cardItems" v-for="(item,index) in wordTypeList" :key="index">
           <el-card class="box-card">
-            <div class="card-title">{{item.name}}词汇</div>
-            <div class="card-num">{{item.wordNum}}<span>词</span></div>
-            <el-button class="card-btn" type="primary" @click="startLearning(item.id)">开始学习</el-button>
+            <div class="card-title">{{item.category_name}}词汇</div>
+            <div class="card-num">{{item.word_num}}<span>词</span></div>
+            <el-button class="card-btn" type="primary" @click="startLearning(item.categoryId)">开始学习</el-button>
           </el-card>
         </li>
       </ul>
@@ -19,20 +19,30 @@
 export default {
   data(){
     return {
-      wordTypeList:[
-        {id:1,name:"四级",wordNum:500,},
-        {id:2,name:"六级",wordNum:600,},
-        {id:3,name:"专业英语四级",wordNum:800,},
-        {id:4,name:"专业英语八级",wordNum:900,},
-        {id:4,name:"新概念英语",wordNum:500,},
-        {id:4,name:"高频",wordNum:600,},
-      ]
+      wordTypeList:[],
+      loading:true
     }
   },
   methods:{
     startLearning(id){
       this.$router.push({path:`/wordStudy/wordStudyDetail/${id}`})
-    }
+    },
+    // 获取单词分类列表
+    getTypeList(){
+      this.$service
+        .get('/web/word/typeList')
+        .then(res => {
+          this.loading = false
+          this.wordTypeList = res.data
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    
+  },
+  mounted(){
+    this.getTypeList()
   }
 }
 </script>

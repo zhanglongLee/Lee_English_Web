@@ -1,5 +1,5 @@
 <template>
-  <div class="lin-table">
+  <div class="lin-table" v-if="currentData.length>0">
     <el-table
       ref="linTable"
       v-loading="loading"
@@ -58,6 +58,9 @@
       :current-page="pagination.currentPage ? pagination.currentPage : 1"
       @current-change="currentChange"
     ></el-pagination>
+  </div>
+  <div v-else class="no-result">
+    暂无数据~
   </div>
 </template>
 
@@ -428,6 +431,13 @@ export default {
   justify-content: flex-end;
   margin-right: -10px;
   margin-top: 15px;
+}
+.no-result{
+  width: 100%;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
 

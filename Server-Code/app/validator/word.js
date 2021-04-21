@@ -18,7 +18,7 @@ class CreateWordValidator extends LinValidator {
 class UpdateWordValidator extends CreateWordValidator {
   constructor () {
     super();
-    this.word_id = [
+    this.id = [
       new Rule('isNotEmpty', '单词ID不能为空'),
       new Rule('isInt', '单词ID必须是数字')
     ];
@@ -33,5 +33,14 @@ class DeleteWordValidator extends LinValidator {
     ];
   }
 }
+class GetWordTypeValidator extends LinValidator{
+  constructor(){
+    super()
+    this.type = [
+      new Rule('isNotEmpty', '分类ID不能为空'),
+      new Rule('isInt', '分类ID必须是数字')
+    ];
+  }
+}
 
-export { CreateWordValidator,UpdateWordValidator,DeleteWordValidator };
+export { CreateWordValidator,UpdateWordValidator,DeleteWordValidator,GetWordTypeValidator };

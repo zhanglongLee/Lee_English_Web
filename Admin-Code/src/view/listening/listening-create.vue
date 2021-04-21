@@ -119,6 +119,7 @@
 import listening from '@/model/listening'
 import { getToken } from '@/lin/util/token.js'
 import uploadImage from '@/component/base/upload-image'
+import Utils from '../../lin/util/util'
 
 export default {
   components: {
@@ -194,34 +195,6 @@ export default {
     this.getCategory()
   },
   methods: {
-    // 添加列表
-    addQuestionsList(){
-      this.questionsList.push({
-        title:'',
-        op1:'',
-        op2:'',
-        op3:'',
-        op4:'',
-        answer:'',
-      })
-    },
-    // 音频上传之前
-    beforeSourceUpload(file) {
-      // const isAudio = file.type === 'audio/mpeg';
-      // const isLt2M = file.size / 1024 / 1024 < 5;
-
-      // if (!isAudio) {
-      //   setTimeout(()=>{
-      //     this.$message.error('只能上传音频格式文件');
-      //   },100)
-      // }
-      // if (!isLt2M) {
-      //   setTimeout(()=>{
-      //     this.$message.error('上传图片大小不能超过 5MB!');
-      //   },100)
-      // }
-      // return isAudio && isLt2M;
-    },
     // 图片上传之前
     beforeImageUpload(file) {
       const isImage = file.type === 'image/jpeg' || file.type === 'image/png';
@@ -238,6 +211,35 @@ export default {
         },100)
       }
       return isImage && isLt2M;
+    },
+    // 上传音频前
+    beforeSourceUpload(file) {
+      console.log(file.type)
+      const isMP3 = file.type === 'audio/mpeg'
+      const isLt30M = file.size / 1024 / 1024 < 30
+
+      if (!isMP3) {
+        setTimeout(()=>{
+          this.$message.error('上传音频只能是 MP3 格式!')
+        },100)
+      }
+      if (!isLt30M) {
+        setTimeout(()=>{
+          this.$message.error('上传音频大小不能超过 30MB!')
+        },100)
+      }
+      return isMP3 && isLt30M 
+    },
+    // 添加列表
+    addQuestionsList(){
+      this.questionsList.push({
+        title:'',
+        op1:'',
+        op2:'',
+        op3:'',
+        op4:'',
+        answer:'',
+      })
     },
     // 自定义图片上传方法
     fUploadImage(req) {
@@ -273,7 +275,7 @@ export default {
     getCategory() {
       this.$axios({
         method: 'get',
-        url: '/v1/category',
+        url: '/v1/category/list',
       }).then(res => {
         res.data.forEach((item, index) => {
           this.categoryList.push({
@@ -303,13 +305,13 @@ export default {
           this.$message.error('请填写完整题听力练习题目及答案')
           return
         }
-        this.form.questions = JSON.stringify(this.questionsList)
         if (v) {
-          console.log(this.form)
           try {
             this.loading = true
-            this.form.image = this.form.originImage
-            const res = await listening.createListening(this.form)
+            this.postObj = Utils.deepClone(this.form)
+            this.postObj.image = this.postObj.originImage
+            this.postObj.questions = JSON.stringify(this.questionsList)
+            const res = await listening.createListening(this.postObj)
             this.loading = false
             if (res.code < window.MAX_SUCCESS_CODE) {
               this.$message.success(`${res.message}`)
@@ -362,6 +364,16 @@ export default {
 }
 
 
+.avatar-uploader /deep/ .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader /deep/ .el-upload:hover {
+  border-color: #409eff;
+}
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;

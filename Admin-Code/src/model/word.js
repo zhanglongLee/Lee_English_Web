@@ -32,10 +32,17 @@ class Word {
     return res
   }
 
-  async getWords() {
+  async getWords(obj) {
+    let { index, size, q } = obj
     return _axios({
       method: 'get',
       url: 'v1/word',
+      params: {
+        page: index,
+        size,
+        q
+      },
+
       handleError: true,
     })
   }

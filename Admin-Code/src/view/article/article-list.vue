@@ -2,7 +2,10 @@
   <div>
     <!-- 列表页面 -->
     <div class="container" v-if="!showEdit">
-      <div class="header"><div class="title">文章列表</div></div>
+      <div class="header">
+        <div class="title">文章列表</div>
+        <my-search class="search" @query="onQueryChange" ref="searchKeyword" />
+      </div>
       <!-- 表格 -->
       <my-table
         :tableColumn="tableColumn"
@@ -24,6 +27,7 @@
 
 <script>
 import article from '@/model/article'
+import MySearch from '@/component/base/search/my-search'
 import MyTable from '@/component/base/table/my-table'
 import tablePaper from '@/component/base/tablePaper/tablePaper'
 import articleModify from './article-modify'
@@ -33,11 +37,12 @@ export default {
     MyTable,
     articleModify,
     tablePaper,
+    MySearch
   },
   data() {
     return {
       tableColumn: [
-        { prop: 'title', label: '标题',width:'300px',fixed:true },
+        { prop: 'title', label: '标题',width:'200px',fixed:true },
         { prop: 'author', label: '作者',width:'150px' },
         { prop: 'description', label: '描述' },
         { prop: 'published_time', label: '发布日期' },
@@ -46,15 +51,16 @@ export default {
         { prop: 'read_time', label: '阅读时长' },
         { prop: 'words', label: '文章字数' },
         { prop: 'show_is_published', label: '是否发布' },
-        { prop: 'show_is_comment_enabled', label: '是否开启评论' },
+        { prop: 'show_is_comment_enabled', label: '允许评论' },
         { prop: 'show_is_top', label: '是否置顶' },
       ],
       tableData: [],
       operate: [],
       page: {
-        size: 10,
+        size: 5,
         count: 8,
         index: 1,
+        q:""
       },
       showEdit: false,
       rowObj: {},
@@ -66,25 +72,31 @@ export default {
     this.loading = true
     await this.getArticles()
     this.operate = [
-      { name: '编辑', func: 'handleEdit', type: 'primary' },
+      { name: '编辑', func: 'handleEdit', type: 'primary',permission: '修改文章内容', },
       {
         name: '删除',
         func: 'handleDelete',
         type: 'danger',
-        permission: '删除图书',
+        permission: '删除文章',
       },
-      {
-        name: '查看文章',
-        func: 'handleView',
-        type: 'primary'
-      },
+      // {
+      //   name: '查看文章',
+      //   func: 'handleView',
+      //   type: 'primary'
+      // },
     ]
     this.loading = false
   },
   methods: {
+    // 搜索
+    onQueryChange(val){
+      this.page.q = val
+      this.getArticles()
+    },
     // 查看文章
     handleView(val){
-      console.log(val)
+      let id = val.row.categoryId
+      window.open(`http://localhost:8080/#/article/ArticleDetail/${id}`)
     },
     // 分页点击
     tablePaperChange(data) {
@@ -144,10 +156,9 @@ export default {
 <style lang="scss" scoped>
 .container {
   padding: 0 30px;
-
+  
   .header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
 
     .title {
@@ -156,6 +167,10 @@ export default {
       color: $parent-title-color;
       font-size: 16px;
       font-weight: 500;
+    }
+
+    .search{
+      margin-left: 100px;
     }
   }
 

@@ -37,26 +37,16 @@ WordApi.linPost(
   });
 
 /**
- * 批量新增单词
+ * 通过Id查找单词
  */
-WordApi.linPost(
-  'addWordArr', // 唯一表示
-  '/wordArr', // URL
-  {
-    permission: '新增单词', // 权限的名字
-    module: '单词管理', // 权限属于哪个模块
-    mount: true // 是否在全局的权限列表中显示
-  },
-  groupRequired,
-  logger('{user.username}新增单词'), // logger，参数为日志内容
-  async ctx => {
-    console.log(ctx.request.body)
-    await WordDao.createWordArr(ctx.request.body);
-    // 4、返回成功
-    ctx.success({
-      message: '单词新增成功！'
-    });
+WordApi.get('/:id', async ctx => {
+  const v = await new PositiveIdValidator().validate(ctx);
+  let { id } = v.get('path');
+  var wordList = await WordDao.getWordById(id);
+  ctx.json({
+    data:wordList
   });
+});
 
 /**
  * 查看单词列表
@@ -98,7 +88,7 @@ WordApi.linPut(
   groupRequired,
   logger('{user.username}修改单词内容'), // logger，参数为日志内容
   async ctx => {
-    const v = await new UpdateWordValidator().validate(ctx);
+    const v = await new EditWordValidator().validate(ctx);
     const id = v.get('path.id');
     const params = v.get('body');
     await WordDao.editWord(id, params);
@@ -123,6 +113,7 @@ WordApi.linDelete(
   async ctx => {
     const v = await new DeleteWordValidator().validate(ctx);
     const id = v.get('path.id');
+    console.log(ctx.currentUser)
 
     const web_user_id = ctx.currentUser.id
     // 1、删除单词

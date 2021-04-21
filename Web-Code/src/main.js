@@ -25,12 +25,11 @@ router.beforeEach((to, from, next) => {
   if (to.meta && to.meta.authentication) {
     if (!getToken('access_token')) {
       next({ path: '/' })
-      alert('请先登录')
+      Vue.prototype.$message.error('请先登录')
     }
   }
   next()
 })
-
 // 回到顶部算法
 const cubic = value => Math.pow(value, 3)
 const easeInOutCubic = value => value < 0.5 ? cubic(value * 2) / 2 : 1 - cubic((1 - value) * 2) / 2

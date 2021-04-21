@@ -179,6 +179,7 @@ export default {
     this.getCategory();
     delete this.rowObj.created_at
     this.form = this.rowObj
+    this.form.is_top = Boolean(this.form.is_top)
     
   },
   methods: {
@@ -200,7 +201,7 @@ export default {
     getCategory(){
       this.$axios({
         method: 'get',
-        url: '/v1/category'
+        url: '/v1/category/list'
       })
       .then(res=>{
         res.data.forEach((item,index)=>{
@@ -214,11 +215,15 @@ export default {
       })
     },
     async submitForm(formName) {
-      this.loading = true
       this.$refs.form.validate(async v=>{
         if(v){
           try {
+            this.loading = true
             this.form.image = this.form.originImage
+            this.form.is_top = Number(this.form.is_top)
+            delete this.form.show_is_comment_enabled
+            delete this.form.show_is_published
+            delete this.form.show_is_top
             const res = await article.editArticle(this.form.id, this.form)
             this.loading = false
             if (res.code < window.MAX_SUCCESS_CODE) {
@@ -234,6 +239,7 @@ export default {
         }
       })
     },
+    
     // 重置表单
     resetForm(formName) {
       for(var k in this[formName]){

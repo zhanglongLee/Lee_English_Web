@@ -44,7 +44,7 @@ const adminRouter = {
       route: '/admin/group/list',
       name: null,
       title: '分组管理',
-      type: 'tab', // 取 route 为默认加载页
+      type: 'folder', // 取 route 为默认加载页
       icon: null,
       filePath: 'view/admin/group',
       inNav: true,

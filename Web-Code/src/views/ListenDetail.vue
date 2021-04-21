@@ -1,6 +1,6 @@
 <template>
   <div id="content" class="listen-detail">
-    <div class="listen-content">
+    <div class="listen-content" v-if="questions.length>0">
       <h1 class="header-title">{{listeningDetail.title}}</h1>
       <div class="back-to-prev-page">
         <img src="../assets/images/article/prev.png" alt="" />
@@ -17,25 +17,17 @@
           <i v-if="!isCollection" @click="toCollect(1)" class="iconfont icon-shoucang" :title="isCollection?'点击取消收藏':'点击收藏'"></i>
           <i v-if="isCollection" @click="toCollect(0)" class="iconfont icon-shoucangbeifen" :title="isCollection?'点击取消收藏':'点击收藏'"></i>
         </div>
-        <!-- <div class="d-flex align-items-center flex-wrap">
-          <div
-            ref="download"
-            class="d-none"
-            :href="listeningDetail.logo"
-            :download="listeningDetail.fileName"
-          ></div>
-        </div> -->
       </div>
       <div class="post-body">
-        <div class="resource">
+        <div class="resource" v-if="audioData.length>0">
           <myaudio 
             ref="audioPlayer"
             theme-color="#ff2929"
             :audioData="audioData"
             ></myaudio>
         </div>
-        <div class="news-question">
-          <ul class="question-list">
+        <div class="news-question" >
+          <ul class="question-list" v-if="questions.length>0">
             <li
               v-for="(item, i) in questions"
               :key="i"
@@ -104,7 +96,7 @@
               </div>
             </li>
           </ul>
-          <div class="btn-list">
+          <div class="btn-list" v-if="questions.length>0">
             <el-button
               type="primary"
               class="sub-btn"
@@ -135,17 +127,10 @@
               >先不看</span>
             </div> -->
           </div>
-          <div
-            v-if="
-              questions.length <= 0
-            "
-          >
-            <div class="no-result">暂时没有内容/(ㄒoㄒ)/~~</div>
-          </div>
         </div>
-        
       </div>
     </div>
+    <div v-else class="no-result">暂时没有内容/(ㄒoㄒ)/~~</div>
   </div>
 </template>
 
@@ -184,7 +169,7 @@ export default {
     // 获取历史答案
     getHistoryAnswer(){
       this.history_answer = this.$store.state.history_answer
-      if(this.history_answer.length>0){
+      if(this.history_answer.length>0&&this.questions.length>0){
         this.questions.forEach((item,index)=>{
           this.questions[index].answerTemp = this.history_answer[index]
         })
@@ -193,7 +178,7 @@ export default {
     },
     // 下载
     downloadSource(){
-      window.open(this.listeningDetail.source)
+      window.open(this.listeningDetail.source,'')
     },
     // 收藏练习
     toCollect(type){
@@ -236,11 +221,17 @@ export default {
       this.$service
         .get("/web/listening/" + this.listeningId)
         .then(res => {
+          this.audioData = []
           this.loading = false;
+          if(res.code){
+            this.$message.error(res.message)
+            this.backToPrev()
+            return
+          }
           let vdata = res.data
           this.listeningDetail = vdata
           let questions = JSON.parse(vdata.questions)
-          this.audioData = [vdata.source]
+          this.audioData.push(vdata.source)
           questions.map((item, index) => {
             item.answerTemp = ''
             item.isWrong = false
@@ -253,27 +244,7 @@ export default {
           this.loading = false;
           console.log(err);
         });
-      // this.isShowAnswer = false
-      // res.data.questions.map((item, index) => {
-      //   item.answerTemp = ''
-      //   item.isWrong = false
-      // })
-      // this.listeningDetail = res.data
-      // // 用数据库表中没用到的option5字段作为排序的值
-      // this.listeningDetail.questions.sort(this.compare('option5'))
-      // console.log(this.listeningDetail)
-      // this.listeningDetail.fileName = this.listeningDetail.logo.substr(
-      //   this.listeningDetail.logo.lastIndexOf('-') + 1,
-      //   this.listeningDetail.logo.lastIndexOf('.')
-      // )
-      // this.listeningDetail.fileType =
-      //   this.imgList.indexOf(
-      //     this.listeningDetail.logo.substr(
-      //       this.listeningDetail.logo.lastIndexOf('.') + 1
-      //     )
-      //   ) > -1
-      //     ? 'img'
-      //     : 'video'
+
     },
     compare(property) {
       return function(a, b) {
@@ -302,27 +273,6 @@ export default {
 
       
       this.addUserLearning(this.listeningId)
-    },
-    deleteListening(id) {
-      // $.post('/api/listening/delete', {
-      //   id
-      // })
-      //   .done(data => {
-      //     if (data.code !== 0) {
-      //       console.log(data.msg)
-      //       return false
-      //     }
-      //     this.$message({
-      //       showClose: true,
-      //       message: data.msg
-      //     })
-      //     setTimeout(function() {
-      //       location.href = '/listening'
-      //     }, 500)
-      //   })
-      //   .fail(err => {
-      //     throw err
-      //   })
     },
     // 展示做题结果
     showScore(){
@@ -482,6 +432,7 @@ export default {
 }
 .no-result {
   width: 100%;
+  line-height: 500px;
   text-align: center;
   font-size: 18px;
 }

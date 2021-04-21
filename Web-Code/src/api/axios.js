@@ -61,11 +61,15 @@ service.interceptors.response.use(response => {
     // message: ["电子邮箱不符合规范，请输入正确的邮箱"]
     response.data.message = msg[0]
   }
+  let flag = 0
   if(code===10051){
+    flag++
     // token 过期
-    // 清除用户过期信息
-    Vue.prototype.$message.error('用户过期信息请重新登录')
-    store.dispatch('logOut')
+    if(flag===1){
+      // 清除用户过期信息
+      Vue.prototype.$message.error('用户过期信息请重新登录')
+      store.dispatch('logOut')
+    }
   }else if(code === 10013){
     Vue.prototype.$message.error('需要登录后才能完成此操作喔~！')
   }

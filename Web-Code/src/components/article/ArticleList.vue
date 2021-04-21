@@ -1,7 +1,7 @@
 <template>
   <div class="articles-list">
     <div class="articles-list-header">
-      <typeList :type-list="typeList" @typeBtnClick="typeBtnClick" />
+      <ContentHeader :type-list="typeList" @typeBtnClick="typeBtnClick" @query="onQueryChange" placeholder="请输入文章"></ContentHeader>
     </div>
     <div class="articles-list-content contentAear content-mb">
       <div
@@ -26,15 +26,15 @@
 import HotRecommend from '../common/HotRecommend'
 import ContentList from '../common/ContentList'
 import Pagination from '../common/Pagination'
-import typeList from '../common/typeList'
 import { deepClone } from '../../util/common'
+import ContentHeader from '../common/ContentHeader'
 export default {
   name: 'ArticlesList',
   components: {
     HotRecommend,
     ContentList,
     Pagination,
-    typeList
+    ContentHeader
   },
   data() {
     return {
@@ -44,6 +44,7 @@ export default {
       index: 1,
       size: 5,
       total: 0,
+      q:'',
       loading: true,
       hotRecommendList:[]
     }
@@ -56,6 +57,11 @@ export default {
     this.getHotList()
   },
   methods: {
+    // 搜索
+    onQueryChange(val){
+      this.q = val
+      this.getArticleList()
+    },
     navToDetail(id) {
       this.$router.push(`/article/ArticleDetail/${id}`)
     },
@@ -82,11 +88,13 @@ export default {
     getArticleList() {
       this.loading = true
       this.$service
-        .get(`/web/article?page=${this.index}&size=${this.size}`)
+        .get(`/web/article?page=${this.index}&size=${this.size}&q=${this.q}`)
         .then(res => {
           this.loading = false
           const vdata = res.data
           if(vdata.length==0){
+            this.curList = []
+            this.typeList = []
             return false
           }
           this.total = res.total
@@ -135,7 +143,13 @@ export default {
   background-size: cover;
   position: relative;
 } */
-
+.articles-list-header{
+  width: 780px;
+}
+/* .articles-list-header .search{
+  position: absolute;
+  right: 0px;
+} */
 .articles-list-content {
   display: flex;
   justify-content: space-between;

@@ -7,6 +7,7 @@ const listeningRouter = {
   filePath: 'view/listening/', // 文件路径
   order: null,
   inNav: true,
+  permission: ['查看所有听力练习'],
   children: [
     {
       title: '添加听力练习',
@@ -16,15 +17,17 @@ const listeningRouter = {
       filePath: 'view/listening/listening-create.vue',
       inNav: true,
       icon: 'iconfont icon-tushuguanli',
+      permission: ['新增听力练习'],
     },
     {
       title: '听力练习列表',
       type: 'view',
-      name: 'listeningCreate',
+      name: 'listeningList',
       route: '/listening/list',
       filePath: 'view/listening/listening-list.vue',
       inNav: true,
       icon: 'iconfont icon-tushuguanli',
+      permission: ['查看所有听力练习'],
     },
   ],
 }

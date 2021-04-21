@@ -162,7 +162,7 @@
                 <el-button size="mini" :type="!isShowTranslate?'primary':''" @click="isShowTranslate=false">隐藏释义</el-button>
               </el-button-group>
             </div>
-            <div class="word-content">
+            <div class="word-content" v-if="wordBookList.length>0">
               <div class="word-items" v-for="(item,index) in wordBookList" :key="index">
                 <h3 class="item-title">{{item.word_name}}</h3>
                 <div class="item-pronunciation">{{item.pronunciation}}</div>
@@ -170,6 +170,9 @@
                 <div class="item-type"><el-tag>{{item.categoryName}}词汇</el-tag></div>
                 <i class="iconfont icon-lajitong" title="移出生词本" @click="removeWord(item.word_id)"></i>
               </div>
+            </div>
+            <div v-else class="no-result">
+              暂无数据
             </div>
           </div>
           <!-- 生词本 E-->
@@ -606,7 +609,14 @@ export default {
     }
   }
 }
-
+.no-result{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  width: 100%;
+  height: 400px;
+}
 .el-aside {
   color: #333;
 }

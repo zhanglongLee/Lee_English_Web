@@ -1,3 +1,4 @@
+
 /* eslint-disable class-methods-use-this */
 import _axios, { get, put, _delete } from '@/lin/plugin/axios'
 
@@ -29,13 +30,14 @@ class Article {
   }
 
   async getArticles(obj) {
-    let { index, size } = obj
+    let { index, size,q } = obj
     return _axios({
       method: 'get',
       url: 'v1/article',
       params:{
         page:index,
-        size
+        size,
+        q
       },
       handleError: true,
     })

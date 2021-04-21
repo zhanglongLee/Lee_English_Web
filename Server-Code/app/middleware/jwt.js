@@ -121,13 +121,16 @@ async function groupRequired (ctx, next) {
       if (ctx.matched) {
         const routeName = ctx._matchedRouteName || ctx.routerName;
         const endpoint = `${ctx.method} ${routeName}`;
+        // 获取访问路由的权限名和模块
         const { permission, module } = routeMetaInfo.get(endpoint);
+        // 获取分组
         const userGroup = await UserGroupModel.findAll({
           where: {
             user_id: ctx.currentUser.id
           }
         });
         const groupIds = userGroup.map(v => v.group_id);
+        // 获取分组下所有的权限
         const groupPermission = await GroupPermissionModel.findAll({
           where: {
             group_id: {
@@ -136,6 +139,7 @@ async function groupRequired (ctx, next) {
           }
         });
         const permissionIds = uniq(groupPermission.map(v => v.permission_id));
+        // 用户是否拥有权限
         const item = await PermissionModel.findOne({
           where: {
             name: permission,

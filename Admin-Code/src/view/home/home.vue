@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { NavBar, SideBar, AppMain, ReuseTab, MenuTab, BackTop } from '@/component/layout'
+import { NavBar, SideBar, AppMain, ReuseTab,MenuTab, BackTop } from '@/component/layout'
 
 const navBarHeight = 66 // header高度
 const reuseTabHeight = 70 // 历史记录栏高度
@@ -164,8 +164,8 @@ export default {
     SideBar,
     AppMain,
     ReuseTab,
-    MenuTab,
     BackTop,
+    MenuTab
   },
   beforeDestroy() {
     this.eventBus.$off('noReuse')

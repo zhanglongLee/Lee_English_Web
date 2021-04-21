@@ -36,6 +36,8 @@ export default class User {
   static async getInformation() {
     const info = await get('cms/user/information')
     const storeUser = store.getters.user === null ? {} : store.getters.user
+    console.log(info)
+    console.log(storeUser)
     return Object.assign({ ...storeUser }, info)
   }
 

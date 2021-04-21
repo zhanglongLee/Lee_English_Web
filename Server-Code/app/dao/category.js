@@ -1,6 +1,8 @@
 import { NotFound, Forbidden } from 'lin-mizar';
 import { CategoryModel } from '../model/category'
 import { ArticleModel } from '../model/article'
+import { ListeningModel } from '../model/listening'
+import { WordModel } from '../model/word'
 import { Op } from 'sequelize'
 
 class Category {
@@ -8,7 +10,7 @@ class Category {
   static async getCategoryList(page = 1, size = 100, q) {
     if (q) {
       var whereObj = {
-        title: {
+        category_name: {
           [Op.like]: `%${q}%`
         }
       };
@@ -54,10 +56,30 @@ class Category {
         categoryId: id
       }
     });
+    const listeningList = await ListeningModel.findAll({
+      where: {
+        categoryId: id
+      }
+    });
+    const wordList = await WordModel.findAll({
+      where: {
+        categoryId: id
+      }
+    });
     // 删除前查询文章列表，查看该分类是否被使用
     if (articleList.length > 0) {
       throw new Forbidden({
         code: 10254
+      });
+    }
+    if (listeningList.length > 0) {
+      throw new Forbidden({
+        code: 10261
+      });
+    }
+    if (wordList.length > 0) {
+      throw new Forbidden({
+        code: 10262
       });
     }
     return CategoryModel.destroy({

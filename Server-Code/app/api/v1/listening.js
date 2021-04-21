@@ -41,7 +41,16 @@ ListenApi.linPost(
 /**
  * 查看听力练习列表
  */
-ListenApi.get('/', async ctx => {
+ListenApi.linGet(
+  'getListening', // 唯一表示
+  '/', // URL
+  {
+    permission: '查看所有听力练习', // 权限的名字
+    module: '听力练习管理', // 权限属于哪个模块
+    mount: true // 是否在全局的权限列表中显示
+  },
+  groupRequired,
+  async ctx => {
   let { page, size, q } = ctx.query;
 
   let listenList = await ListeningDao.getListeningList(page, size, q);

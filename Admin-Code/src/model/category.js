@@ -29,13 +29,14 @@ class Category {
   }
 
   async getCategorys(obj) {
-    let { index, size } = obj
+    let { index, size,q } = obj
     return _axios({
       method: 'get',
       url: 'v1/category',
       params:{
         page:index,
-        size
+        size,
+        q
       },
       handleError: true,
     })

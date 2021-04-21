@@ -2,7 +2,10 @@
   <div>
     <!-- 列表页面 -->
     <div class="container" v-if="!showEdit">
-      <div class="header"><div class="title">听力练习列表</div></div>
+      <div class="header">
+        <div class="title">听力练习列表</div>
+        <my-search class="search" @query="onQueryChange" ref="searchKeyword" />
+      </div>
       <!-- 表格 -->
       <my-table
         :tableColumn="tableColumn"
@@ -27,19 +30,23 @@ import listening from '@/model/listening'
 import MyTable from '@/component/base/table/my-table'
 import tablePaper from '@/component/base/tablePaper/tablePaper'
 import listeningModify from './listening-modify'
+import MySearch from '@/component/base/search/my-search'
 
 export default {
   components: {
     MyTable,
     listeningModify,
     tablePaper,
+    MySearch
   },
   data() {
     return {
       tableColumn: [
-        { prop: 'title', label: '标题',width:'300px',fixed:true },
+        { prop: 'title', label: '标题' },
         { prop: 'categoryName', label: '分类名' },
+        { prop: 'description', label: '描述'},
         { prop: 'show_is_published', label: '是否发布' },
+        { prop: 'created_at', label: '发布时间' },
       ],
       tableData: [],
       operate: [],
@@ -47,6 +54,7 @@ export default {
         size: 5,
         count: 8,
         index: 1,
+        q:''
       },
       showEdit: false,
       rowObj: {},
@@ -58,23 +66,28 @@ export default {
     this.loading = true
     await this.getListenings()
     this.operate = [
-      { name: '编辑', func: 'handleEdit', type: 'primary' },
+      { name: '编辑', func: 'handleEdit', type: 'primary',permission: '修改听力练习内容', },
       {
         name: '删除',
         func: 'handleDelete',
         type: 'danger',
         permission: '删除听力练习',
       },
-      {
-        name: '查看听力练习',
-        func: 'handleView',
-        type: 'primary'
-      },
+      // {
+      //   name: '查看听力练习',
+      //   func: 'handleView',
+      //   type: 'primary'
+      // },
     ]
     this.loading = false
   },
   methods: {
-    // 查看文章
+    // 搜索
+    onQueryChange(val){
+      this.page.q = val
+      this.getListenings()
+    },
+    // 查看听力
     handleView(val){
       console.log(val)
     },
@@ -102,11 +115,11 @@ export default {
         }
       }
     },
-    // 删除
     handleEdit(val) {
       this.showEdit = true
       this.rowObj = val.row
     },
+    // 删除
     handleDelete(val) {
       this.$confirm('此操作将永久删除该听力练习 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -139,7 +152,6 @@ export default {
 
   .header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
 
     .title {
@@ -148,6 +160,9 @@ export default {
       color: $parent-title-color;
       font-size: 16px;
       font-weight: 500;
+    }
+    .search{
+      margin-left: 100px;
     }
   }
 

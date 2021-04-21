@@ -195,6 +195,9 @@ export default {
         return list.indexOf(item) === index
       })
     }
+  },
+  destroyed(){
+    this.$store.state.api_url = ''
   }
 }
 </script>

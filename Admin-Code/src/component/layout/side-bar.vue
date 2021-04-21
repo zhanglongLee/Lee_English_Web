@@ -1,23 +1,6 @@
 <template>
   <div class="app-sidebar">
     <div style="margin-bottom:50px">
-      <div v-if="showSidebarSearch" style="margin-top: 15px">
-        <div class="search-display" v-if="!showSearchList" @click="toSearch"><i class="el-icon-search"></i></div>
-        <el-select
-          v-if="showSearchList"
-          size="medium"
-          filterable
-          clearable
-          :filter-method="search"
-          v-model="sidebar"
-          @change="handleChange"
-          class="search"
-          placeholder="请输入关键字"
-          ref="searchInput"
-        >
-          <el-option v-for="item in groups" :key="item.key" :label="item.title" :value="item.path"> </el-option>
-        </el-select>
-      </div>
       <el-menu
         class="el-menu-vertical-demo"
         ref="meun"
@@ -97,7 +80,6 @@ export default {
     return {
       sidebar: '',
       groups: [],
-      showSidebarSearch: Config.showSidebarSearch,
       showSearchList: false,
     }
   },
@@ -113,59 +95,11 @@ export default {
     },
   },
   mounted() {
-    this.eventBus.$on('removeSidebarSearch', () => {
-      this.showSidebarSearch = false
-    })
-    this.eventBus.$on('showSidebarSearch', () => {
-      if (Config.showSidebarSearch) {
-        this.showSidebarSearch = true
-      }
-    })
+
   },
   methods: {
     filterIcon(icon) {
       return icon.indexOf('/') !== -1
-    },
-    handleChange(val) {
-      this.groups = []
-      this.sidebar = ''
-      this.showSearchList = false
-      this.$router.push(val)
-    },
-    toSearch() {
-      this.showSearchList = true
-      setTimeout(() => {
-        this.$refs.searchInput.focus()
-      }, 200)
-    },
-    search(val) {
-      this.groups = []
-
-      // 深度遍历配置树, 摘取叶子节点作为路由部分
-      function deepTravel(config, fuc) {
-        if (Array.isArray(config)) {
-          config.forEach(subConfig => {
-            deepTravel(subConfig, fuc)
-          })
-        } else if (config.children) {
-          config.children.forEach(subConfig => {
-            deepTravel(subConfig, fuc)
-          })
-        } else {
-          fuc(config)
-        }
-      }
-
-      deepTravel(this.sideBarList, viewConfig => {
-        // 构造舞台view路由
-        if (viewConfig.title.includes(val)) {
-          const viewRouter = {}
-          viewRouter.path = viewConfig.path
-          viewRouter.title = viewConfig.title
-          viewRouter.key = Math.random()
-          this.groups.push(viewRouter)
-        }
-      })
     },
   },
   computed: {
@@ -178,12 +112,13 @@ export default {
     },
     // 根据当前路由设置激活侧边栏
     defaultActive() {
-      for (let i = this.stageInfo.length - 1; i >= 0; i -= 1) {
-        if (this.idMap[this.stageInfo[i].name]) {
-          return this.idMap[this.stageInfo[i].name]
-        }
-      }
-      return ''
+      return this.idMap[this.$route.name]
+      // for (let i = this.stageInfo.length - 1; i >= 0; i -= 1) {
+      //   if (this.idMap[this.stageInfo[i].name]) {
+      //     return this.idMap[this.stageInfo[i].name]
+      //   }
+      // }
+      // return ''
     },
     stageInfo() {
       return this.$store.getters.getStageInfo(this.$route.name)
@@ -211,11 +146,7 @@ export default {
       deepTravel(sideBarList, item => {
         mapData[item.name] = Utils.getRandomStr()
       })
-
       return mapData
-    },
-    imgSrc() {
-      return this.elMenuCollapse === false ? '../../assets/image/left-logo.png' : '../../assets/image/logo.png'
     },
     ...mapGetters(['sideBarList']),
   },
