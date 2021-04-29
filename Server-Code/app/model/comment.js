@@ -6,7 +6,6 @@ import { UserModel } from '../model/web-user'
 
 class Comment extends Model {
   toJSON() {
-    console.log(this.web_user)
     const origin = {
       id: this.id,
       web_user_id: this.web_user_id,

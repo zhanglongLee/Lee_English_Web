@@ -20,7 +20,6 @@ class LogDao {
       limit: count1,
       order: [['create_time', 'DESC']]
     });
-    console.log(rows)
     return {
       rows,
       total: count

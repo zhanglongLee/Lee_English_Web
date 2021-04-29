@@ -62,7 +62,6 @@ class Article {
         [Op.like]: `%${q}%`
       };
     }
-    console.log(whereObj)
     const res = await ArticleModel.findAndCountAll({
       where: whereObj,
       attributes: {

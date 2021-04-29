@@ -50,7 +50,6 @@ class UserDao {
 
       await transaction.commit();
     } catch (error) {
-      console.log(error)
       if (transaction) await transaction.rollback();
     }
     return true;

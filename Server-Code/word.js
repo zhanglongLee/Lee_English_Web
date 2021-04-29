@@ -113,7 +113,6 @@ WordApi.linDelete(
   async ctx => {
     const v = await new DeleteWordValidator().validate(ctx);
     const id = v.get('path.id');
-    console.log(ctx.currentUser)
 
     const web_user_id = ctx.currentUser.id
     // 1、删除单词

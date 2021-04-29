@@ -50,7 +50,6 @@ WordApi.linPost(
   groupRequired,
   logger('{user.username}新增单词'), // logger，参数为日志内容
   async ctx => {
-    console.log(ctx.request.body)
     await WordDao.createWordArr(ctx.request.body);
     // 4、返回成功
     ctx.success({

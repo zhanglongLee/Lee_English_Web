@@ -4,7 +4,6 @@ import { CategoryModel } from './category';
 
 class Word extends Model {
   toJSON() {
-    console.log(this)
     const origin = {
       word_id: this.word_id,
       word_name: this.word_name,

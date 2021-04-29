@@ -84,7 +84,6 @@ class Collection {
         web_user_id: web_user_id,
         article_id: id
       }
-      console.log(articleCollection)
       // 文章收藏新增
       return await ArticleCollectionModel.create({
         web_user_id: web_user_id,

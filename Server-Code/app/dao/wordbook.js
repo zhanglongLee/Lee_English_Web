@@ -75,7 +75,6 @@ class WordBook {
         web_user_id,
         content:JSON.stringify(content)
       }
-      console.log(obj)
       // 创建生词
       WordBookModel.create(obj)
     }
