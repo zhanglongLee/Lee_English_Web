@@ -73,6 +73,9 @@ export default {
 * {
   box-sizing: border-box;
 }
+body{
+  font-family: Arial,"Microsoft YaHei";
+}
 .go-top {
   position: fixed;
   right: 50px;

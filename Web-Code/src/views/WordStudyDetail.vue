@@ -88,7 +88,7 @@ export default {
       ],
       wordId:0,
       multipleSelection: [],
-      size:5,
+      size:10,
       index:1,
       total:500,
       isCard:false,//是否为卡片学习
