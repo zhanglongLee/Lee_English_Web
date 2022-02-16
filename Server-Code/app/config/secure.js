@@ -2,12 +2,12 @@
 
 module.exports = {
   db: {
-    database: 'english_study_web',
+    database: 'english_study_web',// 这个是数据库名字
     host: 'localhost',
     dialect: 'mysql',
-    port: 3306,
+    port: 3306,// 如果端口有变，也要修改
     username: 'root',
-    password: '253323694',
+    password: '253323694',// 这里改成你的数据库密码
     logging: false,
     timezone: '+08:00',
     dialectOptions: {//时间正确格式
