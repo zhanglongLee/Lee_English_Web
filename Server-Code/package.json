@@ -1,25 +1,11 @@
 {
-  "name": "lin-cms-koa",
-  "version": "0.3.8",
-  "description": "simple and practical CMS implememted by koa",
+  "name": "learning_web_admin",
+  "version": "1.0.0",
   "main": "app/starter.js",
   "scripts": {
-    "test": "jest test",
     "dev": "cross-env NODE_ENV=development nodemon",
-    "build": "cross-env NODE_ENV=production node index",
-    "prettier": "prettier --write app/**/*.js app/*.js app/**/**/*.js app/**/**/**/*.js test/**/*.js && eslint app test --fix"
+    "build": "cross-env NODE_ENV=production node index"
   },
-  "keywords": [
-    "lin",
-    "cms",
-    "koa"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/TaleLin/lin-cms-koa.git"
-  },
-  "author": "Pedro/Shirmy/Evan",
-  "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/plugin-proposal-decorators": "^7.4.4",
