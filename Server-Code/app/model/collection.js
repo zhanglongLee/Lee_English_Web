@@ -4,17 +4,17 @@ import { ArticleModel } from '../model/article'
 import { ListeningModel } from '../model/listening'
 
 class ArticleCollectionModel extends Model {
-  toJSON() {
-    const origin = {
-      id: this.id,
-      collection_id: this.article_id,
-      web_user_id: this.web_user_id,
-      collection_name: this.article.title,
-      updated_at: this.updated_at,
-      type:'article'
-    };
-    return origin;
-  }
+  // toJSON() {
+  //   const origin = {
+  //     id: this.id,
+  //     collection_id: this.article_id,
+  //     web_user_id: this.web_user_id,
+  //     collection_name: this.article.title,
+  //     updated_at: this.updated_at,
+  //     type:'article'
+  //   };
+  //   return origin;
+  // }
 }
 ArticleCollectionModel.init(
   {

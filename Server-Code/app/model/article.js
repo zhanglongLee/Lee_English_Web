@@ -21,7 +21,8 @@ class Article extends Model {
       words: this.words,
       read_time: this.read_time,
       categoryId: this.categoryId,
-      categoryName:this.category.category_name
+      categoryName:this.category.category_name,
+      like_num:this.like_num
     };
     return origin;
   }
@@ -102,6 +103,11 @@ Article.init(
       type: DataTypes.BIGINT(20),
       allowNull: true,
       comment: '文章分类'
+    },
+    like_num: {
+      type: DataTypes.BIGINT(20),
+      allowNull: true,
+      comment: '文章点赞数量'
     },
   },
   {

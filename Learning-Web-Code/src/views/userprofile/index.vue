@@ -25,13 +25,13 @@
         title="昵称"
         @click="isNameshow = true"
         is-link
-        :value="user.name"
+        :value="user.nickname"
       />
       <van-cell
         title="性别"
         @click="isGendershow = true"
         is-link
-        :value="user.gender == 0 ? '男' : '女'"
+        :value="user.sex == 1 ? '男' : '女'"
       />
       <van-cell
         title="生日"
@@ -40,7 +40,7 @@
         :value="user.birthday ? user.birthday : '未设置'"
       />
     </van-cell-group>
-
+    <van-button type="primary" color="#3296fa" block @click="updateUserInfo">确定</van-button>
     <!-- 编辑昵称 -->
     <van-popup
       v-model="isNameshow"
@@ -48,9 +48,10 @@
       :style="{ height: '100%' }"
     >
       <update-name
-        v-model="user.name"
+        v-model="user.nickname"
         v-if="isNameshow"
         @close="isNameshow = false"
+        @handleUpdateName="handleUpdateName"
       >
       </update-name>
     </van-popup>
@@ -58,8 +59,9 @@
     <!-- 编辑性别 -->
     <van-popup v-model="isGendershow" position="bottom">
       <update-gender
-        v-model="user.gender"
+        v-model="user.sex"
         @close="isGendershow = false"
+        @handleUpdateGender="handleUpdateGender"
       ></update-gender>
     </van-popup>
 
@@ -69,6 +71,7 @@
         v-if="isBrithdayshow"
         v-model="user.birthday"
         @close="isBrithdayshow = false"
+        @handleUpdateBirthday="handleUpdateBirthday"
       >
       </update-birthday>
     </van-popup>
@@ -78,7 +81,7 @@
       <van-popup v-model="isPhotoShow" style="height: 100%" position="bottom">
         <update-photo
           v-if="isPhotoShow"
-          @update-photo="user.photo = $event"
+          @handleUpdatePhoto="handleUpdatePhoto"
           @close="isPhotoShow = false"
           :file="pictureObject"
         >
@@ -89,11 +92,12 @@
 </template>
 
 <script>
-import { getUserProfile } from "@/api/user";
 import updateName from "./components/update-name.vue";
 import UpdateGender from "./components/update-gender.vue";
 import UpdateBirthday from "./components/update-birthday.vue";
 import UpdatePhoto from "./components/update-photo.vue";
+import { mapState } from "vuex";
+import { deepClone } from "@/utils/common.js";
 export default {
   components: {
     updateName,
@@ -102,6 +106,9 @@ export default {
     UpdatePhoto,
   },
   name: "userprofile",
+  computed: {
+    ...mapState(["userInfo"]),
+  },
   data() {
     return {
       user: {},
@@ -113,9 +120,22 @@ export default {
     };
   },
   methods: {
-    async loadUserProfile() {
-      const { data } = await getUserProfile();
-      this.user = data.data;
+    handleUpdatePhoto({url,path}){
+      this.user.photo = url
+      this.user.avatar = path
+    },
+    // 修改生日
+    handleUpdateBirthday(birthday){
+      this.user.birthday = birthday
+    },
+    // 修改性别
+    handleUpdateGender(sex){
+      this.user.sex = sex
+      console.log(this.user.sex);
+    },
+    // 修改名字
+    handleUpdateName(nickname){
+      this.user.nickname = nickname
     },
     onFileChange() {
       this.isPhotoShow = true;
@@ -124,11 +144,18 @@ export default {
       this.pictureObject = fileObject;
       this.$refs.imgUpload.value = "";
     },
+    // 修改用户信息
+    updateUserInfo(){
+      this.$store.dispatch("updateUserInfo",this.user)
+    }
   },
-  created() {
-    this.loadUserProfile();
-    this.$store.commit("REMOVECACHEPAGE", "layout");
-  },
+  mounted(){
+    // 重新获取用户信息
+    this.$store.dispatch("getUserInfo")
+    this.user = deepClone(this.userInfo)
+    // avatar应该截取最后的文件名称 例如：http://localhost:5000/assets/upload/1647851046978.jpg -》 1647851046978.jpg
+    this.user.avatar = this.user.avatar.slice(this.user.avatar.lastIndexOf("/")+1)
+  }
 };
 </script>
 

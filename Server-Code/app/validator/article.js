@@ -64,4 +64,27 @@ class DeleteArticleValidator extends LinValidator {
     ];
   }
 }
-module.exports = { AddArticleValidator, EditArticleValidator, DeleteArticleValidator,ArticleSearchValidator };
+class ArticleIsCollectValidator extends LinValidator {
+  constructor() {
+    super();
+    this.article_id = [
+      new Rule('isNotEmpty', '文章id不能为空'),
+      new Rule('isInt', '文章id必须是数字且大于0', { min: 1 })
+    ];
+    this.web_user_id = [
+      new Rule('isNotEmpty', '用户id不能为空'),
+      new Rule('isInt', '用户id必须是数字且大于0', { min: 1 })
+    ];
+  }
+}
+class LikeArticleValidator extends LinValidator {
+  constructor() {
+    super();
+    this.article_id = [
+      new Rule('isNotEmpty', '文章id不能为空'),
+      new Rule('isInt', '文章id必须是数字且大于0', { min: 1 })
+    ];
+  }
+}
+
+module.exports = { AddArticleValidator, EditArticleValidator, DeleteArticleValidator,ArticleSearchValidator,ArticleIsCollectValidator, LikeArticleValidator };

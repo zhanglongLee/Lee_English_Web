@@ -121,7 +121,8 @@ class User extends Model {
       email: this.email,
       avatar: this.avatar ? `${config.getItem('siteDomain', 'http://localhost')}/assets/upload/${this.avatar}` : null,
       originAvatar: this.avatar ? this.avatar : 'avatar.png',
-      sex:this.sex
+      sex:this.sex,
+      birthday:this.birthday
     };
     return origin;
   }
@@ -152,12 +153,19 @@ User.init(
     },
     email: {
       type: Sequelize.STRING({ length: 100 }),
-      allowNull: true
+      allowNull: true,
+      comment: '邮箱',
     },
     sex: {
       type: Sequelize.INTEGER(1),
       allowNull: false,
-      defaultValue:1
+      defaultValue:1,
+      comment: '性别：1代表男，2代表女',
+    },
+    birthday: {
+      type: Sequelize.DATE(3),
+      allowNull: true,
+      comment: '生日',
     }
   },
   {

@@ -176,7 +176,7 @@ export default {
   },
   methods: {
     beforeImageUpload(file) {
-      const isIMG = file.type === 'image/jpeg' || file.type === 'image/png' 
+      const isIMG = file.type === 'image/jpeg' || file.type === 'image/png'
       const isPNG = file.type === 'image/png'
       const isLt5M = file.size / 1024 / 1024 < 5
 
@@ -190,10 +190,11 @@ export default {
           this.$message.error('上传头像图片大小不能超过 5MB!')
         },100)
       }
-      return isIMG && isLt5M 
+      return isIMG && isLt5M
     },
     // 自定义图片上传方法
     uploadRequest(req) {
+      console.log(req);
       this.$axios({
         method: 'POST',
         url: '/cms/file',

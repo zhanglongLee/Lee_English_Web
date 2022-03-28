@@ -3,7 +3,7 @@ import {
   web_loginRequired,
   web_refreshTokenRequiredWithUnifyException,
 } from '../../middleware/web_jwt';
-import { AddArticleValidator, DeleteArticleValidator, EditArticleValidator } from '../../validator/article';
+import { AddArticleValidator, DeleteArticleValidator, EditArticleValidator,ArticleIsCollectValidator, LikeArticleValidator } from '../../validator/article';
 import { PaginateValidator, PositiveIdValidator } from '../../validator/common'
 import { ArticleDao } from '../../dao/article';
 import { shuffle } from '../../lib/util'
@@ -13,19 +13,18 @@ const ArticleApi = new LinRouter({
 });
 
 /**
- * 获取文章列表
+ * 获取对应频道的文章列表
  */
 ArticleApi.get('/', async ctx => {
   const v = await new PaginateValidator().validate(ctx);
-  let { page, size, q } = v.get('query');
-  let articleList = await ArticleDao.getWebArticleList(page, size, q);
+  let { page, size, q, categoryId } = v.get('query');
+  let articleList = await ArticleDao.getWebArticleList({page, size, q, categoryId});
   // 返回结果
   let obj = {};
   obj.page = Number(page) || 1;
   obj.size = Number(size) || 5;
   obj.total = articleList.count;
   obj.data = articleList.rows;
-
   ctx.json(obj);
 });
 
@@ -78,4 +77,41 @@ ArticleApi.get('/addViews/:id', async ctx => {
     data: articleList
   });
 });
+
+/**
+ * 查询该篇文章是否被收藏
+ */
+ ArticleApi.post('/isCollected', async ctx => {
+  const v = await new ArticleIsCollectValidator().validate(ctx);
+  let { article_id,web_user_id } = v.get('body');
+  var isCollected = await ArticleDao.checkArticleIsCollected(article_id,web_user_id);
+  ctx.json({
+    code:200,
+    isCollected
+  });
+});
+
+// 文章点赞
+ArticleApi.post('/likeArticle', web_loginRequired ,  async ctx => {
+  const v = await new LikeArticleValidator().validate(ctx);
+  let web_user_id = ctx.currentUser.id
+  let { article_id } = v.get('body');
+  await ArticleDao.likeArticle(article_id,web_user_id);
+  ctx.json({
+    code:200,
+    message:"点赞成功"
+  });
+});
+// 文章取消点赞
+ArticleApi.post('/unlikeArticle', web_loginRequired ,  async ctx => {
+  const v = await new LikeArticleValidator().validate(ctx);
+  let web_user_id = ctx.currentUser.id
+  let { article_id } = v.get('body');
+  await ArticleDao.unlikeArticle(article_id,web_user_id);
+  ctx.json({
+    code:200,
+    message:"取消点赞成功"
+  });
+});
 module.exports = { ArticleApi };
+

@@ -238,7 +238,7 @@ export default {
       }
 
       .main-text {
-        font-size: 23px;
+        font-size: 20px;
       }
 
       .temp {

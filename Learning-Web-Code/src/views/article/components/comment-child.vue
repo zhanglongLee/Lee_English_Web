@@ -1,8 +1,8 @@
 <template>
   <div>
     <div
-      class="comment-list"
-      v-for="(comment, index) in commentList"
+      :class="['comment-child', { pd20: !temp }]"
+      v-for="(comment, index) in commentChild"
       :key="index"
     >
       <van-cell-group class="comment-item">
@@ -16,8 +16,8 @@
           />
           <div slot="title" class="base-info">
             <div class="up">
-              <span v-if="isSecondComment(comment)">{{
-                "@回复" + comment.nickname + comment.parent_comment_id
+              <span v-if="comment.parentName">{{
+                comment.nickname + " @回复" + comment.parentName
               }}</span>
               <span class="name" v-else>
                 {{ comment.nickname }}
@@ -37,7 +37,7 @@
             <div class="bottom">
               <span class="time">{{ comment.created_at }}</span>
               <van-button
-                @click="parentComment(comment)"
+                @click="postitemcomment(comment.id)"
                 class="recomment"
                 type="primary"
                 size="mini"
@@ -48,54 +48,20 @@
           </div>
         </van-cell>
       </van-cell-group>
-      <commentChild :commentChild="comment.child"></commentChild>
+      <comment-child :commentChild="comment.child" :temp="true"></comment-child>
     </div>
   </div>
 </template>
 
 <script>
-import commentChild from "./comment-child.vue";
-import { mapState } from "vuex";
 export default {
-  components: {
-    commentChild,
-  },
-  name: "commentList",
+  name: "commentChild",
+  props: ["commentChild", "temp"],
   data() {
-    return {
-      loading: false,
-      finished: false,
-      limit: 10,
-      offset: null,
-    };
-  },
-  props: {
-    commentList: {
-      type: [Array],
-      default: () => [],
-    },
-  },
-  computed:{
-    ...mapState(["userInfo"])
+    return {};
   },
   methods: {
-    closePostModal() {
-      this.$store.dispatch("updateParam",["postShowObj",{status:false,data:null}])
-    },
-    parentComment(data) {
-      if(!this.userInfo){
-        this.$toast({
-          message:"请登录后进行评论操作！"
-        })
-        return
-      }
-      this.$store.dispatch("updateParam",["postShowObj",{status:true,data}])
-    },
-    isSecondComment(item) {
-      return item.parent_comment_id !== -1;
-    },
     async onLike() {
-      
         this.$toast.success({
           message: "开发中",
         });
@@ -110,50 +76,25 @@ export default {
       }
       this.comment.is_liking = !this.comment.is_liking;
     },
-    // 评论成功回调
-    onPostSuccess(comment) {
-      // 将发布成功的评论 放到评论列表顶部
-      this.isPostShow = false;
-      console.log(comment);
+    //回复二级三级...评论，使用递增
+    postitemcomment(id) {
+      if(!this.userInfo){
+        this.$toast({
+          message:"请登录后进行评论操作！"
+        })
+        return
+      }
+      this.$store.dispatch("updateParam",["postShowObj",{status:true,data:{id: -1,article_id: id}}])
     },
-  },
-  watch: {
-    list: {
-      isDeep: true,
-      async handler() {
-        // const{idObj,content}=this.list[0];
-        // const{data}=await getUserInfo();
-        // console.log(data);
-        // console.log(idObj);
-        // let newComment={
-        //     com_id:idObj.com_id,
-        //     aut_id:data.data.id,
-        //     aut_name:data.data.name,
-        //     aut_photo:data.data.photo,
-        //     like_count:0,
-        //     reply_count:0,
-        //     pubdate:Date.now(),
-        //     content:content,
-        //     is_top:0,
-        //     is_liking:false
-        // }
-        // this.commentList.unshift(newComment);
-      },
-    },
-  },
-  mounted() {
-    this.$bus.$on("post-success",this.closePostModal)
   },
 };
 </script>
 
 <style lang="less" scoped>
-.title {
-  font-size: 20px;
-  padding: 10px;
-  color: #222222;
-}
-.comment-list {
+.comment-child {
+  &.pd20 {
+    padding-left: 20px;
+  }
   & /deep/ .comment-item {
     .like {
       color: rgb(255, 16, 56);

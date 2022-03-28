@@ -22,7 +22,7 @@ class Comment {
       },
       {
         model: UserModel,
-        attributes: [ 'nickname' ]
+        attributes: [ 'nickname','avatar' ]
       }],
     });
     if(!res){
@@ -139,6 +139,28 @@ class Comment {
     });
   }
 
+
+  // 评论点赞
+  static async likeComment(id,web_user_id) {
+    const comment = await CommentModel.findByPk(id);
+    if (!comment) {
+      throw new NotFound();
+    }
+    comment.update({
+      like_num: ++comment.like_num
+    });
+  }
+  // 取消评论点赞
+  static async unlikeComment(id,web_user_id) {
+    const comment = await CommentModel.findByPk(id);
+    if (!comment) {
+      throw new NotFound();
+    }
+    let num = --comment.like_num
+    comment.update({
+      like_num: num >=0 ? num : 0
+    });
+  }
 };
 
 export { Comment as CommentDao };

@@ -6,14 +6,23 @@ import { Op } from 'sequelize'
 
 class Collection {
   // 获取收藏列表,默认传用户id，查全部用户的收藏记录
-  static async getCollectionList(id) {
-    let ArticleCollectionList = await this.getArticleCollectionList(id)
-    let ListeningCollectionList = await this.getListeningCollectionList(id)
-    let res = Array.prototype.concat.apply(ArticleCollectionList, ListeningCollectionList)
-    return res
+  static async getCollectionList(id,page,size) {
+    let res = await this.getArticleCollectionList(id,page,size)
+    let ArticleCollectionList = []
+    try {
+      res.forEach(item=>{
+        ArticleCollectionList.push(item.dataValues.article.dataValues)
+        console.log(item.dataValues.article.dataValues);
+      })
+    } catch (error) {
+      
+    }
+    // let ListeningCollectionList = await this.getListeningCollectionList(id)
+    // let res = Array.prototype.concat.apply(ArticleCollectionList, ListeningCollectionList)
+    return ArticleCollectionList
   }
   // 查看文章收藏列表
-  static async getArticleCollectionList(id) {
+  static async getArticleCollectionList(id,page,size) {
     var whereObj
     if(id){
       whereObj = {
@@ -22,6 +31,8 @@ class Collection {
     }
     const res = await ArticleCollectionModel.findAll({
       where:whereObj,
+      limit: Number(size),//长度
+      offset: (Number(page) - 1) * Number(size),//当前列表开始值
       attributes: {
         exclude: ['deleted_at']
       },
@@ -56,8 +67,7 @@ class Collection {
   }
 
   // 新增收藏
-  static async createCollection(v) {
-    let { type, web_user_id, id } = v.get('body')
+  static async createCollection(type, id, web_user_id) {
 
     if (type === 1) {
       const Article = await ArticleModel.findOne({
@@ -128,15 +138,15 @@ class Collection {
     return await Collection.update({ ...v });
   }
   // 删除收藏
-  static async deleteCollection(type, id) {
+  static async deleteCollection(type, id,web_user_id) {
     if (type === 1) {
       // 文章收藏
       return ArticleCollectionModel.destroy({
-        where: { article_id:id }
+        where: { article_id:id,web_user_id }
       });
     } else {
       return ListeningCollectionModel.destroy({
-        where: { listening_id:id }
+        where: { listening_id:id,web_user_id }
       });
     }
 

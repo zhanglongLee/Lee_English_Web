@@ -43,6 +43,7 @@ user.post('/login', async ctx => {
     id: user.user_id
   });
   ctx.json({
+    code:200,
     access_token: accessToken,
     refresh_token: refreshToken
   });
@@ -51,7 +52,10 @@ user.post('/login', async ctx => {
 // 获取用户信息
 user.get('/getInfo', web_loginRequired, async ctx => {
   const userInfo = await userDao.getInformation(ctx)
-  ctx.json(userInfo);
+  ctx.json({
+    code:200,
+    userInfo
+  });
 })
 
 // 修改用户信息

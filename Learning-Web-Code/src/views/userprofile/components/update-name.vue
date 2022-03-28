@@ -9,9 +9,6 @@
 </template>
 
 <script>
-    import {
-        updateUserProfile
-    } from '@/api/user';
     export default {
         name: 'upadateName',
         data() {
@@ -22,22 +19,8 @@
         props: ['value'],
         methods: {
             async onConfirm() {
-                // 请求提交更新昵称
-                try {
-                    this.$toast('保存中');
-                    await updateUserProfile({
-                        name: this.localName
-                    })
-                    this.$toast.success('修改成功');
-                    this.$emit('input',this.localName)
-                    this.$emit('close');
-                } catch (error) {
-                    if (error && error.reponse && error.reponse.status === 409) {
-                        this.$toast.fail('昵称重复，保存失败！');
-                    } else {
-                        this.$toast(error.message);
-                    }
-                }
+                this.$emit('handleUpdateName',this.localName)
+                this.$emit('close');
             }
         },
     }

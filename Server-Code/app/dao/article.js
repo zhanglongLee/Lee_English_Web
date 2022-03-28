@@ -1,10 +1,24 @@
-import { NotFound, Forbidden } from 'lin-mizar';
+import { NotFound, Forbidden, log } from 'lin-mizar';
 import { ArticleModel } from '../model/article';
 import { CategoryModel } from '../model/category'
+import { ArticleCollectionModel } from '../model/collection'
 import { Op } from 'sequelize'
 
 class Article {
 
+  // 查询该文章是否被收藏
+  static async checkArticleIsCollected(article_id,web_user_id){
+    const res = await ArticleCollectionModel.findOne({
+      where:{
+        article_id,
+        web_user_id
+      }
+    })
+    if(res){
+      return true
+    }
+    return false
+  }
   // 增加文章阅读次数addViews
   static async addViews(id) {
     const res = await ArticleModel.findOne({
@@ -19,17 +33,6 @@ class Article {
     }
     res.views = res.views + 1
     res.save()
-  }
-
-  // 获取文章类型列表
-  static async getTypeList(){
-    const res = Article.findAll({
-      where: { is_published: 1 },
-      include: [{ // include关键字表示关联查询
-        model: CategoryModel,
-      }],
-    })
-    // let typeList = res.map()
   }
 
   // 通过id查文章
@@ -55,12 +58,16 @@ class Article {
   }
 
   // 前端获取文章列表
-  static async getWebArticleList(page = 1, size = 5, q) {
+  static async getWebArticleList({page = 1, size = 5, q, categoryId}) {
+
     var whereObj = { is_published: 1 }
     if (q) {
       whereObj.title = {
         [Op.like]: `%${q}%`
       };
+    }
+    if(categoryId){
+      whereObj.categoryId = categoryId
     }
     const res = await ArticleModel.findAndCountAll({
       where: whereObj,
@@ -178,7 +185,27 @@ class Article {
       model.create(v);
     }
   }
-
+  // 文章点赞
+  static async likeArticle(article_id,web_user_id) {
+    const article = await ArticleModel.findByPk(article_id);
+    if (!article) {
+      throw new NotFound();
+    }
+    article.update({
+      like_num: ++article.like_num
+    });
+  }
+  // 取消文章点赞
+  static async unlikeArticle(article_id,web_user_id) {
+    const article = await ArticleModel.findByPk(article_id);
+    if (!article) {
+      throw new NotFound();
+    }
+    let num = --article.like_num
+    article.update({
+      like_num: num >=0 ? num : 0
+    });
+  }
 };
 
 export { Article as ArticleDao };

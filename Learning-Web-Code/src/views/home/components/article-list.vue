@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { getChannelById } from "@/api/article";
+import { getArticles } from "@/api/article";
 import ArticleItem from "@/components/article-item";
 import { debounce } from "lodash";
 export default {
@@ -65,14 +65,20 @@ export default {
     const articleList = this.$refs["article-list"];
     articleList.onscroll = debounce(() => {
       this.scrollTop = articleList.scrollTop;
-      console.log(this.scrollTop);
     }, 50);
   },
   methods: {
     getArticles() {
       this.loading = true;
-      this.$service
-        .get(`/web/article?page=${this.index}&size=${this.size}`)
+      let data = {
+        page:this.index,
+        size:this.size
+      }
+      // 999是我们自己定义的推荐频道id，不用传categoryId
+      if(this.channel && this.channel.id !== 999){
+        data.categoryId = this.channel.id
+      }
+      getArticles(data)
         .then((res) => {
           this.loading = false;
           const rows = res.data;
@@ -93,6 +99,7 @@ export default {
         })
         .catch((err) => {
           this.loading = false;
+          this.finished = true;
           console.log(err);
         });
     },
@@ -100,38 +107,12 @@ export default {
       this.index++
       this.getArticles()
     },
-    async onLoadback() {
-      // 异步更新数据
-      console.log(this.index);
-      const { data } = await getChannelById({
-        channel_id: this.channel.id,
-        timestamp: this.timestamp === 0 ? Date.now() : this.timestamp,
-        with_top: 0,
-      });
-      const result = data.data.results;
-      this.index++;
-      this.timestamp = data.data.pre_timestamp || 0;
-      result.forEach((item) => {
-        this.articles.push(item);
-      });
-      this.loading = false;
-      // 如果请求不到数据了，就结束请求
-      if (this.timestamp === 0) this.finished = true;
-    },
     // 下拉刷新
     async onRefresh() {
-      // 请求获取数据
-      // 数据unshift
-      const { data } = await getChannelById({
-        channel_id: this.channel.id,
-        timestamp: Date.now(),
-        with_top: 0,
-      });
-      const result = data.data.results;
-      result.forEach((item) => {
-        this.articles.unshift(item);
-      });
-      this.refreshSuccessText = `更新了${result.length}条数据`;
+      this.articles = []
+      this.index = 1
+      this.getArticles()
+      this.refreshSuccessText = `更新成功！`;
       this.isPullRefresh = false;
     },
   },

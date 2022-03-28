@@ -1,6 +1,6 @@
 import { LinRouter, config } from 'lin-mizar';
 import { web_loginRequired } from '../../middleware/web_jwt'
-import { AddCommentValidator } from '../../validator/comment'
+import { AddCommentValidator,LikeCommentValidator } from '../../validator/comment'
 import { PaginateValidator,PositiveIdValidator } from '../../validator/common'
 import { CommentDao } from '../../dao/comment';
 
@@ -59,4 +59,27 @@ CommentApi.get('/', async ctx => {
   ctx.json(obj);
 });
 
+
+// 评论点赞
+CommentApi.post('/likeComment', web_loginRequired ,  async ctx => {
+  const v = await new LikeCommentValidator().validate(ctx);
+  let web_user_id = ctx.currentUser.id
+  let { id } = v.get('body');
+  await CommentDao.likeComment(id,web_user_id);
+  ctx.json({
+    code:200,
+    message:"点赞成功"
+  });
+});
+// 评论取消点赞
+CommentApi.post('/unlikeComment', web_loginRequired ,  async ctx => {
+  const v = await new LikeCommentValidator().validate(ctx);
+  let web_user_id = ctx.currentUser.id
+  let { id } = v.get('body');
+  await CommentDao.unlikeComment(id,web_user_id);
+  ctx.json({
+    code:200,
+    message:"取消点赞成功"
+  });
+});
 module.exports = { CommentApi };

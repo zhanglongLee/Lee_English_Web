@@ -1,15 +1,16 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../lib/db';
-import { config } from 'lin-mizar'
+import { config, log } from 'lin-mizar'
 import { ArticleModel } from '../model/article'
 import { UserModel } from '../model/web-user'
 
 class Comment extends Model {
   toJSON() {
+    console.log(this.web_user);
     const origin = {
       id: this.id,
       web_user_id: this.web_user_id,
-      image: this.image?`${config.getItem('siteDomain', 'http://localhost')}/assets/upload/${this.image}`:null,
+      image: this.web_user.avatar?`${config.getItem('siteDomain', 'http://localhost')}/assets/upload/${this.web_user.avatar}`:null,
       originImage: this.image,
       created_at: this.created_at,
       content: this.content,
@@ -18,6 +19,7 @@ class Comment extends Model {
       article_name:this.article.title,
       nickname: this.web_user?this.web_user.nickname:'匿名',
       parent_comment_id: this.parent_comment_id,
+      like_num: this.like_num,
     };
     return origin;
   }
@@ -41,11 +43,11 @@ Comment.init(
       allowNull: false,
       comment: '评论内容'
     },
-    image: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-      comment: '用户头像'
-    },
+    // image: {
+    //   type: DataTypes.STRING(255),
+    //   allowNull: true,
+    //   comment: '用户头像'
+    // },
     content: {
       type: DataTypes.TEXT('long'),
       allowNull: false,
@@ -66,6 +68,11 @@ Comment.init(
       type: DataTypes.BIGINT(20),
       allowNull: true,
       defaultValue: '父评论id，-1为根评论'
+    },
+    like_num: {
+      type: DataTypes.BIGINT(20),
+      allowNull: true,
+      defaultValue: '评论点赞数量'
     },
   },
   {

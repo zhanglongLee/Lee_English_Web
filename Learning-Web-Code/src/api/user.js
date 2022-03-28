@@ -1,5 +1,33 @@
 import request from '@/utils/request'
 
+import http from '@/utils/axios'
+
+
+/**
+ * 获取用户信息
+ * path： /web/user/getInfo
+ * method： GET
+ */
+ export const getWebUserInfo = () => {
+  return http({
+    method: 'GET',
+    url: '/web/user/getInfo'
+  })
+}
+/**
+ * 更新
+ * path： /web/user/updateInfo
+ * method： POST
+ */
+ export const updateWebUserInfo = (data) => {
+  return http({
+    method: 'POST',
+    url: '/web/user/updateInfo',
+    data
+  })
+}
+
+
 // 关注用户
 // Path： /app/v1_0/user/followings
 // Method： POST
@@ -24,34 +52,13 @@ export const cancelFollowUser = userId => {
 }
 
 
-//获取用户个人资料
-// Path： /app/v1_0/user/profile
-// Method： GET
-export const getUserProfile = userId => {
-    return request({
-        method: 'GET',
-        url: '/app/v1_0/user/profile'
-    })
-}
-
-// 修改用户数据
-// Path： /app/v1_0/user/profile
-// Method： PATCH
-export const updateUserProfile = data => {
-    return request({
-        method: 'PATCH',
-        url: '/app/v1_0/user/profile',
-        data
-    })
-}
-
 // 编辑用户头像
-// Path： /app/v1_0/user/photo
-// Method： PATCH
+// Path： /cms/file
+// Method： POST
 export const updateUserPhoto = data => {
-    return request({
-        method: 'PATCH',
-        url: '/app/v1_0/user/photo',
+    return http({
+        method: 'POST',
+        url: '/cms/file',
         data
     })
 }

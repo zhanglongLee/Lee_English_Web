@@ -31,7 +31,7 @@
             <van-checkbox
               slot="icon"
               v-model="item.isComplete"
-              @change="item.isComplete = !item.isComplete"
+              @change="handleCompleted(item)"
             >
             </van-checkbox>
             <div slot="title" class="content-title">
@@ -86,7 +86,7 @@
             <van-checkbox
               slot="icon"
               v-model="item.isComplete"
-              @change="item.isComplete = !item.isComplete"
+              @change="handleCompleted(item)"
             >
             </van-checkbox>
             <div slot="title" class="content-title">
@@ -182,7 +182,6 @@ export default {
     },
     completeList() {
       let list = [];
-      console.log("allList---",this.allList);
       this.allList.forEach((item) => {
         if (item.isComplete) {
           list.push(item);
@@ -193,7 +192,6 @@ export default {
     },
     todoList() {
       let list = [];
-      console.log("allList---",this.allList);
       this.allList.forEach((item) => {
         if (!item.isComplete) {
           list.push(item);
@@ -204,10 +202,15 @@ export default {
     },
   },
   methods: {
+    // 完成单个任务
+    handleCompleted(item){
+      console.log(item);
+      // item.isComplete = !item.isComplete
+    },
     // 全选
     finishedAllItems(){
       this.todoList.forEach(item=>{
-        item.isComplete = true
+        // item.isComplete = true
       })
     },
     beforeClose({ name, position, instance },id) {

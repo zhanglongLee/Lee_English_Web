@@ -1,17 +1,17 @@
 <template>
   <div class="my-container">
     <!-- 头像容器 -->
-    <van-cell-group v-if="user" class="my-info">
+    <van-cell-group v-if="userInfo" class="my-info">
       <!-- 头像和个人信息区域 -->
       <van-cell :border="false" center title="单元格" class="base-info">
         <van-image
           slot="icon"
           class="avatar"
           round
-          :src="currentUser.photo"
+          :src="userInfo.photo"
           fit="cover"
         />
-        <div slot="title" class="name">{{ currentUser.name }}</div>
+        <div slot="title" class="name">{{ userInfo.nickname }}</div>
         <van-button
           size="small"
           to="/user/profile"
@@ -25,25 +25,25 @@
       <van-grid :border="false" class="data-info">
         <van-grid-item class="data-info-item">
           <div slot="text">
-            <div class="count">{{ currentUser.art_count }}</div>
+            <div class="count">{{ 10 }}</div>
             <div class="text">头条</div>
           </div>
         </van-grid-item>
         <van-grid-item class="data-info-item">
           <div slot="text">
-            <div class="count">{{ currentUser.follow_count }}</div>
+            <div class="count">{{ 88 }}</div>
             <div class="text">关注</div>
           </div>
         </van-grid-item>
         <van-grid-item class="data-info-item">
           <div slot="text">
-            <div class="count">{{ currentUser.fans_count }}</div>
+            <div class="count">{{ 1 }}</div>
             <div class="text">粉丝</div>
           </div>
         </van-grid-item>
         <van-grid-item class="data-info-item">
           <div slot="text">
-            <div class="count">{{ currentUser.like_count }}</div>
+            <div class="count">{{ 100 }}</div>
             <div class="text">获赞</div>
           </div>
         </van-grid-item>
@@ -78,13 +78,12 @@
     <!-- 下方的单元格 -->
     <van-cell title="消息通知" is-link to="/" />
     <van-cell title="人工智障" to="/userchat" is-link class="mb-15" />
-    <van-cell title="退出登录" v-if="user" @click="onLogout" class="logout" />
+    <van-cell title="退出登录" v-if="userInfo" @click="onLogout" class="logout" />
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
-import { getUserInfo } from "@/api";
 export default {
   name: "my",
   data() {
@@ -93,10 +92,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(["user"]),
-  },
-  mounted() {
-    this.getUserInfo();
+    ...mapState(["userInfo"]),
   },
   methods: {
     onLogout() {
@@ -106,25 +102,14 @@ export default {
           message: "退出后将清除当前所有用户数据",
         })
         .then(() => {
-          // on confirm
-          // 清除用户状态
-          this.$store.commit("SETUSER", null);
-          // 通过设置user为null 来达到清空用户数据的目的
+          this.$store.dispatch("logOut")
         })
         .catch(() => {
           // on cancel
           // 取消的回调 直接return
           return;
         });
-    },
-    async getUserInfo() {
-      if (this.user) {
-        const { data } = await getUserInfo();
-        this.currentUser = data.data;
-      } else {
-        return;
-      }
-    },
+    }
   },
 };
 </script>

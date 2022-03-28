@@ -28,15 +28,14 @@ export const login = data => {
     data
   })
 }
-/**
- * 登录
- * path： /web/user/getInfo
- * method： GET
- */
-export const getUserInfo = () => {
+
+// 获取所有频道
+// Path： /app/v1_0/channels
+// Method： GET
+export const getAllChannels = () => {
   return http({
     method: 'GET',
-    url: '/web/user/getInfo'
+    url: '/v1/category/list'
   })
 }
 
@@ -60,20 +59,6 @@ export const sendSms = mobile => {
   return request({
     method: 'GET',
     url: `/app/v1_0/sms/codes/${mobile}`
-  })
-}
-
-// 获取用户的信息
-// Path：  /app/v1_0/user
-// Method： GET
-
-// 获取所有频道
-// Path： /app/v1_0/channels
-// Method： GET
-export const getAllChannels = () => {
-  return request({
-    method: 'GET',
-    url: '/app/v1_0/channels'
   })
 }
 

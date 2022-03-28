@@ -4,9 +4,6 @@ import { Rule } from 'lin-mizar/lin'
 class AddCommentValidator extends LinValidator {
   constructor() {
     super();
-    this.image = [
-      new Rule('isNotEmpty', '用户头像不能为空')
-    ];
     this.web_user_id = [
       new Rule('isNotEmpty', '用户ID不能为空'),
       new Rule('isInt', '用户ID必须是数字')
@@ -54,4 +51,14 @@ class DeleteCommentValidator extends LinValidator {
     ];
   }
 }
-module.exports = { AddCommentValidator, EditCommentValidator, DeleteCommentValidator,CommentSearchValidator };
+class LikeCommentValidator extends LinValidator {
+  constructor() {
+    super();
+    this.id = [
+      new Rule('isNotEmpty', 'id不能为空'),
+      new Rule('isInt', 'id必须是数字且大于0', { min: 1 })
+    ];
+  }
+}
+
+module.exports = { AddCommentValidator, EditCommentValidator, DeleteCommentValidator,CommentSearchValidator,LikeCommentValidator };

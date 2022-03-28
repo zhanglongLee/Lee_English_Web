@@ -58,7 +58,7 @@ class UserDao {
   // 获取用户信息
   async getInformation (ctx) {
     const user = ctx.currentUser
-    const userInfo = await UserModel.findAll({
+    const userInfo = await UserModel.findOne({
       where: {
         id: user.id
       }
@@ -104,6 +104,7 @@ class UserDao {
     }
     user.sex = v.get('body.sex');
     user.avatar = v.get('body.avatar');
+    user.birthday = v.get('body.birthday');
     await user.save()
   }
 

@@ -29,6 +29,7 @@
             }
         },
         mounted(){
+          console.log(this.file);
             const image = this.$refs.image;
             this.cropper = new Cropper(image, {
                 viewMode:1,
@@ -50,21 +51,27 @@
                 })
             },
             async onConfirm() {
-                this.$toast.loading({
-                    title: '上传中~~~',
-                    forbidclick: true,
-                    duration:0
-                })
+                // this.$toast.loading({
+                //     title: '上传中~~~',
+                //     forbidclick: true,
+                //     duration:0
+                // })
                 // 封装了一个getCropper函数，获取裁剪后的图片
-                const file=await this.getCroppedCanvas();
+                const imgBlob = await this.getCroppedCanvas();
+                const file = new window.File([imgBlob],this.file.name,{
+                  type: this.file.type
+                })
                 const fd = new FormData();
                 // 传入文件对象并转成formData
-                fd.append('photo', file)
-                await updateUserPhoto(fd)
-
-                this.$toast.success('上传成功！');
-                this.$emit('close');
-                this.$emit('update-photo', window.URL.createObjectURL(file));
+                fd.append('file', file)
+                try {
+                  let res = await updateUserPhoto(fd)
+                  this.$toast.success('上传成功！');
+                  this.$emit('handleUpdatePhoto',res);
+                  this.$emit('close');
+                } catch (error) {
+                  console.log(error);
+                }
             }
         },
     }

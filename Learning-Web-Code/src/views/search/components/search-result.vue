@@ -1,66 +1,89 @@
 <template>
-    <div class="search-result">
-        <van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
-            <article-item v-for="(article,index) in list" :key="index" :article.sync="article" />
-        </van-list>
-    </div>
+  <div class="search-result">
+    <van-list
+      v-model="loading"
+      :finished="finished"
+      :offset="10"
+      :immediate-check="false"
+      finished-text="没有更多了"
+      @load="onLoad"
+    >
+      <article-item
+        v-for="(article, index) in list"
+        :key="index"
+        :article.sync="article"
+      />
+    </van-list>
+  </div>
 </template>
 
 <script>
-    import {
-        getSearchResult
-    } from '@/api/search';
-    import ArticleItem from '@/components/article-item';
-    export default {
-        name: 'searchResult',
-        components:{
-            ArticleItem
-        },
-        data() {
-            return {
-                list: [],
-                loading: false,
-                finished: false,
-                page: 1,
-                per_page: 10,
-            }
-        },
-        props: ['searchText'],
-        methods: {
-            async onLoad() {
-                // 异步更新数据
-                const {
-                    data
-                } = await getSearchResult({
-                    page: this.page,
-                    per_page: this.per_page,
-                    q: this.searchText
-                })
-                const {results} = data.data;
-                console.log(results);
-                this.list.push(...results);
+import { getSearchResult } from "@/api/search";
+import ArticleItem from "@/components/article-item";
+export default {
+  name: "searchResult",
+  components: {
+    ArticleItem,
+  },
+  data() {
+    return {
+      list: [],
+      loading: false,
+      finished: false,
+      index: 1,
+      size: 10,
+    };
+  },
+  props: ["searchText"],
+  mounted(){
+    this.getArticles()
+  },
+  methods: {
+    getArticles() {
+      let data = {
+        page: this.index,
+        size: this.size,
+        q: this.searchText,
+      };
+      getSearchResult(data)
+        .then((res) => {
+          const rows = res.data;
+          this.total = res.data.total;
+          if (rows == null || rows.length === 0) {
+            // 加载结束
+            this.finished = true;
+            return;
+          }
+          // 将新数据与老数据进行合并
+          this.list = this.list.concat(rows);
+          console.log(this.list);
 
-                // 加载状态结束
-                this.loading = false;
-
-                // 数据全部加载完成
-                if(results.length){
-                    this.page++
-                }else{
-                    this.finished=true;
-                }
-            },
-        }
-    }
+          //如果列表数据条数>=总条数，不再触发滚动加载
+          if (this.list.length >= this.total) {
+            this.finished = true;
+          }
+        })
+        .catch((err) => {
+          this.loading = false;
+          this.finished = true;
+          console.log(err);
+        });
+    },
+    onLoad() {
+      this.index++;
+      this.getArticles();
+    },
+  },
+};
 </script>
 
 <style scoped lang="less">
-    .search-result {
-        position: fixed;
-        right: 0;
-        left: 0;
-        bottom: 0;
-        top: 54px;
-        overflow-y: auto;
-    }
+.search-result {
+  position: fixed;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  top: 54px;
+  overflow-y: auto;
+}
 </style>

@@ -40,7 +40,7 @@
 // import io from 'socket.io-client';
 // const socket = io('http://api-toutiao-web.itheima.net')
 //接口未设置跨域 估计限定了ip
-import { getUserProfile } from "@/api/user";
+// import { getUserProfile } from "@/api/user";
 export default {
   name: "userchat",
   data() {
@@ -51,8 +51,8 @@ export default {
     };
   },
   async created() {
-    const { data } = await getUserProfile();
-    this.user = data.data;
+    // const { data } = await getUserProfile();
+    // this.user = data.data;
   },
   methods: {
     sendMsg() {

@@ -24,7 +24,7 @@
       <van-tab
         class="channel-tabs-item"
         v-for="channel in channels"
-        :title="channel.name"
+        :title="channel.category_name"
         :key="channel.id"
       >
         <article-list :channel="channel"></article-list>
@@ -69,7 +69,6 @@
 
 <script>
 import ChannelEdit from "./components/channel-edit.vue";
-import { getUserChannels } from "@/api";
 import ArticleList from "./components/article-list.vue";
 import { mapState } from "vuex";
 import { getItem } from "@/utils/storage";
@@ -88,21 +87,15 @@ export default {
   },
   methods: {
     async getUserChannels() {
-      if (this.user) {
-        const { data } = await getUserChannels();
-        this.channels = data.data.channels;
-        if(data.status===401){
-          // 此时刷新token也失效了
-          
-        }
+      const localChannels = getItem("user-channels");
+      if (localChannels) {
+        this.channels = localChannels;
       } else {
-        const localChannels = getItem("user-channels");
-        if (localChannels) {
-          this.channels = localChannels;
-        } else {
-          const { data } = await getUserChannels();
-          this.channels = data.data.channels;
-        }
+        let data = [{
+          id:999,
+          category_name:"推荐"
+        }]
+        this.channels = data;
       }
     },
 
@@ -115,7 +108,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(["user"]),
+    ...mapState(["userInfo"]),
   },
   mounted() {
     this.getUserChannels();

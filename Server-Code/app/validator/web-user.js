@@ -88,6 +88,9 @@ class UpdateInfoValidator extends LinValidator {
         max: 500
       })
     ];
+    this.birthday = [
+      new Rule('isNotEmpty', '生日能为空'),
+    ];
   }
 }
 

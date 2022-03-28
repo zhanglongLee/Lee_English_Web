@@ -1,12 +1,12 @@
 import request from '@/utils/request'
+import http from '@/utils/axios'
 // 获取评论
-// Path： /app/v1_0/comments
+// Path： /v1/comment/:articleId
 // Method： GET
-export const getCommentList = (params) => {
-    return request({
+export const getCommentList = (articleId) => {
+    return http({
         method: 'GET',
-        url: '/app/v1_0/comments',
-        params
+        url: `/v1/comment/${articleId}`
     })
 }
 
@@ -33,12 +33,12 @@ export const delikeComment = commentId => {
 }
 
 // 添加评论或回复评论
-// Path： /app/v1_0/comments
+// Path： /v1/comment
 // Method： POST
 export const addComment = data => {
-    return request({
+    return http({
         method: 'POST',
-        url: '/app/v1_0/comments',
+        url: '/v1/comment',
         data
     })
 }

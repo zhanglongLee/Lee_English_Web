@@ -1,14 +1,14 @@
 <template>
   <div class="article-item">
     <van-cell
-      :to="{ name: 'article', params: { articleId: article.art_id } }"
+      :to="{ path: `article/${article.id}` } "
       class="item-container"
     >
       <div slot="title" class="title van-multi-ellipsis--l3">
         {{ article.title }}
       </div>
-      <!-- <div slot="label" class="label">
-        <div class="cover-wrapper" v-if="article.cover.images.length === 3">
+      <div slot="label" class="label">
+        <!-- <div class="cover-wrapper" v-if="article.cover.images.length === 3">
           <div
             class="cover-item"
             v-for="(img, index) in article.cover.images"
@@ -16,13 +16,13 @@
           >
             <van-image :src="img" height="76" fit="cover" />
           </div>
-        </div>
+        </div> -->
         <div class="label-wrapper">
-          <span>{{ article.aut_name }}</span>
-          <span>{{ article.comm_count }}评论</span>
-          <span>{{ article.pubdate | xianduiTime }}</span>
+          <span>{{ article.author }}</span>
+          <span class="category">{{ article.categoryName }}</span>
+          <span>{{ getRelativeTime(article.published_time) }}</span>
         </div>
-      </div> -->
+      </div>
       <!-- 单封面情况 -->
       <van-image
         :src="article.image"
@@ -35,6 +35,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 export default {
   name: "ArticleItem",
   props: {
@@ -43,40 +44,29 @@ export default {
       required: true,
     },
   },
-  watch: {
-    article() {
-      this.init();
-    },
-  },
   methods: {
-    ISImgExit(url) {
-      try {
-        let ImgObj = new Image();
-        ImgObj.src = url;
-        if (ImgObj.width > 0 && ImgObj.height > 0) {
-          return true;
-        } else {
-          return false;
-        }
-      } catch (error) {
-        return false;
+    // 获取相对时间
+    getRelativeTime(published_time){
+      let relativeTime = ""
+      let days = moment().diff(moment(published_time), 'days')
+      let hours = moment().diff(moment(published_time), 'hours')
+      let minutes = moment().diff(moment(published_time), 'minutes')
+      let seconds = moment().diff(moment(published_time), 'seconds')
+      if(seconds>0 && seconds<60){
+        relativeTime = seconds + "秒前"
+      }else if(minutes>0 && minutes<60){
+        relativeTime = minutes + "分钟前"
+      }else if(hours>0 && hours<60){
+        relativeTime = hours + "小时前"
+      }else if(days>0 && days<60){
+        relativeTime = days + "天前"
+      }else{
+        relativeTime = "现在"
       }
-    },
-    init() {
-      let imgArr = this.article.cover.images.map((item) => {
-        return {
-          status: this.ISImgExit(item),
-          url: item,
-        };
-      });
-      // 过滤掉没法查看的图片
-      this.article.cover.images = imgArr
-        .filter((item) => !!item.status)
-        .map((item) => item.url);
+      return relativeTime
     },
   },
   mounted() {
-    this.init();
   },
 };
 </script>
@@ -122,8 +112,11 @@ export default {
     .label-wrapper {
       font-size: 11px;
 
-      span {
+      span + span {
         margin-left: 12px;
+      }
+      .category{
+        color: #1989fa;
       }
     }
   }

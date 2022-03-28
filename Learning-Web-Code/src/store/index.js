@@ -1,9 +1,27 @@
 import Vue from 'vue'
 import Vuex from 'vuex';
 import { getItem, setItem } from '@/utils/storage'
-import { getToken,removeToken,saveAccessToken} from '../utils/token'
-import { getUserInfo } from '../utils/index.js'
+import { getToken, removeToken, saveAccessToken } from '../utils/token'
+import { getWebUserInfo, updateWebUserInfo } from '../api/user.js'
+import {
+  Toast
+} from 'vant'
 Vue.use(Vuex)
+
+// 准备state
+const state = {
+  cachePages: ['layout'],
+  token: getToken('access_token'),
+  userInfo: JSON.parse(localStorage.getItem('userInfo')) || null,
+  api_url: '',
+  history_answer: JSON.parse(localStorage.getItem('history_answer')) || [],
+  commentId: "",
+  postShowObj: {
+    data:{},
+    status:false
+  },
+}
+
 // 响应动作的actions
 const USER_KEY = "adk-user"
 
@@ -11,43 +29,40 @@ const actions = {
   setUser({ commit }, user) {
     commit('SETUSER', user);
   },
+  updateParam(context, data) {
+    context.commit("UPDATEPARAM", data);
+  },
   // 获取用户信息
-  async getUserInfo(context) {
-    setTimeout(() => {
-      Vue.prototype.$service
-        .get("/web/user/getInfo")
-        .then(res => {
-          if (res.length === 0) {
-            return
-          }
-          let data = res[0]
+  getUserInfo(context) {
+    setTimeout(async () => {
+      try {
+        let { code, userInfo } = await getWebUserInfo("/web/user/getInfo")
+        userInfo.photo = userInfo.avatar
+        if (code === 200) {
           context.commit('removeUserInfo')
-          context.commit('setUserInfo', data)
-        })
-        .catch(err => {
-          console.log(err);
-        });
+          context.commit('setUserInfo', userInfo)
+        }
+      } catch (error) {
+        console.log(error);
+      }
     }, 0)
   },
   // 修改用户信息
   updateUserInfo(context, data) {
-    setTimeout(() => {
-      Vue.prototype.$service
-        .post("/web/user/updateInfo", data)
-        .then(res => {
-          if (res.code == '10252') {
-            // 更新成功
-            // 重新获取用户信息
-            Vue.prototype.$message.success(res.message)
-            context.dispatch('getUserInfo')
-            return true
-          } else {
-            Vue.prototype.$message.error(res.message)
-          }
-        })
-        .catch(err => {
-          console.log(err);
-        });
+    setTimeout(async () => {
+      try {
+        let { code, message } = await updateWebUserInfo(data)
+        if (code == '10252') {
+          // 更新成功
+          // 重新获取用户信息
+          Toast.success(message)
+          context.dispatch('getUserInfo')
+        } else {
+          Toast.fail(message)
+        }
+      } catch (error) {
+        console.log(error);
+      }
     }, 0)
     return false
   },
@@ -61,6 +76,23 @@ const actions = {
 
 //操作数据的mutations
 const mutations = {
+  UPDATEPARAM(state, param) {
+    let attr, data;
+    if (param.length > 1) {
+      [attr, data] = param;
+    } else {
+      [data] = param;
+    }
+    let keys = Object.keys(data);
+    for (let key of keys) {
+      if (attr) {
+        state[attr][key] = data[key];
+      } else {
+        state[key] = data[key];
+        console.log(state);
+      }
+    }
+  },
   SETUSER(state, user) {
     state.user = user;
     // 需要进行持久化
@@ -104,7 +136,7 @@ const mutations = {
   },
   // 删除用户信息
   removeUserInfo(state) {
-    state.userInfo = {}
+    state.userInfo = null
     localStorage.removeItem('userInfo')
   },
   // 设置api_url
@@ -117,15 +149,6 @@ const mutations = {
   }
 }
 
-// 准备state
-const state = {
-  user: getItem(USER_KEY),
-  cachePages: ['layout'],
-  token: getToken('access_token'),
-  userInfo: JSON.parse(localStorage.getItem('userInfo')) || {},
-  api_url: '',
-  history_answer: JSON.parse(localStorage.getItem('history_answer')) || [],
-}
 
 const getters = {
 

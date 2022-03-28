@@ -18,6 +18,7 @@ Vue.prototype.$service = service
 
 Vue.use(Vant)
 Vue.config.productionTip = false
+Vue.prototype.$bus = new Vue()
 
 router.beforeEach((to, from, next) => {
   // 设置标题

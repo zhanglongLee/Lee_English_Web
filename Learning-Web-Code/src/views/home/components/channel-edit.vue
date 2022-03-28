@@ -9,7 +9,7 @@
         <van-grid :gutter="10">
             <van-grid-item class="grid-item" :class="{ active: index===active}" v-for="channel,index in channels"
                 :key="channel.id" :icon="(isEdit&&index!==0)?'clear':''" @click="onUserChannelClick(index,channel)"
-                :text="channel.name" />
+                :text="channel.category_name" />
         </van-grid>
 
         <van-cell :border="false">
@@ -18,7 +18,7 @@
         </van-cell>
         <van-grid :gutter="10">
             <van-grid-item class="grid-item" @click="onAdd(channel)" v-for="channel in recommandChannels"
-                :key="channel.id" :text="channel.name" />
+                :key="channel.id" :text="channel.category_name" />
         </van-grid>
     </div>
 </template>
@@ -57,22 +57,12 @@
         methods: {
             async loadAllChannels() {
                 const {data} = await getAllChannels();
-                this.allChannnels = data.data.channels;
+                this.allChannnels = data;
             },
             // 添加频道 持久化：如果登录了，则存储到线上，如果未登录 存储到本地
             async onAdd(channel) {
                 this.channels.push(channel);
-                // 如果登录了：添加到线上
-                if (this.user) {
-                    await addUserChannels({
-                        channels: [{
-                            id: channel.id,
-                            seq: this.channels.length
-                        }]
-                    })
-                } else {
-                    setItem('user-channels', this.channels);
-                }
+                setItem('user-channels', this.channels);
             },
             // 删除或者切换
             onUserChannelClick(index,channel) {
@@ -91,12 +81,7 @@
                     this.$emit('update-active', this.active - 1);
                 }
                 this.channels.splice(index, 1);
-                // 数据持久化
-                if(this.user){
-                    await deleteUserChannels(channel.id)
-                }else{
-                    setItem('user-channels', this.channels);
-                }
+                setItem('user-channels', this.channels);
             },
             switchChannel(index) {
                 // 切换频道
