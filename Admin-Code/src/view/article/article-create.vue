@@ -14,10 +14,10 @@
             @submit.native.prevent
           >
             <el-form-item label="文章标题" prop="title">
-              <el-input size="medium" v-model="form.title" placeholder="请填写书名"></el-input>
+              <el-input size="medium" v-model="form.title" placeholder="请填写文章名"></el-input>
             </el-form-item>
             <el-form-item label="作者" prop="author">
-              <el-input size="medium" v-model="form.author" placeholder="请填写作者"></el-input>
+              <el-input disabled size="medium" v-model="form.author" placeholder="请填写作者"></el-input>
             </el-form-item>
 
             <el-col :span="8">
@@ -102,6 +102,7 @@
 import article from '@/model/article'
 import { getToken } from '@/lin/util/token.js'
 import Utils from '../../lin/util/util'
+import { mapState } from "vuex";
 
 export default {
   components: {},
@@ -161,7 +162,7 @@ export default {
         description: [{ required: true, message: '请输入文章描述', trigger: 'blur' }],
         image: [{ required: true, message: '请输入文章封面图', trigger: 'blur' }],
         content: [{ required: true, message: '请输入文章内容', trigger: 'blur' }],
-        author: [{ required: true, message: '请输入文章作者', trigger: 'blur' }],
+        // author: [{ required: true, message: '请输入文章作者', trigger: 'blur' }],
         published_time: [{ required: true, message: '请选择日期', trigger: 'change' }],
         categoryId: [{ required: true, message: '请选择分类', trigger: 'change' }],
         is_published: [{ required: true, message: '请选择发布状态', trigger: 'change' }],
@@ -171,7 +172,12 @@ export default {
       },
     }
   },
+  computed:{
+    ...mapState(["user"])
+  },
   mounted() {
+    console.log(this.user);
+    this.form.author = this.user.nickname
     this.getCategory()
   },
   methods: {
@@ -228,6 +234,7 @@ export default {
             this.loading = true
             this.postObj = Utils.deepClone(this.form)
             this.postObj.image = this.postObj.originImage
+            this.postObj.uid = this.user.id
             const res = await article.createArticle(this.postObj)
             this.loading = false
             if (res.code < window.MAX_SUCCESS_CODE) {

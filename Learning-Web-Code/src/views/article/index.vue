@@ -35,10 +35,7 @@
       <van-divider>文章到这里结束啦~</van-divider>
       <div class="title">全部评论</div>
       <!-- 评论区 -->
-      <comment-list
-        v-if="commentList.length"
-        :commentList="commentList"
-      >
+      <comment-list v-if="commentList.length" :commentList="commentList">
       </comment-list>
       <van-empty v-else description="暂时没有评论哦~ 快来发表第一条评论" />
     </div>
@@ -46,6 +43,7 @@
     <!-- 底部区域 -->
     <div class="bottom-content" v-if="article">
       <van-button
+        v-if="article.is_comment_enabled"
         @click="rootComment"
         type="default"
         class="comment-btn"
@@ -62,20 +60,23 @@
       />
       <van-icon
         @click="onLike"
-        :name="article.attitude == 1 ? 'good-job' : 'good-job-o'"
-        :color="article.attitude == 1 ? '#3296fa' : ''"
+        :name="article.is_liked ? 'good-job' : 'good-job-o'"
+        :color="article.is_liked ? '#3296fa' : ''"
       />
-      <van-icon name="share-o" />
+      <van-icon
+        @click="copyClicked"
+        name="share-o"
+      />
     </div>
 
     <!-- 发布评论区 -->
     <van-popup v-model="postShowObj.status" position="bottom">
       <post-comment
-        :parentCommentId="postShowObj.data.id"
-        :articleId="postShowObj.data.article_id"
+        :parentCommentId="postShowObj.data.commentId"
+        :articleId="articleId"
       ></post-comment>
     </van-popup>
-
+    <input ref="shareInput" style="height:0;opacity:0;position:absolute;top:0;" v-model="shareData" />
   </div>
 </template>
 
@@ -86,12 +87,13 @@ import {
   checkArticleIsCollected,
   userLike,
   userCancelLike,
+  getArticleById,
+  addUserArticleHistory,
 } from "@/api/article";
 import { ImagePreview, Toast } from "vant";
-import { cancelFollowUser, followUser } from "@/api/user";
+import { cancelFollowUser, followUser, checkAuthorIsFocus } from "@/api/user";
 import "github-markdown-css";
 import { mapState } from "vuex";
-import { getArticleById } from "@/api/article";
 import { getCommentList } from "@/api/comment";
 import commentList from "./components/comment-list.vue";
 import PostComment from "./components/post-comment.vue";
@@ -112,37 +114,67 @@ export default {
       isReplyShow: false,
       replyComment: {},
       scrollTop: 0,
+      shareData: location.href
     };
   },
   async created() {},
   computed: {
-    ...mapState(["userInfo","postShowObj"]),
+    ...mapState(["userInfo", "postShowObj"]),
   },
   methods: {
+    copyClicked() {
+      this.$refs.shareInput.select();
+      document.execCommand("copy");
+      this.$toast.success("已复制分享链接！");
+    },
+    copySuccess() {
+      this.$toast.success("已复制分享链接！");
+    },
+    copyError() {
+      this.$toast.error("分享失败！");
+    },
+    async addArticleHistory() {
+      if (this.userInfo) {
+        await addUserArticleHistory({ articleId: this.articleId });
+      }
+    },
     // 关闭回复弹框
     closePostModal() {
-      this.$store.dispatch("updateParam",["postShowObj",{status:false,data:{}}])
-      this.getComments()
+      this.$store.dispatch("updateParam", [
+        "postShowObj",
+        { status: false, data: {} },
+      ]);
+      this.getComments();
     },
     // 评论文章
-    rootComment(){
-      if(!this.userInfo){
+    rootComment() {
+      if (!this.userInfo) {
         this.$toast({
-          message:"请登录后进行评论操作！"
-        })
-        return
+          message: "请登录后进行评论操作！",
+        });
+        return;
       }
-      this.$store.dispatch("updateParam",["postShowObj",{status:true,data:{id: -1,article_id: this.articleId}}])
+      this.$store.dispatch("updateParam", [
+        "postShowObj",
+        { status: true, data: { commentId: -1 } },
+      ]);
     },
     async getArticle() {
       const { data } = await getArticleById(this.articleId);
       data.is_collected = false;
+      data.is_liked = false;
       if (this.userInfo) {
+        // 检查文章是否被收藏
         const { isCollected } = await checkArticleIsCollected({
           web_user_id: this.userInfo.id,
           article_id: this.articleId,
         });
         data.is_collected = isCollected;
+        // 检查作者是否被关注
+        const { isFocus } = await checkAuthorIsFocus({
+          to_user_id: data.uid,
+        });
+        data.is_followed = isFocus;
       }
       this.$set(this, "article", data);
       // 由于更新数据后视图未立即刷新 使用nextTick
@@ -169,18 +201,30 @@ export default {
     },
     async onFollow() {
       this.isFollowLoding = true;
-      if (this.user) {
+      if (this.userInfo) {
         // 如果已关注则取关
         if (this.article.is_followed) {
-          await cancelFollowUser(this.article.aut_id);
+          await cancelFollowUser({
+            to_user_id: this.article.uid,
+            rel_type: 2,
+          });
+          Toast.success({
+            message: "取消关注成功！",
+          });
         } else {
-          await followUser(this.article.aut_id);
+          await followUser({
+            to_user_id: this.article.uid,
+            rel_type: 1,
+          });
+          Toast.success({
+            message: "关注成功！",
+          });
         }
         // 未关注则关注
         this.article.is_followed = !this.article.is_followed;
       } else {
         this.$toast({
-          message: "请登录后再评论！",
+          message: "请登录后再关注！",
         });
       }
       this.isFollowLoding = false;
@@ -213,21 +257,17 @@ export default {
     },
     // 点赞
     async onLike() {
-        Toast.success({
-          message: "开发中",
-        });
-        return
       Toast.loading({
         message: "操作中···",
         forbidClick: true,
       });
-      if (this.user) {
-        if (this.article.attitude == -1) {
-          await userLike(this.article.art_id);
-          this.article.attitude = 1;
+      if (this.userInfo) {
+        if (!this.article.is_liked) {
+          await userLike(this.article.id);
+          this.$set(this.article, "is_liked", true);
         } else {
-          await userCancelLike(this.article.art_id);
-          this.article.attitude = -1;
+          await userCancelLike(this.article.id);
+          this.$set(this.article, "is_liked", false);
         }
         Toast.success({
           message: "操作成功",
@@ -249,8 +289,8 @@ export default {
       try {
         // 异步更新数据
         const { data } = await getCommentList(this.articleId);
-        this.totalCommentCount = data.length
-        this.commentList = this.changeComment(data)
+        this.totalCommentCount = data.length;
+        this.commentList = this.changeComment(data);
         console.log(this.commentList);
         this.loading = false;
       } catch (error) {
@@ -260,25 +300,31 @@ export default {
     },
     //评论数据处理，分为几级评论
     changeComment(data) {
-      function fn(temp,parentName) {
+      function fn(temp, parentName) {
         let arr1 = [];
         for (let i = 0; i < data.length; i++) {
           if (data[i].parent_comment_id == temp) {
             arr1.push(data[i]);
-            data[i].parentName = parentName
-            data[i].child = fn(data[i].id,data[i].nickname);
+            data[i].parentName = parentName;
+            data[i].child = fn(data[i].id, data[i].nickname);
           }
         }
         return arr1;
       }
-      return fn(-1,"");
+      return fn(-1, "");
     },
+    // 检查该篇文章作者是否被关注
+    checkAuthorIsFocus() {},
   },
   async mounted() {
-    this.$bus.$on("post-success",this.closePostModal)
+    this.$bus.$on("post-success", this.closePostModal);
     this.articleId = this.$route.params.articleId;
     await this.getArticle();
-    this.getComments()
+    this.$store.dispatch("updateParam", [
+      { is_comment_enabled: this.article.is_comment_enabled },
+    ]);
+    this.getComments();
+    this.addArticleHistory();
   },
 };
 </script>
@@ -295,7 +341,7 @@ export default {
 .article-cotainer {
   .content-wrap {
     width: 100%;
-    height: calc(~'100vh - 90px');
+    height: calc(~"100vh - 90px");
     overflow-y: auto;
     background-color: white;
   }

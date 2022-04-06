@@ -16,8 +16,9 @@ class AddArticleValidator extends LinValidator {
     this.content = [
       new Rule('isNotEmpty', '文章内容不能为空')
     ];
-    this.author = [
-      new Rule('isNotEmpty', '文章作者不能为空')
+    this.uid = [
+      new Rule('isNotEmpty', '用户ID不能为空'),
+      new Rule('isInt', '用户ID必须是数字')
     ];
     this.published_time = [
       new Rule('isNotEmpty', '发布日期不能为空'),

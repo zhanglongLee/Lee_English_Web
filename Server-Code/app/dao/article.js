@@ -1,20 +1,21 @@
 import { NotFound, Forbidden, log } from 'lin-mizar';
 import { ArticleModel } from '../model/article';
 import { CategoryModel } from '../model/category'
+import { UserModel } from '../model/user'
 import { ArticleCollectionModel } from '../model/collection'
 import { Op } from 'sequelize'
 
 class Article {
 
   // 查询该文章是否被收藏
-  static async checkArticleIsCollected(article_id,web_user_id){
+  static async checkArticleIsCollected(article_id, web_user_id) {
     const res = await ArticleCollectionModel.findOne({
-      where:{
+      where: {
         article_id,
         web_user_id
       }
     })
-    if(res){
+    if (res) {
       return true
     }
     return false
@@ -34,7 +35,35 @@ class Article {
     res.views = res.views + 1
     res.save()
   }
-
+  // 通过多个id查多篇文章，主要用在查询文章浏览记录
+  // ids为逗号分割的id 例如：1,2,3
+  static async getArticleByIds(idArr) {
+    const res = await ArticleModel.findAll({
+      where: {
+        id: {
+          [Op.in]: idArr
+        },
+        is_published: 1
+      },
+      attributes: {
+        exclude: ['deleted_at', 'updated_at']
+      },
+      include: [
+        {
+          model: CategoryModel,
+        },
+        {
+          model: UserModel
+        }
+      ],
+    });
+    if (!res) {
+      throw new Forbidden({
+        code: 10022
+      });
+    }
+    return res
+  }
   // 通过id查文章
   static async getArticleById(id) {
     const res = await ArticleModel.findOne({
@@ -45,9 +74,14 @@ class Article {
       attributes: {
         exclude: ['deleted_at', 'updated_at']
       },
-      include: [{
-        model: CategoryModel,
-      }],
+      include: [
+        {
+          model: CategoryModel,
+        },
+        {
+          model: UserModel
+        }
+      ],
     });
     if (!res) {
       throw new Forbidden({
@@ -58,7 +92,7 @@ class Article {
   }
 
   // 前端获取文章列表
-  static async getWebArticleList({page = 1, size = 5, q, categoryId}) {
+  static async getWebArticleList({ page = 1, size = 5, q, categoryId }) {
 
     var whereObj = { is_published: 1 }
     if (q) {
@@ -66,7 +100,7 @@ class Article {
         [Op.like]: `%${q}%`
       };
     }
-    if(categoryId){
+    if (categoryId) {
       whereObj.categoryId = categoryId
     }
     const res = await ArticleModel.findAndCountAll({
@@ -77,9 +111,14 @@ class Article {
       order: [['is_top', 'DESC'], ['created_at', 'DESC']],
       limit: Number(size),//长度
       offset: (Number(page) - 1) * Number(size),//当前列表开始值
-      include: [{ // include关键字表示关联查询
-        model: CategoryModel,
-      }],
+      include: [
+        { // include关键字表示关联查询
+          model: CategoryModel,
+        },
+        {
+          model: UserModel
+        }
+      ],
       // raw: true // 这个属性表示开启原生查询，原生查询支持的功能更多，自定义更强
     });
     return res;
@@ -96,9 +135,14 @@ class Article {
       attributes: {
         exclude: ['deleted_at', 'updated_at']
       },
-      include: [{ // include关键字表示关联查询
-        model: CategoryModel,
-      }],
+      include: [
+        { // include关键字表示关联查询
+          model: CategoryModel,
+        },
+        {
+          model: UserModel
+        }
+      ],
     });
     return res;
   }
@@ -121,10 +165,14 @@ class Article {
       order: [['is_top', 'DESC'], ['created_at', 'DESC']],
       limit: Number(size),//长度
       offset: (Number(page) - 1) * Number(size),//当前列表开始值
-      include: [{ // include关键字表示关联查询
-        model: CategoryModel,
-        // attributes: [['category_name', 'name']],
-      }],
+      include: [
+        { // include关键字表示关联查询
+          model: CategoryModel,
+        },
+        {
+          model: UserModel
+        }
+      ],
       // raw: true // 这个属性表示开启原生查询，原生查询支持的功能更多，自定义更强
     });
     return res;
@@ -186,7 +234,7 @@ class Article {
     }
   }
   // 文章点赞
-  static async likeArticle(article_id,web_user_id) {
+  static async likeArticle(article_id, web_user_id) {
     const article = await ArticleModel.findByPk(article_id);
     if (!article) {
       throw new NotFound();
@@ -196,14 +244,14 @@ class Article {
     });
   }
   // 取消文章点赞
-  static async unlikeArticle(article_id,web_user_id) {
+  static async unlikeArticle(article_id, web_user_id) {
     const article = await ArticleModel.findByPk(article_id);
     if (!article) {
       throw new NotFound();
     }
     let num = --article.like_num
     article.update({
-      like_num: num >=0 ? num : 0
+      like_num: num >= 0 ? num : 0
     });
   }
 };

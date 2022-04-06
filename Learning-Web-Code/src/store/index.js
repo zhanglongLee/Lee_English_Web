@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex';
 import { getItem, setItem } from '@/utils/storage'
+import router from '@/router/index'
 import { getToken, removeToken, saveAccessToken } from '../utils/token'
 import { getWebUserInfo, updateWebUserInfo } from '../api/user.js'
 import {
@@ -20,6 +21,7 @@ const state = {
     data:{},
     status:false
   },
+  is_comment_enabled: ""
 }
 
 // 响应动作的actions

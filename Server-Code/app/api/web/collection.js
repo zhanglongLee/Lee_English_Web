@@ -23,7 +23,7 @@ Collection.get('/', web_loginRequired, async ctx => {
   let id = ctx.currentUser.id;
   const v = await new PaginateValidator().validate(ctx);
   let { page, size } = v.get('query');
-  let collectionList = await CollectionDao.getCollectionList(id, page, size);
+  let collectionList = await CollectionDao.getArticleCollectionList(id, page, size);
   let obj = {
     page: Number(page),
     size: Number(size),

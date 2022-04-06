@@ -85,25 +85,61 @@ export const getChannelById = params => {
   })
 }
 // 对文章点赞
-// Path： /app/v1_0/article/likings
+// Path： /web/article/likeArticle
 // Method： POST
-export const userLike = articleId => {
-    return request({
+// article_id 文章id
+export const userLike = article_id => {
+    return http({
         method: 'POST',
-        url: '/app/v1_0/article/likings',
+        url: '/web/article/likeArticle',
         data:{
-            target:articleId
+          article_id
         }
     })
 }
 
 // 取消点赞
-// Path： /app/v1_0/article/likings/:target
-// Method： DELETE
-export const userCancelLike = articleId => {
-    return request({
-        method: 'DELETE',
-        url: `/app/v1_0/article/likings/${articleId}`
+// Path： /web/article/unlikeArticle
+// Method： POST
+// article_id 文章id
+export const userCancelLike = article_id => {
+    return http({
+        method: 'POST',
+        url: '/web/article/unlikeArticle',
+        data:{
+          article_id
+        }
     })
 }
 
+// 现在用户文章浏览记录
+// Path： /web/history/add
+// Method： POST
+// articleId 文章id
+export const addUserArticleHistory = (data) => {
+  return http({
+      method: 'POST',
+      url: '/web/history/add',
+      data
+  })
+}
+
+// 获取用户文章浏览记录列表
+// Path： /web/history
+// Method： GET
+export const getUserArticleHistory = () => {
+  return http({
+      method: 'GET',
+      url: '/web/history'
+  })
+}
+
+// 删除用户文章浏览记录
+// Path： /web/history/:id
+// Method： DELETE
+export const deleteUserArticleHistory = (id) => {
+  return http({
+      method: 'DELETE',
+      url: `/web/history/${id}`
+  })
+}

@@ -47,6 +47,7 @@ export default {
       };
       getSearchResult(data)
         .then((res) => {
+          this.loading = false;
           const rows = res.data;
           this.total = res.data.total;
           if (rows == null || rows.length === 0) {

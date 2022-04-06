@@ -72,7 +72,8 @@ Comment.init(
     like_num: {
       type: DataTypes.BIGINT(20),
       allowNull: true,
-      defaultValue: '评论点赞数量'
+      defaultValue: 0,
+      comment: '评论点赞数量'
     },
   },
   {

@@ -19,7 +19,7 @@
       >
         <div v-for="(item, index) in articles" :key="index">
           <van-swipe-cell :before-close="beforeClose" :name="index">
-            <article-item :article.sync="item" />
+            <article-item :article.sync="item.data" />
             <template #right>
               <van-button class="button" square type="danger" text="移除" />
             </template>
@@ -105,7 +105,7 @@ export default {
           instance.close();
           break;
         case "right":
-          await deleteCollect(1,this.articles[name].id);
+          await deleteCollect({type:1,id:this.articles[name].collect_id});
           Toast.success("取消收藏成功！")
           this.articles.splice(name, 1);
           instance.close();

@@ -19,7 +19,7 @@
               <el-input size="medium" v-model="form.title" placeholder="请填写书名"></el-input>
             </el-form-item>
             <el-form-item label="作者" prop="author">
-              <el-input size="medium" v-model="form.author" placeholder="请填写作者"></el-input>
+              <el-input disabled size="medium" v-model="form.author" placeholder="请填写作者"></el-input>
             </el-form-item>
 
             <el-col :span="8">
@@ -165,7 +165,7 @@ export default {
         description: [{ required: true, message: '请输入文章描述', trigger: 'blur' }],
         image: [{ required: true, message: '请输入文章封面图', trigger: 'blur' }],
         content: [{ required: true, message: '请输入文章内容', trigger: 'blur' }],
-        author: [{ required: true, message: '请输入文章作者', trigger: 'blur' }],
+        // author: [{ required: true, message: '请输入文章作者', trigger: 'blur' }],
         published_time: [{ required: true, message: '请选择日期', trigger: 'change' }],
         categoryId: [{ required: true, message: '请选择分类', trigger: 'change' }],
         is_published: [{ required: true, message: '请选择发布状态', trigger: 'change' }],
@@ -180,7 +180,7 @@ export default {
     delete this.rowObj.created_at
     this.form = this.rowObj
     this.form.is_top = Boolean(this.form.is_top)
-    
+
   },
   methods: {
     // 自定义图片上传方法
@@ -239,7 +239,7 @@ export default {
         }
       })
     },
-    
+
     // 重置表单
     resetForm(formName) {
       for(var k in this[formName]){

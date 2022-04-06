@@ -26,7 +26,7 @@
         <van-grid-item class="data-info-item">
           <div slot="text">
             <div class="count">{{ 10 }}</div>
-            <div class="text">头条</div>
+            <div class="text">文章</div>
           </div>
         </van-grid-item>
         <van-grid-item class="data-info-item">
@@ -38,13 +38,13 @@
         <van-grid-item class="data-info-item">
           <div slot="text">
             <div class="count">{{ 1 }}</div>
-            <div class="text">粉丝</div>
+            <div class="text">评论</div>
           </div>
         </van-grid-item>
         <van-grid-item class="data-info-item">
           <div slot="text">
-            <div class="count">{{ 100 }}</div>
-            <div class="text">获赞</div>
+            <div class="count">{{ 0 }}</div>
+            <div class="text">粉丝</div>
           </div>
         </van-grid-item>
       </van-grid>
@@ -64,20 +64,21 @@
         class="iconfont nav-grid-item"
         icon-prefix="icon"
         icon="good"
-        text="收藏"
+        text="我的收藏"
         @click="$router.push('/usercollect')"
       />
       <van-grid-item
         class="iconfont nav-grid-item"
         icon-prefix="icon"
         icon="browse"
-        text="历史"
+        text="浏览记录"
+        @click="$router.push('/userhistory')"
       />
     </van-grid>
 
     <!-- 下方的单元格 -->
-    <van-cell title="消息通知" is-link to="/" />
-    <van-cell title="人工智障" to="/userchat" is-link class="mb-15" />
+    <!-- <van-cell title="消息通知" is-link to="/" /> -->
+    <!-- <van-cell title="人工智障" to="/userchat" is-link class="mb-15" /> -->
     <van-cell title="退出登录" v-if="userInfo" @click="onLogout" class="logout" />
   </div>
 </template>

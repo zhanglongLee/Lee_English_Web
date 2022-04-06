@@ -22,14 +22,8 @@
               <span class="name" v-else>
                 {{ comment.nickname }}
               </span>
-              <div
-                @click="onLike"
-                :class="comment.is_liking ? 'like' : ''"
-                class="good"
-              >
-                <van-icon
-                  :name="comment.is_liking ? 'good-job' : 'good-job-o'"
-                />
+              <div @click="onLike(comment)" :class="is_liked ? 'like' : ''" class="good">
+                <van-icon :name="is_liked ? 'good-job' : 'good-job-o'" />
                 <span>{{ comment.like_count }}</span>
               </div>
             </div>
@@ -37,6 +31,7 @@
             <div class="bottom">
               <span class="time">{{ comment.created_at }}</span>
               <van-button
+                v-if="is_comment_enabled"
                 @click="parentComment(comment)"
                 class="recomment"
                 type="primary"
@@ -56,17 +51,22 @@
 <script>
 import commentChild from "./comment-child.vue";
 import { mapState } from "vuex";
+import { delikeComment, likeComment } from '@/api/comment'
 export default {
   components: {
     commentChild,
   },
   name: "commentList",
+  computed:{
+    ...mapState(['is_comment_enabled','userInfo'])
+  },
   data() {
     return {
       loading: false,
       finished: false,
       limit: 10,
       offset: null,
+      is_liked: false,
     };
   },
   props: {
@@ -75,40 +75,42 @@ export default {
       default: () => [],
     },
   },
-  computed:{
-    ...mapState(["userInfo"])
-  },
   methods: {
     closePostModal() {
-      this.$store.dispatch("updateParam",["postShowObj",{status:false,data:null}])
+      this.$store.dispatch("updateParam", [
+        "postShowObj",
+        { status: false, data: null },
+      ]);
     },
     parentComment(data) {
-      if(!this.userInfo){
+      if (!this.userInfo) {
         this.$toast({
-          message:"请登录后进行评论操作！"
-        })
-        return
+          message: "请登录后进行评论操作！",
+        });
+        return;
       }
-      this.$store.dispatch("updateParam",["postShowObj",{status:true,data}])
+      this.$store.dispatch("updateParam", [
+        "postShowObj",
+        { status: true, data },
+      ]);
     },
     isSecondComment(item) {
       return item.parent_comment_id !== -1;
     },
-    async onLike() {
-      
-        this.$toast.success({
-          message: "开发中",
-        });
-        return
-      const commentId = this.comment.com_id;
-      if (this.comment.is_liking) {
+    async onLike(comment) {
+      const commentId = comment.id;
+      if (this.is_liked) {
         await delikeComment(commentId);
-        this.comment.like_count--;
+        this.$toast.success({
+          message: "取消点赞成功！",
+        });
       } else {
         await likeComment(commentId);
-        this.comment.like_count++;
+        this.$toast.success({
+          message: "点赞成功！",
+        });
       }
-      this.comment.is_liking = !this.comment.is_liking;
+      this.is_liked = !this.is_liked;
     },
     // 评论成功回调
     onPostSuccess(comment) {
@@ -142,7 +144,7 @@ export default {
     },
   },
   mounted() {
-    this.$bus.$on("post-success",this.closePostModal)
+    this.$bus.$on("post-success", this.closePostModal);
   },
 };
 </script>

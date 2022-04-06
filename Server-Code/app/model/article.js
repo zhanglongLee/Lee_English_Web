@@ -1,6 +1,7 @@
 import { Sequelize, Model, DataTypes } from 'sequelize';
 import sequelize from '../lib/db';
 import { CategoryModel } from './category';
+import { UserModel } from './user'
 import { config } from 'lin-mizar'
 
 class Article extends Model {
@@ -10,7 +11,8 @@ class Article extends Model {
       title: this.title,
       image: this.image?`${config.getItem('siteDomain', 'http://localhost')}/assets/upload/${this.image}`:null,
       originImage: this.image,
-      author: this.author,
+      uid: this.uid,
+      author: this.user.nickname,
       published_time: this.published_time,
       content: this.content,
       description: this.description,
@@ -45,10 +47,10 @@ Article.init(
       allowNull: true,
       comment: '文章封面'
     },
-    author: {
-      type: DataTypes.STRING(255),
+    uid: {
+      type: DataTypes.BIGINT(20),
       allowNull: false,
-      comment: '文章作者'
+      comment: '用户id'
     },
     published_time: {
       type: DataTypes.DATE,
@@ -107,6 +109,7 @@ Article.init(
     like_num: {
       type: DataTypes.BIGINT(20),
       allowNull: true,
+      defaultValue: 0,
       comment: '文章点赞数量'
     },
   },
@@ -130,6 +133,10 @@ Article.init(
 // 定义外键
 Article.belongsTo(CategoryModel, {
   foreignKey: 'categoryId',
+  targetKey: 'id',
+});
+Article.belongsTo(UserModel, {
+  foreignKey: 'uid',
   targetKey: 'id',
 });
 

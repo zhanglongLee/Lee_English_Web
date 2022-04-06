@@ -23,12 +23,12 @@
                 {{ comment.nickname }}
               </span>
               <div
-                @click="onLike"
-                :class="comment.is_liking ? 'like' : ''"
+                @click="onLike(comment)"
+                :class="is_liked ? 'like' : ''"
                 class="good"
               >
                 <van-icon
-                  :name="comment.is_liking ? 'good-job' : 'good-job-o'"
+                  :name="is_liked ? 'good-job' : 'good-job-o'"
                 />
                 <span>{{ comment.like_count }}</span>
               </div>
@@ -37,6 +37,7 @@
             <div class="bottom">
               <span class="time">{{ comment.created_at }}</span>
               <van-button
+                v-if="is_comment_enabled"
                 @click="postitemcomment(comment.id)"
                 class="recomment"
                 type="primary"
@@ -54,37 +55,44 @@
 </template>
 
 <script>
+import { delikeComment, likeComment } from '@/api/comment'
+import { mapState } from "vuex";
 export default {
   name: "commentChild",
   props: ["commentChild", "temp"],
   data() {
-    return {};
+    return {
+      is_liked: false
+    };
+  },
+  computed:{
+    ...mapState(['is_comment_enabled'])
   },
   methods: {
-    async onLike() {
-        this.$toast.success({
-          message: "开发中",
-        });
-        return
-      const commentId = this.comment.com_id;
-      if (this.comment.is_liking) {
+    async onLike(comment) {
+      const commentId = comment.id;
+      if (this.is_liked) {
         await delikeComment(commentId);
-        this.comment.like_count--;
+        this.$toast.success({
+          message: "取消点赞成功！"
+        })
       } else {
         await likeComment(commentId);
-        this.comment.like_count++;
+        this.$toast.success({
+          message: "点赞成功！"
+        })
       }
-      this.comment.is_liking = !this.comment.is_liking;
+      this.is_liked = !this.is_liked;
     },
     //回复二级三级...评论，使用递增
     postitemcomment(id) {
-      if(!this.userInfo){
+      if(!this.$store.state.userInfo){
         this.$toast({
           message:"请登录后进行评论操作！"
         })
         return
       }
-      this.$store.dispatch("updateParam",["postShowObj",{status:true,data:{id: -1,article_id: id}}])
+      this.$store.dispatch("updateParam",["postShowObj",{status:true,data:{commentId: id}}])
     },
   },
 };

@@ -2,26 +2,12 @@ import { NotFound, Forbidden } from 'lin-mizar';
 import { ArticleCollectionModel, ListeningCollectionModel } from '../model/collection'
 import { ArticleModel } from '../model/article'
 import { ListeningModel } from '../model/listening'
+import { ArticleDao } from '../dao/article'
 import { Op } from 'sequelize'
 
 class Collection {
+  
   // 获取收藏列表,默认传用户id，查全部用户的收藏记录
-  static async getCollectionList(id,page,size) {
-    let res = await this.getArticleCollectionList(id,page,size)
-    let ArticleCollectionList = []
-    try {
-      res.forEach(item=>{
-        ArticleCollectionList.push(item.dataValues.article.dataValues)
-        console.log(item.dataValues.article.dataValues);
-      })
-    } catch (error) {
-      
-    }
-    // let ListeningCollectionList = await this.getListeningCollectionList(id)
-    // let res = Array.prototype.concat.apply(ArticleCollectionList, ListeningCollectionList)
-    return ArticleCollectionList
-  }
-  // 查看文章收藏列表
   static async getArticleCollectionList(id,page,size) {
     var whereObj
     if(id){
@@ -33,16 +19,20 @@ class Collection {
       where:whereObj,
       limit: Number(size),//长度
       offset: (Number(page) - 1) * Number(size),//当前列表开始值
-      attributes: {
-        exclude: ['deleted_at']
-      },
-      include: [
-        {
-          model: ArticleModel
-        }
-      ],
+      raw: true
     });
-    return res;
+    let historyList = []
+    let idArr = res.map(item=>item.article_id)
+    // 查对应的文章列表
+    // let list = (await ArticleDao.getArticleByIds(idArr)).map(item=>item.dataValues)
+    let list = await ArticleDao.getArticleByIds(idArr)
+    list.forEach((item,index)=>{
+      historyList.push({
+        collect_id: idArr[index],
+        data: item
+      })
+    })
+    return historyList;
   }
   // 查看听力练习收藏列表
   static async getListeningCollectionList(id) {

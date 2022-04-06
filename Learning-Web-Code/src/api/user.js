@@ -8,7 +8,7 @@ import http from '@/utils/axios'
  * path： /web/user/getInfo
  * method： GET
  */
- export const getWebUserInfo = () => {
+export const getWebUserInfo = () => {
   return http({
     method: 'GET',
     url: '/web/user/getInfo'
@@ -19,7 +19,7 @@ import http from '@/utils/axios'
  * path： /web/user/updateInfo
  * method： POST
  */
- export const updateWebUserInfo = (data) => {
+export const updateWebUserInfo = (data) => {
   return http({
     method: 'POST',
     url: '/web/user/updateInfo',
@@ -29,26 +29,41 @@ import http from '@/utils/axios'
 
 
 // 关注用户
-// Path： /app/v1_0/user/followings
+// Path： /web/relation/createOrUpdate
 // Method： POST
-export const followUser = userId => {
-    return request({
-        method: 'POST',
-        url: '/app/v1_0/user/followings',
-        data: {
-            target: userId
-        }
-    })
+// to_user_id 被关注用户id
+// rel_type 1表示关注 2表示取消关注 3表示拉黑
+export const followUser = data => {
+  return http({
+    method: 'POST',
+    url: '/web/relation/createOrUpdate',
+    data
+  })
 }
 
 // 取消关注
-// Path： /app/v1_0/user/followings/:target
-// Method： DELETE
-export const cancelFollowUser = userId => {
-    return request({
-        method: 'DELETE',
-        url: `/app/v1_0/user/followings/${userId}`
-    })
+// Path： /web/relation/createOrUpdate
+// Method： POST
+// to_user_id 被关注用户id
+// rel_type 1表示关注 2表示取消关注 3表示拉黑
+export const cancelFollowUser = data => {
+  return http({
+    method: 'POST',
+    url: '/web/relation/createOrUpdate',
+    data
+  })
+}
+
+// 检测用户是否被关注
+// Path： /web/relation/isFocus
+// Method： POST
+// to_user_id 被检测的用户id
+export const checkAuthorIsFocus = data => {
+  return http({
+    method: 'POST',
+    url: '/web/relation/isFocus',
+    data
+  })
 }
 
 
@@ -56,9 +71,9 @@ export const cancelFollowUser = userId => {
 // Path： /cms/file
 // Method： POST
 export const updateUserPhoto = data => {
-    return http({
-        method: 'POST',
-        url: '/cms/file',
-        data
-    })
+  return http({
+    method: 'POST',
+    url: '/cms/file',
+    data
+  })
 }

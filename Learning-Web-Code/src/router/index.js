@@ -62,7 +62,7 @@ const router = new VueRouter({
             meta: {
                 requireAuth: true
             },
-            component: () => import('@/views/usercollect'),
+            component: () => import('@/views/userhistory'),
             props: true
         },
         {

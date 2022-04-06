@@ -14,6 +14,9 @@ import {Toast} from 'vant'
 
 import {getToken} from './utils/token'
 import service from './utils/axios'
+import VueClipboard from 'vue-clipboard2'
+Vue.use(VueClipboard)
+
 Vue.prototype.$service = service
 
 Vue.use(Vant)
