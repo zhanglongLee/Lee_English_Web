@@ -79,7 +79,7 @@ export default {
     closePostModal() {
       this.$store.dispatch("updateParam", [
         "postShowObj",
-        { status: false, data: null },
+        { status: false, data: {} },
       ]);
     },
     parentComment(data) {
