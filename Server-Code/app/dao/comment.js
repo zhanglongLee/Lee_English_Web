@@ -138,7 +138,11 @@ class Comment {
       where: { article_id }
     });
   }
-
+  static async deleteVideoCourseComment(article_id) {
+    return CommentModel.destroy({
+      where: { article_id }
+    });
+  }
 
   // 评论点赞
   static async likeComment(id,web_user_id) {

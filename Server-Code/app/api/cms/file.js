@@ -10,7 +10,7 @@ const file = new LinRouter({
 
 file.linPost('upload', '/', async ctx => {
   let type = ctx.request.files.file.type
-  let typeList = ['image/png','image/jpeg','audio/mpeg']
+  let typeList = ['image/png','image/jpeg','audio/mpeg','video/mp4']
   if(typeList.indexOf(type) === -1){
     throw new NotFound({code:10256})
   }

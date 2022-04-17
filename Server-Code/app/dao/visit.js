@@ -1,7 +1,7 @@
 
 import { VisitModel } from '../model/visit'
 import { UserModel } from '../model/web-user'
-import { UserListening } from '../model/web-user-listening'
+import { VideoCourseModel } from '../model/videoCourse'
 
 class Visit {
   // 查看网站信息
@@ -16,7 +16,7 @@ class Visit {
       },
     });
     const userList = await UserModel.findAll()
-    const userListeningList = await UserListening.findAll()
+    const userListeningList = await VideoCourseModel.findAll()
     let obj = {
       visitTotal:count,
       userTotal:userList.length,

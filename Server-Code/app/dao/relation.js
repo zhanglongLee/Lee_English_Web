@@ -2,12 +2,14 @@ import { NotFound,Forbidden } from 'lin-mizar';
 import { RelationModel } from '../model/relation';
 import { ArticleModel } from '../model/article'
 import { UserModel } from '../model/web-user'
+import { VideoCourseDao } from './videoCourse'
+import { ArticleDao } from './article'
 import { Op } from 'sequelize'
 
 class Relation {
-
+  
   // 查看某用户的关注列表
-  static async getRelationLists(page = 1, size = 5, from_user_id, rel_type) {
+  static async getRelationLists(from_user_id, rel_type) {
     var whereObj = {
       from_user_id,
     };
@@ -16,20 +18,18 @@ class Relation {
     }
     const res = await RelationModel.findAndCountAll({
       where: whereObj,
-      attributes: {
-        exclude: ['deleted_at', 'updated_at']
-      },
-      limit: Number(size),//长度
-      offset: (Number(page) - 1) * Number(size),//当前列表开始值
-      include: [{ // include关键字表示关联查询
-        model: UserModel,
-        attributes: {
-          exclude: ['deleted_at', 'updated_at', 'created_at', 'avatar']
-        },
-      }],
-      // raw: true // 这个属性表示开启原生查询，原生查询支持的功能更多，自定义更强
+      raw: true // 这个属性表示开启原生查询，原生查询支持的功能更多，自定义更强
     });
-    return res;
+    // console.log(res);
+    // return []
+    let articleAndVideoList = []
+    let idArr = res.rows.map(item=>item.to_user_id)
+    // 查对应的文章列表
+    let articleList = await ArticleDao.getArticleByUserIds(idArr)
+    // 查对应的视频列表
+    let videoList = await VideoCourseDao.getVideoCourseByUserIds(idArr)
+    articleAndVideoList = [...videoList,...articleList]
+    return articleAndVideoList;
   }
 
   // 关注/取消关注/拉黑某用户

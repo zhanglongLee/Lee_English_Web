@@ -1,7 +1,7 @@
 import { Sequelize, Model, DataTypes } from 'sequelize';
 import sequelize from '../lib/db';
-import { ArticleModel } from '../model/article'
-import { ListeningModel } from '../model/listening'
+import { ArticleModel } from './article'
+import { VideoCourseModel } from './videoCourse'
 
 class ArticleCollectionModel extends Model {
   // toJSON() {
@@ -52,11 +52,11 @@ ArticleCollectionModel.init(
   }
 )
 
-class ListeningCollectionModel extends Model {
+class VideoCourseCollectionModel extends Model {
   toJSON() {
     const origin = {
       id: this.id,
-      collection_id: this.listening_id,
+      collection_id: this.video_course_id,
       web_user_id: this.web_user_id,
       collection_name: this.listening.title,
       updated_at: this.updated_at,
@@ -65,17 +65,17 @@ class ListeningCollectionModel extends Model {
     return origin;
   }
 }
-ListeningCollectionModel.init(
+VideoCourseCollectionModel.init(
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
-    listening_id: {
+    video_course_id: {
       type: DataTypes.BIGINT(20),
       allowNull: false,
-      comment: '听力练习id'
+      comment: '视频课程id'
 
     },
     web_user_id: {
@@ -86,9 +86,9 @@ ListeningCollectionModel.init(
   },
   {
     // 定义表名
-    tableName: "user_listening_collection",
+    tableName: "user_videoCourse_collection",
     // 定义模型名称
-    modelName: "user_listening_collection",
+    modelName: "user_videoCourse_collection",
     // 启用软删除
     paranoid: true,
     // 自动写入时间
@@ -111,14 +111,14 @@ ArticleModel.hasOne(ArticleCollectionModel, {
   targetKey: 'id'
 })
 
-ListeningCollectionModel.belongsTo(ListeningModel, {
-  foreignKey: 'listening_id',
+VideoCourseCollectionModel.belongsTo(VideoCourseModel, {
+  foreignKey: 'video_course_id',
   targetKey: 'id'
 })
-ListeningModel.hasOne(ListeningCollectionModel, {
-  foreignKey: 'listening_id',
+VideoCourseModel.hasOne(VideoCourseCollectionModel, {
+  foreignKey: 'video_course_id',
   targetKey: 'id'
 })
 
 
-export { ArticleCollectionModel, ListeningCollectionModel };
+export { ArticleCollectionModel, VideoCourseCollectionModel };

@@ -11,6 +11,8 @@ class Article extends Model {
       title: this.title,
       image: this.image?`${config.getItem('siteDomain', 'http://localhost')}/assets/upload/${this.image}`:null,
       originImage: this.image,
+      avatar: this.user.avatar?`${config.getItem('siteDomain', 'http://localhost')}/assets/upload/${this.user.avatar}`:null,
+      originAvatar: this.user.avatar,
       uid: this.uid,
       author: this.user.nickname,
       published_time: this.published_time,

@@ -10,10 +10,6 @@
         <search-result :searchText="searchText" v-if="isResultShow">
         </search-result>
 
-        <!-- 联想建议 -->
-        <!-- <search-suggestion @search="onSearch" :searchText="searchText" v-else-if="searchText">
-        </search-suggestion> -->
-
         <!-- 历史记录 -->
         <search-history
         @update-history="searchHistory = $event"
@@ -28,12 +24,10 @@
     import {Toast} from 'vant';
     import {mapState} from 'vuex'
     import {setItem,getItem} from '@/utils/storage'
-    import searchSuggestion from './components/search-suggestion.vue';
     import SearchHistory from './components/search-history.vue';
     import SearchResult from './components/search-result.vue';
     export default {
         components: {
-            searchSuggestion,
             SearchHistory,
             SearchResult
         },

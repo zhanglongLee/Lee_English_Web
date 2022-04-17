@@ -54,6 +54,17 @@ export const cancelFollowUser = data => {
   })
 }
 
+// 查询关注用户发布的文章或视频列表
+// Path： /web/relation/articleAndVideoList
+// Method： GET
+export const getArticleAndVideoList = (params) => {
+  return http({
+    method: 'GET',
+    url: '/web/relation/articleAndVideoList',
+    params
+  })
+}
+
 // 检测用户是否被关注
 // Path： /web/relation/isFocus
 // Method： POST

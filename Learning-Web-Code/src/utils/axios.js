@@ -71,6 +71,7 @@ service.interceptors.response.use(response => {
     }
   }else if(code === 10013){
     Toast.fail('需要登录后才能完成此操作喔~！')
+    store.dispatch('logOut')
   }else if(code >= 9999){
     Toast.fail(msg)
   }

@@ -1,13 +1,40 @@
 import { NotFound, Forbidden } from 'lin-mizar';
-import { ArticleCollectionModel, ListeningCollectionModel } from '../model/collection'
+import { ArticleCollectionModel, VideoCourseCollectionModel } from '../model/collection'
 import { ArticleModel } from '../model/article'
-import { ListeningModel } from '../model/listening'
+import { VideoCourseModel } from '../model/videoCourse'
 import { ArticleDao } from '../dao/article'
+import { VideoCourseDao } from '../dao/videoCourse'
 import { Op } from 'sequelize'
 
 class Collection {
   
-  // 获取收藏列表,默认传用户id，查全部用户的收藏记录
+  // 获取视频课程收藏列表,默认传用户id，查全部用户的收藏记录
+  static async getVideoCourseCollectionList(id,page,size) {
+    var whereObj
+    if(id){
+      whereObj = {
+        web_user_id:id
+      }
+    }
+    const res = await VideoCourseCollectionModel.findAll({
+      where:whereObj,
+      limit: Number(size),//长度
+      offset: (Number(page) - 1) * Number(size),//当前列表开始值
+      raw: true
+    });
+    let historyList = []
+    let idArr = res.map(item=>item.video_course_id)
+    // 查对应的文章列表
+    let list = await VideoCourseDao.getVideoCourseByIds(idArr)
+    list.forEach((item,index)=>{
+      historyList.push({
+        collect_id: idArr[index],
+        data: item
+      })
+    })
+    return historyList;
+  }
+  // 获取文章收藏列表,默认传用户id，查全部用户的收藏记录
   static async getArticleCollectionList(id,page,size) {
     var whereObj
     if(id){
@@ -34,27 +61,6 @@ class Collection {
     })
     return historyList;
   }
-  // 查看听力练习收藏列表
-  static async getListeningCollectionList(id) {
-    var whereObj
-    if(id){
-      whereObj = {
-        web_user_id:id
-      }
-    }
-    const res = await ListeningCollectionModel.findAll({
-      where:whereObj,
-      attributes: {
-        exclude: ['deleted_at']
-      },
-      include: [
-        {
-          model: ListeningModel
-        }
-      ],
-    });
-    return res;
-  }
 
   // 新增收藏
   static async createCollection(type, id, web_user_id) {
@@ -80,41 +86,37 @@ class Collection {
         // 如果已收藏，不做处理
         return
       }
-      let articleCollection = {
-        web_user_id: web_user_id,
-        article_id: id
-      }
       // 文章收藏新增
       return await ArticleCollectionModel.create({
         web_user_id: web_user_id,
         article_id: id
       });
     } else {
-      const Listening = await ListeningModel.findOne({
+      const VideoCourse = await VideoCourseModel.findOne({
         where: {
           id: id
         }
       });
-      if (!Listening) {
+      if (!VideoCourse) {
         throw new Forbidden({
           code: 10259
         });
       }
-      const Collection = await ListeningCollectionModel.findOne({
+      const Collection = await VideoCourseCollectionModel.findOne({
         where: {
           web_user_id,
-          listening_id: id
+          video_course_id: id
         }
       });
       if (Collection) {
         // 如果已收藏，不做处理
         return
       }
-      let ListeningCollection = {
+      let VideoCourseCollection = {
         web_user_id,
-        listening_id: id
+        video_course_id: id
       }
-      return await ListeningCollectionModel.create(ListeningCollection);
+      return await VideoCourseCollectionModel.create(VideoCourseCollection);
     }
   }
 
@@ -135,8 +137,8 @@ class Collection {
         where: { article_id:id,web_user_id }
       });
     } else {
-      return ListeningCollectionModel.destroy({
-        where: { listening_id:id,web_user_id }
+      return VideoCourseCollectionModel.destroy({
+        where: { video_course_id:id,web_user_id }
       });
     }
 

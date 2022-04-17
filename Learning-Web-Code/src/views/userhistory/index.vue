@@ -1,163 +1,99 @@
 <template>
-  <div class="userhistory">
-    <van-nav-bar title="浏览记录" left-arrow @click-left="$router.back()" />
-    <!-- 下拉刷新容器 -->
-    <van-pull-refresh
-      v-model="isPullRefresh"
-      :success-text="refreshSuccessText"
-      :success-duration="500"
-      @refresh="onRefresh"
+  <div class="usercollect">
+    <van-nav-bar title="历史记录" left-arrow @click-left="$router.back()" />
+    <!-- tab栏标签 -->
+    <van-tabs
+      class="channel-tabs"
+      v-model="active"
+      border
+      color="#3296fa"
+      line-width="15px"
     >
-      <!-- 渲染组件块 -->
-      <van-list
-        v-model="loading"
-        :finished="finished"
-        :offset="10"
-        :immediate-check="false"
-        finished-text="没有更多了"
-        @load="onLoad"
+      <van-tab
+        class="channel-tabs-item"
+        v-for="channel in channels"
+        :title="channel.category_name"
+        :key="channel.id"
       >
-        <div v-for="(item, index) in articles" :key="index">
-          <van-swipe-cell :before-close="beforeClose" :name="index">
-            <article-item :article.sync="item.data" />
-            <template #right>
-              <van-button class="button" square type="danger" text="移除" />
-            </template>
-          </van-swipe-cell>
-        </div>
-      </van-list>
-    </van-pull-refresh>
+      </van-tab>
+    </van-tabs>
+    <!-- 下拉刷新容器 -->
+    <articleHistoryList v-show="active === 0"></articleHistoryList>
+    <videoCourseHistoryList v-show="active === 1"></videoCourseHistoryList>
     <div class="tips">左滑可以调出删除按钮哦~</div>
   </div>
 </template>
 
 <script>
-import ArticleItem from "@/components/article-item";
-import { getUserArticleHistory, deleteUserArticleHistory } from "@/api/article";
-import {
-    Toast
-} from 'vant'
+import articleHistoryList from './components/articleHistoryList'
+import videoCourseHistoryList from './components/videoCourseHistoryList'
 export default {
-  name: "userhistory",
-  components: {
-    ArticleItem,
+  name: "usercollect",
+  components:{
+    articleHistoryList,
+    videoCourseHistoryList,
   },
   data() {
     return {
       articles: [],
+      active: 0,
+      channels: [
+        {
+          id: 1,
+          category_name: "文章",
+        },
+        {
+          id: 2,
+          category_name: "视频课程",
+        },
+      ],
       loading: false,
       finished: false,
       index: 1,
       size: 10,
       refreshSuccessText: "",
       isPullRefresh: false,
-      
     };
   },
   methods: {
-    getList() {
-      this.loading = true;
-      let data = {
-        page: this.index,
-        size: this.size,
-      };
-      getUserArticleHistory(data)
-        .then((res) => {
-          this.loading = false;
-          const rows = res.data;
-          if (rows == null || rows.length === 0) {
-            // 加载结束
-            this.finished = true;
-            return;
-          }
-          // 将新数据与老数据进行合并
-          this.articles = this.articles.concat(rows);
-          console.log(this.articles);
-
-          //如果列表数据条数>=总条数，不再触发滚动加载
-          if (this.articles.length >= res.total) {
-            this.finished = true;
-          }
-        })
-        .catch((err) => {
-          this.loading = false;
-          this.finished = true;
-          console.log(err);
-        });
-    },
-    onLoad() {
-      this.index++;
-      this.getList();
-    },
-    // 下拉刷新
-    async onRefresh() {
-      this.articles = [];
-      this.index = 1;
-      this.getList();
-      this.refreshSuccessText = `更新成功！`;
-      this.isPullRefresh = false;
-    },
-    async beforeClose({ name, position, instance }) {
-      switch (position) {
-        case "left":
-        case "cell":
-        case "outside":
-          instance.close();
-          break;
-        case "right":
-          await deleteUserArticleHistory(this.articles[name].history_id);
-          Toast.success("删除浏览记录成功！")
-          this.articles.splice(name, 1);
-          instance.close();
-          break;
-      }
-    },
-  },
-  created() {
-    this.getList();
   },
 };
 </script>
 
 <style lang="less" scoped>
-@keyframes opt {
-  0% {
-    opacity: 0;
-    transform: scaleX(0) scaleY(0);
+.channel-tabs {
+  .wap-nav-set {
+    flex-shrink: 0;
+    //不参与平分 只参与固定。
+    width: 40px;
   }
 
-  50% {
-    opacity: 1;
-    transform: scaleX(100%) scaleY(100%);
+  .wap-nav-wrap {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 44px;
+    right: 0px;
+    width: 40px;
+    height: 43px;
+    font-size: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
   }
 
-  100% {
-    opacity: 0;
-    transform: scaleX(0) scaleY(0);
+  /deep/ .van-tabs__nav {
+    padding: 0 !important;
+  }
+
+  /deep/ .van-tab {
+    border-right: 1px rgb(231, 231, 231) solid;
+    border-bottom: 1px rgb(223, 221, 221) solid;
+    width: 100px;
+  }
+
+  ::v-deep .van-tabs__line {
+    bottom: 6px !important;
   }
 }
 
-.button {
-  height: 100%;
-}
-
-.tips {
-  width: 150px;
-  height: 30px;
-  font-size: 10px;
-  line-height: 30px;
-  text-align: center;
-  background-color: rgb(248, 45, 96);
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
-  color: rgb(255, 255, 255);
-  position: fixed;
-  bottom: 20%;
-  opacity: 0;
-  animation: opt 4s ease forwards;
-  animation-delay: 1s;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-}
 </style>

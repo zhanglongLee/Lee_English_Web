@@ -26,12 +26,12 @@
         <van-grid-item class="data-info-item">
           <div slot="text">
             <div class="count">{{ 10 }}</div>
-            <div class="text">文章</div>
+            <div class="text">点赞</div>
           </div>
         </van-grid-item>
         <van-grid-item class="data-info-item">
           <div slot="text">
-            <div class="count">{{ 88 }}</div>
+            <div class="count">{{ 2 }}</div>
             <div class="text">关注</div>
           </div>
         </van-grid-item>
@@ -44,7 +44,7 @@
         <van-grid-item class="data-info-item">
           <div slot="text">
             <div class="count">{{ 0 }}</div>
-            <div class="text">粉丝</div>
+            <div class="text">浏览</div>
           </div>
         </van-grid-item>
       </van-grid>
@@ -59,18 +59,16 @@
     </div>
 
     <!-- 收藏和历史 -->
-    <van-grid :column-num="2" class="nav-grid mb-15">
+    <van-grid :column-num="2" class="nav-grid mb-15" icon-size="20px">
       <van-grid-item
         class="iconfont nav-grid-item"
-        icon-prefix="icon"
-        icon="good"
+        icon="like-o"
         text="我的收藏"
         @click="$router.push('/usercollect')"
       />
       <van-grid-item
         class="iconfont nav-grid-item"
-        icon-prefix="icon"
-        icon="browse"
+        icon="browsing-history-o"
         text="浏览记录"
         @click="$router.push('/userhistory')"
       />

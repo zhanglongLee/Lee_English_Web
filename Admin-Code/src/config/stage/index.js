@@ -1,9 +1,8 @@
 import Utils from '@/lin/util/util'
 import adminConfig from './admin'
-import wordConfig from './word' 
-import articleConfig from './article' 
-import categoryConfig from './category' 
-import listeningConfig from './listening' 
+import articleConfig from './article'
+import videoCourseConfig from './videoCourse'
+import categoryConfig from './category'
 
 // eslint-disable-next-line import/no-mutable-exports
 let homeRouter = [
@@ -46,10 +45,9 @@ let homeRouter = [
     inNav: false,
     icon: 'iconfont icon-rizhiguanli',
   },
-  wordConfig,
   articleConfig,
+  videoCourseConfig,
   categoryConfig,
-  listeningConfig,
   adminConfig,
 ]
 

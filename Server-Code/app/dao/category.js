@@ -1,8 +1,7 @@
 import { NotFound, Forbidden } from 'lin-mizar';
 import { CategoryModel } from '../model/category'
 import { ArticleModel } from '../model/article'
-import { ListeningModel } from '../model/listening'
-import { WordModel } from '../model/word'
+import { VideoCourseModel } from '../model/videoCourse'
 import { Op } from 'sequelize'
 
 class Category {
@@ -56,12 +55,7 @@ class Category {
         categoryId: id
       }
     });
-    const listeningList = await ListeningModel.findAll({
-      where: {
-        categoryId: id
-      }
-    });
-    const wordList = await WordModel.findAll({
+    const videoCourseList = await VideoCourseModel.findAll({
       where: {
         categoryId: id
       }
@@ -72,14 +66,9 @@ class Category {
         code: 10254
       });
     }
-    if (listeningList.length > 0) {
+    if (videoCourseList.length > 0) {
       throw new Forbidden({
         code: 10261
-      });
-    }
-    if (wordList.length > 0) {
-      throw new Forbidden({
-        code: 10262
       });
     }
     return CategoryModel.destroy({

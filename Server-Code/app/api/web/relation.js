@@ -18,17 +18,12 @@ const Relation = new LinRouter({
 });
 
 
-// 查询关系列表
-Relation.get('/', web_loginRequired, async ctx => {
+// 查询关注用户发布的文章或视频列表
+Relation.get('/articleAndVideoList', web_loginRequired, async ctx => {
   // 获取用户的id
   let from_user_id = ctx.currentUser.id;
-  const v = await new SearchRelationValidator().validate(ctx);
-  let { page, size, rel_type } = v.get('query');
-  let relationLists = await RelationDao.getRelationLists(page, size, from_user_id, rel_type);
+  let relationLists = await RelationDao.getRelationLists(from_user_id, 1);
   let obj = {
-    page: Number(page),
-    size: Number(size),
-    total: relationLists.length,
     data: relationLists,
     code: 200
   };

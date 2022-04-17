@@ -6,8 +6,8 @@
         <!-- 底部导航栏 -->
         <van-tabbar class="tabbar" v-model="active">
             <van-tabbar-item icon="home-o" name="home" @click="goToPage('home','/')">首页</van-tabbar-item>
-            <van-tabbar-item class="iconfont" name="tianqi" icon-prefix="icon" icon="tianqi" @click="goToPage('tianqi','/weather')">天气</van-tabbar-item>
-            <van-tabbar-item class="iconfont" name="jihua" icon-prefix="icon" icon="jihua" @click="goToPage('jihua','/todolist')">计划</van-tabbar-item>
+            <van-tabbar-item icon="video-o" name="videoCourse" @click="goToPage('videoCourse','/videoCourse')">视频课程</van-tabbar-item>
+            <van-tabbar-item icon="friends-o" name="myFocus" @click="goToPage('myFocus','/myFocus')">我的关注</van-tabbar-item>
             <van-tabbar-item icon="user-o" name="my" @click="goToPage('my','/my')">我的</van-tabbar-item>
         </van-tabbar>
     </div>
@@ -20,6 +20,11 @@
             return {
                 active: 'home',
             }
+        },
+        watch:{
+          '$route'(val){
+            this.setTabBar()
+          }
         },
         methods:{
           goToPage(name,path){

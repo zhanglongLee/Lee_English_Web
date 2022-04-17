@@ -8,15 +8,6 @@
         {{ article.title }}
       </div>
       <div slot="label" class="label">
-        <!-- <div class="cover-wrapper" v-if="article.cover.images.length === 3">
-          <div
-            class="cover-item"
-            v-for="(img, index) in article.cover.images"
-            :key="index"
-          >
-            <van-image :src="img" height="76" fit="cover" />
-          </div>
-        </div> -->
         <div class="label-wrapper">
           <span>{{ article.author }}</span>
           <span class="category">{{ article.categoryName }}</span>

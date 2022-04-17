@@ -8,7 +8,7 @@
       <van-cell class="user-info">
         <van-image
           class="user-avatar"
-          :src="article.aut_photo"
+          :src="article.avatar"
           round
           fit="cover"
           slot="icon"

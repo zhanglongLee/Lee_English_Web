@@ -64,6 +64,35 @@ class Article {
     }
     return res
   }
+  // 通过多个用户id查多篇文章，主要用在查询用户关注列表
+  // ids为逗号分割的id 例如：1,2,3
+  static async getArticleByUserIds(idArr) {
+    const res = await ArticleModel.findAll({
+      where: {
+        uid: {
+          [Op.in]: idArr
+        },
+        is_published: 1
+      },
+      attributes: {
+        exclude: ['deleted_at', 'updated_at']
+      },
+      include: [
+        {
+          model: CategoryModel,
+        },
+        {
+          model: UserModel
+        }
+      ],
+    });
+    if (!res) {
+      throw new Forbidden({
+        code: 10022
+      });
+    }
+    return res
+  }
   // 通过id查文章
   static async getArticleById(id) {
     const res = await ArticleModel.findOne({
