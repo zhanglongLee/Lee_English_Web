@@ -97,7 +97,7 @@ const router = new VueRouter({
       {
         path: '/myFocus',
         meta: {
-          requireAuth: false
+          requireAuth: true
         },
         component: () => import('@/views/myFocus')
       },

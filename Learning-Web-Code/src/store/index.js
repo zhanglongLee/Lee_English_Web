@@ -13,9 +13,9 @@ Vue.use(Vuex)
 const state = {
   cachePages: ['layout'],
   token: getToken('access_token'),
-  userInfo: JSON.parse(localStorage.getItem('userInfo')) || null,
+  userInfo: JSON.parse(sessionStorage.getItem('userInfo')) || null,
   api_url: '',
-  history_answer: JSON.parse(localStorage.getItem('history_answer')) || [],
+  history_answer: JSON.parse(sessionStorage.getItem('history_answer')) || [],
   commentId: "",
   postShowObj: {
     data:{},
@@ -124,22 +124,22 @@ const mutations = {
   // 设置用户当前点击的听力练习历史答案
   setHistoryAnswer(state, data) {
     state.history_answer = data
-    localStorage.setItem('history_answer', data)
+    sessionStorage.setItem('history_answer', data)
   },
   // 删除用户当前点击的听力练习历史答案
   removeHistoryAnswer(state) {
     state.history_answer = []
-    localStorage.removeItem('history_answer')
+    sessionStorage.removeItem('history_answer')
   },
   // 设置用户信息
   setUserInfo(state, data) {
     state.userInfo = data
-    localStorage.setItem('userInfo', JSON.stringify(data))
+    sessionStorage.setItem('userInfo', JSON.stringify(data))
   },
   // 删除用户信息
   removeUserInfo(state) {
     state.userInfo = null
-    localStorage.removeItem('userInfo')
+    sessionStorage.removeItem('userInfo')
   },
   // 设置api_url
   setApiUrl(state, url) {

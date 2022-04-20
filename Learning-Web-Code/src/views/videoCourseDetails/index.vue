@@ -79,7 +79,7 @@
     <van-popup v-model="postShowObj.status" position="bottom">
       <post-comment
         :parentCommentId="postShowObj.data.commentId"
-        :videoCourseId="video_course_id"
+        :video_course_id="video_course_id"
       ></post-comment>
     </van-popup>
     <input
@@ -104,7 +104,7 @@ import { ImagePreview, Toast } from "vant";
 import { cancelFollowUser, followUser, checkAuthorIsFocus } from "@/api/user";
 import "github-markdown-css";
 import { mapState } from "vuex";
-import { getCommentList } from "@/api/comment";
+import { getCommentList } from "@/api/videoCourseComment";
 import commentList from "./components/comment-list.vue";
 import PostComment from "./components/post-comment.vue";
 import myVideo from "@/components/my-video";

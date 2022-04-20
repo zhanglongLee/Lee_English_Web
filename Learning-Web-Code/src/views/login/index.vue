@@ -77,7 +77,7 @@ export default {
     return {
       user: {
         username: "13202350062",
-        password: "123123abc",
+        password: "253323694abc",
       },
       isRegister:false,// 是否是注册状态
       // 验证规则

@@ -4,8 +4,8 @@
  * @param {string} refreshToken
  */
 export function saveTokens(accessToken, refreshToken) {
-  localStorage.setItem('access_token', `Bearer ${accessToken}`)
-  localStorage.setItem('refresh_token', `Bearer ${refreshToken}`)
+  sessionStorage.setItem('access_token', `Bearer ${accessToken}`)
+  sessionStorage.setItem('refresh_token', `Bearer ${refreshToken}`)
 }
 
 /**
@@ -13,7 +13,7 @@ export function saveTokens(accessToken, refreshToken) {
  * @param {string} accessToken
  */
 export function saveAccessToken(accessToken) {
-  localStorage.setItem('access_token', `Bearer ${accessToken}`)
+  sessionStorage.setItem('access_token', `Bearer ${accessToken}`)
 }
 
 /**
@@ -21,13 +21,13 @@ export function saveAccessToken(accessToken) {
  * @param {string} tokenKey
  */
 export function getToken(tokenKey) {
-  return localStorage.getItem(tokenKey)
+  return sessionStorage.getItem(tokenKey)
 }
 
 /**
  * 移除token
  */
 export function removeToken() {
-  localStorage.removeItem('access_token')
-  // localStorage.removeItem('refresh_token')
+  sessionStorage.removeItem('access_token')
+  // sessionStorage.removeItem('refresh_token')
 }

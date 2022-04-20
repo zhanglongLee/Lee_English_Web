@@ -1,8 +1,11 @@
 <template>
   <div class="articleCollectList">
-    <div v-for="(item, index) in articles" :key="index">
-      <focus-item :article.sync="item" />
+    <div v-if="articles.length">
+      <div v-for="(item, index) in articles" :key="index">
+        <focus-item :article.sync="item" />
+      </div>
     </div>
+    <div v-else class="no-data">暂无数据</div>
   </div>
 </template>
 
@@ -53,5 +56,14 @@ export default {
 <style lang="less" scoped>
 .button {
   height: 100%;
+}
+.no-data{
+  width: 100%;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #969799;
+  font-size: 14px;
 }
 </style>

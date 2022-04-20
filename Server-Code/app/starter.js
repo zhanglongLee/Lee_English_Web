@@ -28,8 +28,6 @@ function applyConfig () {
     config.getConfigFromFile(`app/config/${file}`);
   }
 
-  // 加载其它配置文件
-  config.getConfigFromFile('app/extension/file/config.js');
 }
 
 const run = async () => {

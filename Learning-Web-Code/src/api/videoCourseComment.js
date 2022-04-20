@@ -1,36 +1,35 @@
-import request from '@/utils/request'
 import http from '@/utils/axios'
 // 获取评论
-// Path： /web/comment/:articleId
+// Path： /web/videoCourseComment/:articleId
 // Method： GET
 export const getCommentList = (articleId) => {
   return http({
     method: 'GET',
-    url: `/web/comment/${articleId}`
+    url: `/web/videoCourseComment/${articleId}`
   })
 }
 
 // 对评论点赞
-// Path： /web/comment/likeComment
+// Path： /web/videoCourseComment/likeComment
 // Method： POST
 // id 评论id
 export const likeComment = commentId => {
   return http({
     method: 'POST',
-    url: '/web/comment/likeComment',
+    url: '/web/videoCourseComment/likeComment',
     data: {
       id: commentId
     }
   })
 }
 // 取消对评论点赞
-// Path： /web/comment/unlikeComment
+// Path： /web/videoCourseComment/unlikeComment
 // Method： POST
 // id 评论id
 export const delikeComment = commentId => {
   return http({
     method: 'POST',
-    url: '/web/comment/unlikeComment',
+    url: '/web/videoCourseComment/unlikeComment',
     data: {
       id: commentId
     }
@@ -38,12 +37,12 @@ export const delikeComment = commentId => {
 }
 
 // 添加评论或回复评论
-// Path： /web/comment
+// Path： /web/videoCourseComment
 // Method： POST
 export const addComment = data => {
   return http({
     method: 'POST',
-    url: '/web/comment',
+    url: '/web/videoCourseComment',
     data
   })
 }

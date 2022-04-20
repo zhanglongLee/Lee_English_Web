@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { delikeComment, likeComment } from '@/api/comment'
+import { delikeComment, likeComment } from '@/api/videoCourseComment'
 import { mapState } from "vuex";
 export default {
   name: "commentChild",

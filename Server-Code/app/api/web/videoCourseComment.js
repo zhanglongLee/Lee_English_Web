@@ -1,16 +1,12 @@
 import { LinRouter, config } from 'lin-mizar';
 import { web_loginRequired } from '../../middleware/web_jwt'
-import { AddCommentValidator,LikeCommentValidator } from '../../validator/comment'
+import { AddCommentValidator,LikeCommentValidator } from '../../validator/videoCourseComment'
 import { PaginateValidator,PositiveIdValidator } from '../../validator/common'
-import { CommentDao } from '../../dao/comment';
+import { CommentDao } from '../../dao/videoCourseComment';
 
 const CommentApi = new LinRouter({
-  prefix: '/v1/comment'
+  prefix: '/web/videoCourseComment'
 });
-
-
-// 1. 权限控制（post => linPost）
-// 2. 行为日志（审计）添加logger 例如：logger("{user.username}新增期刊内容")
 
 /**
  * 新增评论

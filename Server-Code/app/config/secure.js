@@ -2,7 +2,7 @@
 
 module.exports = {
   db: {
-    database: 'english_study_web',// 这个是数据库名字
+    database: 'learning_web',// 这个是数据库名字
     host: 'localhost',
     dialect: 'mysql',
     port: 3306,// 如果端口有变，也要修改

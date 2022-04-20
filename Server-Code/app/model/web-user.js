@@ -149,7 +149,7 @@ User.init(
       // 用户默认生成图像，为null
       type: Sequelize.STRING({ length: 500 }),
       comment: '头像url',
-      defaultValue:'avatar.png'
+      defaultValue:'avatar.jpg'
     },
     email: {
       type: Sequelize.STRING({ length: 100 }),

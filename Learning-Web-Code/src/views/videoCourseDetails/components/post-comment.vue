@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { addComment } from "@/api/comment";
+import { addComment } from "@/api/videoCourseComment";
 export default {
   name: "postComment",
   data() {
@@ -33,7 +33,7 @@ export default {
     };
   },
   props: {
-    articleId: {
+    video_course_id: {
       type: [Number, String],
       default: null,
     },
@@ -57,7 +57,7 @@ export default {
             ? this.$store.state.userInfo.id
             : null,
           content: this.message,
-          article_id: !!this.articleId ? this.articleId : null,
+          video_course_id: !!this.video_course_id ? this.video_course_id : null,
           parent_comment_id: !!this.parentCommentId
             ? this.parentCommentId
             : null,

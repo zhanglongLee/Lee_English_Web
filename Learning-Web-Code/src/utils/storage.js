@@ -1,6 +1,6 @@
 // 用于进行本地存储的相关方法的封装。
 export const getItem=(name)=>{
-    const item=window.localStorage.getItem(name);
+    const item=window.sessionStorage.getItem(name);
     try {
         // 尝试转换为对象返回
         return JSON.parse(item);
@@ -12,12 +12,12 @@ export const getItem=(name)=>{
 
 export const setItem=(name,value)=>{
     if((typeof value)==="object"){
-        window.localStorage.setItem(name,JSON.stringify(value));
+        window.sessionStorage.setItem(name,JSON.stringify(value));
     }else{
-        window.localStorage.setItem(name,value)
+        window.sessionStorage.setItem(name,value)
     }
 }
 
 export const removeItem=(name)=>{
-    window.localStorage.removeItem(name)
+    window.sessionStorage.removeItem(name)
 }

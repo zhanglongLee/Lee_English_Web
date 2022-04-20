@@ -143,12 +143,14 @@ User.init(
     },
     nickname: {
       type: Sequelize.STRING({ length: 24 }),
-      comment: '用户昵称'
+      comment: '用户昵称',
+      defaultValue: new Date().getTime()
     },
     avatar: {
       // 用户默认生成图像，为null
       type: Sequelize.STRING({ length: 500 }),
-      comment: '头像url'
+      comment: '头像url',
+      defaultValue:'avatar.jpg'
       // get() {
       //   return config.getItem('siteDomain').replace(/\/+$/, '') + '/assets/' + this.getDataValue('avatar')
       // }

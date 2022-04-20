@@ -51,7 +51,7 @@
 <script>
 import commentChild from "./comment-child.vue";
 import { mapState } from "vuex";
-import { delikeComment, likeComment } from '@/api/comment'
+import { delikeComment, likeComment } from '@/api/videoCourseComment'
 export default {
   components: {
     commentChild,
