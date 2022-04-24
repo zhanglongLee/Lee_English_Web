@@ -10,7 +10,7 @@ class Comment extends Model {
     const origin = {
       id: this.id,
       web_user_id: this.web_user_id,
-      image: this.web_user.avatar?`${config.getItem('siteDomain', 'http://localhost')}/assets/upload/${this.web_user.avatar}`:null,
+      image: this.web_user.avatar?`${config.getItem('siteDomain', 'http://localhost')}/upload/${this.web_user.avatar}`:null,
       originImage: this.image,
       created_at: this.created_at,
       content: this.content,

@@ -132,13 +132,21 @@ class Collection {
   // 删除收藏
   static async deleteCollection(type, id,web_user_id) {
     if (type === 1) {
+      let whereObj = {article_id:id}
+      if(web_user_id){
+        whereObj.web_user_id = web_user_id
+      }
       // 文章收藏
       return ArticleCollectionModel.destroy({
-        where: { article_id:id,web_user_id }
+        where: whereObj
       });
     } else {
+      let whereObj = {video_course_id:id}
+      if(web_user_id){
+        whereObj.web_user_id = web_user_id
+      }
       return VideoCourseCollectionModel.destroy({
-        where: { video_course_id:id,web_user_id }
+        where: whereObj
       });
     }
 

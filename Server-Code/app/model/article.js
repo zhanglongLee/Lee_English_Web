@@ -9,9 +9,9 @@ class Article extends Model {
     const origin = {
       id: this.id,
       title: this.title,
-      image: this.image?`${config.getItem('siteDomain', 'http://localhost')}/assets/upload/${this.image}`:null,
+      image: this.image?`${config.getItem('siteDomain', 'http://localhost')}/upload/${this.image}`:null,
       originImage: this.image,
-      avatar: this.user.avatar?`${config.getItem('siteDomain', 'http://localhost')}/assets/upload/${this.user.avatar}`:null,
+      avatar: this.user.avatar?`${config.getItem('siteDomain', 'http://localhost')}/upload/${this.user.avatar}`:null,
       originAvatar: this.user.avatar,
       uid: this.uid,
       author: this.user.nickname,

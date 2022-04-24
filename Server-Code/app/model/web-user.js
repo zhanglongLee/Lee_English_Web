@@ -119,7 +119,7 @@ class User extends Model {
       username: this.username,
       nickname: this.nickname,
       email: this.email,
-      avatar: this.avatar ? `${config.getItem('siteDomain', 'http://localhost')}/assets/upload/${this.avatar}` : null,
+      avatar: this.avatar ? `${config.getItem('siteDomain', 'http://localhost')}/upload/${this.avatar}` : null,
       originAvatar: this.avatar ? this.avatar : 'avatar.png',
       sex:this.sex,
       birthday:this.birthday

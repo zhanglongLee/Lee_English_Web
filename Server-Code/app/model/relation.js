@@ -7,7 +7,7 @@ class Relation extends Model {
   //   const origin = {
   //     id: this.id,
   //     title: this.title,
-  //     image: this.image?`${config.getItem('siteDomain', 'http://localhost')}/assets/upload/${this.image}`:null,
+  //     image: this.image?`${config.getItem('siteDomain', 'http://localhost')}/upload/${this.image}`:null,
   //     originImage: this.image,
   //     author: this.author,
   //     published_time: this.published_time,
