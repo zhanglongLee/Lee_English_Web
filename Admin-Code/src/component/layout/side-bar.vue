@@ -1,14 +1,13 @@
 <template>
   <div class="app-sidebar">
-    <div style="margin-bottom:50px">
+    <div style="margin-bottom: 50px">
       <el-menu
         class="el-menu-vertical-demo"
         ref="meun"
         :default-active="defaultActive"
         :collapse="elMenuCollapse"
-        background-color="#192A5E"
-        text-color="rgba(196,201,210,1)"
-        active-text-color="#1890ff"
+        background-color="#3296FA"
+        text-color="#000"
       >
         <template v-for="item in sideBarList">
           <el-submenu
@@ -43,14 +42,14 @@
                   :to="grandchildItem.path"
                   class="circle third"
                 >
-                  <el-menu-item :index="idMap[grandchildItem.name]" style="padding-left: 80px;" class="subMenuContent">
+                  <el-menu-item :index="idMap[grandchildItem.name]" style="padding-left: 80px" class="subMenuContent">
                     {{ grandchildItem.title }}
                   </el-menu-item>
                 </router-link>
               </el-submenu>
               <!-- 二级else -->
               <router-link :to="subItem.path" :key="subItem.name" class="circle" v-else>
-                <el-menu-item :index="idMap[subItem.name]" style="padding-left: 60px;" class="subMenuContent">
+                <el-menu-item :index="idMap[subItem.name]" style="padding-left: 60px" class="subMenuContent">
                   {{ subItem.title }}
                 </el-menu-item>
               </router-link>
@@ -94,9 +93,7 @@ export default {
       default: false,
     },
   },
-  mounted() {
-
-  },
+  mounted() {},
   methods: {
     filterIcon(icon) {
       return icon.indexOf('/') !== -1
@@ -160,11 +157,14 @@ export default {
 }
 
 .app-sidebar {
-  background: #192a5e;
+  background: #3296FA;
 
   &::-webkit-scrollbar {
     width: 0px;
     height: 0px;
+  }
+  & /deep/ .el-menu-item.is-active,.el-menu-item.is-active>i{
+    color: #fff !important;;
   }
 
   .subMenuContent {
@@ -172,7 +172,12 @@ export default {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
+  .el-menu-item,.el-submenu__title>span{
+    font-size: 16px;
+  }
+  .el-menu-item > i,.el-submenu__title>i{
+    font-size: 16px;
+  }
   .logo {
     width: $sidebar-width;
     height: $header-height;

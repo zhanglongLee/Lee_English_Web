@@ -176,7 +176,7 @@ export default {
 
 <style lang="scss" scoped>
 .aside {
-  background: rgb(25, 42, 94);
+  background: $menuItem-bg;
   overflow-x: hidden;
 
   &::-webkit-scrollbar {
