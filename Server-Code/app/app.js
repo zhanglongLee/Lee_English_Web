@@ -1,7 +1,6 @@
 import Koa from 'koa';
 import koaBody from 'koa-body';
 import cors from '@koa/cors';
-import mount from 'koa-mount';
 import serve from 'koa-static';
 import { config, json, logging, success, jwt, Loader } from 'lin-mizar';
 import { PermissionModel } from './model/permission';
@@ -33,8 +32,7 @@ function applyKoaBody(app) {
  * @param prefix 静态资源存放相对路径
  */
 function applyStatic(app, prefix = '/assets') {
-  const assetsDir = config.getItem('file.storeDir', 'app/static');
-  app.use(mount(prefix, serve(assetsDir)));
+  app.use(serve('app/static'))
 }
 
 /**
