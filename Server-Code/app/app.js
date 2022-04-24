@@ -2,6 +2,7 @@ import Koa from 'koa';
 import koaBody from 'koa-body';
 import cors from '@koa/cors';
 import serve from 'koa-static';
+import path from "path"
 import { config, json, logging, success, jwt, Loader } from 'lin-mizar';
 import { PermissionModel } from './model/permission';
 
@@ -23,6 +24,12 @@ function applyKoaBody(app) {
   // 参数解析
   app.use(koaBody({
     multipart: true, // 支持文件上传
+    formidable: {
+      // 上传目录
+      uploadDir: path.resolve(__dirname,'./static/upload'),
+      // 保留扩展名
+      keepExtensions: true
+    }
   }));
 }
 

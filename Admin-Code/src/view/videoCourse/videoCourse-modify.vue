@@ -295,11 +295,12 @@ export default {
           try {
             this.loading = true
             this.form.image = this.form.originImage
-            this.form.video_url = this.form.originVideoUrl
+            this.form.video_url = this.form.origin_video_url
             this.form.is_top = Number(this.form.is_top)
             delete this.form.show_is_comment_enabled
             delete this.form.show_is_published
             delete this.form.show_is_top
+            delete this.form.origin_video_url
             const res = await videoCourse.editVideoCourse(this.form.id, this.form)
             this.loading = false
             if (res.code < window.MAX_SUCCESS_CODE) {

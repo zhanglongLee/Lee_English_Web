@@ -285,6 +285,8 @@ export default {
             this.postObj.image = this.postObj.originImage
             this.postObj.video_url = this.postObj.origin_video_url
             this.postObj.uid = this.user.id
+            delete this.postObj.originImage
+            delete this.postObj.origin_video_url
             const res = await videoCourse.createVideoCourse(this.postObj)
             this.loading = false
             if (res.code < window.MAX_SUCCESS_CODE) {

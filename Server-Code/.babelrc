@@ -1,6 +1,6 @@
 {
   "presets": [
-    ["env", {"targets": {"node": "current"}}]
+    ["env", {"targets": {"node": "current"}},"es2015"]
   ],
   "plugins": [
     ["@babel/plugin-proposal-decorators", { "legacy": true }]
