@@ -48,8 +48,6 @@ export default {
         { prop: 'published_time', label: '发布日期' },
         { prop: 'categoryName', label: '分类名' },
         { prop: 'views', label: '阅读量' },
-        { prop: 'read_time', label: '阅读时长' },
-        { prop: 'words', label: '视频课程字数' },
         { prop: 'show_is_published', label: '是否发布' },
         { prop: 'show_is_comment_enabled', label: '允许评论' },
         { prop: 'show_is_top', label: '是否置顶' },
