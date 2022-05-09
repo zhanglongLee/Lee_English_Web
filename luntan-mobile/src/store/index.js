@@ -11,6 +11,7 @@ Vue.use(Vuex)
 
 // 准备state
 const state = {
+  sensitiveWord: "fuck,tmd,他妈的,大爷的" ,// 敏感词，以逗号分割。例如：我草,你大爷的
   cachePages: ['layout'],
   token: getToken('access_token'),
   userInfo: JSON.parse(sessionStorage.getItem('userInfo')) || null,

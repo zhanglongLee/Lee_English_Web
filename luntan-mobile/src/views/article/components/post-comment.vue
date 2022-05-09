@@ -25,6 +25,7 @@
 
 <script>
 import { addComment } from "@/api/comment";
+import { sensitiveWordFilter } from '@/utils/common'
 export default {
   name: "postComment",
   data() {
@@ -43,6 +44,19 @@ export default {
     },
   },
   methods: {
+    _filter_method(obj) {
+      //获取文本输入框中的内容
+      var value = $(obj).val(); //遍历敏感词数组
+      for (var i = 0; i < keywords.length; i++) {
+        //全局替换
+        var reg = newRegExp(keywords[i], "g"); //判断内容中是否包括敏感词
+        if (value.indexOf(keywords[i]) != -1) {
+          varresult = value.replace(reg, "**");
+          value = result;
+          $(obj).val(result);
+        }
+      }
+    },
     async onComment() {
       if (!this.$store.state.userInfo) {
         this.$toast({
@@ -56,7 +70,7 @@ export default {
           web_user_id: !!this.$store.state.userInfo.id
             ? this.$store.state.userInfo.id
             : null,
-          content: this.message,
+          content: sensitiveWordFilter(this.message),
           article_id: !!this.articleId ? this.articleId : null,
           parent_comment_id: !!this.parentCommentId
             ? this.parentCommentId

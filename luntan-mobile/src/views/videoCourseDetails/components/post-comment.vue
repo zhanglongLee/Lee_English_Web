@@ -25,6 +25,7 @@
 
 <script>
 import { addComment } from "@/api/videoCourseComment";
+import { sensitiveWordFilter } from '@/utils/common'
 export default {
   name: "postComment",
   data() {
@@ -56,7 +57,7 @@ export default {
           web_user_id: !!this.$store.state.userInfo.id
             ? this.$store.state.userInfo.id
             : null,
-          content: this.message,
+          content: sensitiveWordFilter(this.message),
           video_course_id: !!this.video_course_id ? this.video_course_id : null,
           parent_comment_id: !!this.parentCommentId
             ? this.parentCommentId
