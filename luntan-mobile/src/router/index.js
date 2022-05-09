@@ -58,15 +58,6 @@ const router = new VueRouter({
       props: true
     },
     {
-      path: '/userchat',
-      name: 'userchat',
-      meta: {
-        requireAuth: false
-      },
-      component: () => import('@/views/userchat'),
-      props: true
-    },
-    {
       path: '/usercollect',
       name: 'usercollect',
       meta: {

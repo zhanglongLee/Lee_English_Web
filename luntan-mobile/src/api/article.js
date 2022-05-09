@@ -1,4 +1,3 @@
-import request from '@/utils/request'
 import http from '@/utils/axios'
 
 /**

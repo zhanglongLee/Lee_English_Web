@@ -1,7 +1,5 @@
-import request from '@/utils/request'
 import http from '@/utils/axios'
 
-import store from '@/store/'
 /**
  * 登录
  * path： /web/user/login
